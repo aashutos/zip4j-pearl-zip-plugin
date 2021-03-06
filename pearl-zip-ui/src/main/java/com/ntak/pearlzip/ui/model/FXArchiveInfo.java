@@ -1,0 +1,115 @@
+/*
+ *  Copyright (c) 2021 92AK
+ */
+package com.ntak.pearlzip.ui.model;
+
+import com.ntak.pearlzip.archive.pub.ArchiveReadService;
+import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
+import com.ntak.pearlzip.archive.pub.FileInfo;
+import com.ntak.pearlzip.ui.pub.FrmMainController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_INFO_ASSERT_PATH;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_INFO_ASSERT_READ_SERVICE;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
+
+/**
+ *  Representation of the state of the Archive on an instance of the Pearl Zip UI as a specific point in time.
+ *  @author Aashutos Kakshepati
+*/
+public class FXArchiveInfo {
+    private final String parentPath;
+    private final String archivePath;
+    private final ArchiveReadService readService;
+    private final ArchiveWriteService writeService;
+    private final AtomicInteger depth = new AtomicInteger(0);
+    private final FXMigrationInfo migrationInfo = new FXMigrationInfo();
+    private FrmMainController controller;
+
+    private String prefix = "";
+    private ObservableList<FileInfo> files;
+
+    public FXArchiveInfo(String archivePath, ArchiveReadService readService, ArchiveWriteService writeService) {
+        this(null, archivePath, readService, writeService);
+    }
+    public FXArchiveInfo(String parentPath, String archivePath, ArchiveReadService readService,
+            ArchiveWriteService writeService) {
+        // LOG: Archive path should be valid
+        assert Files.exists(Paths.get(archivePath)) : resolveTextKey(LOG_ARCHIVE_INFO_ASSERT_PATH);
+        // LOG: Read service should not be null
+        assert Objects.nonNull(readService) : resolveTextKey(LOG_ARCHIVE_INFO_ASSERT_READ_SERVICE);
+
+        this.parentPath = parentPath;
+        this.archivePath = archivePath;
+        this.readService = readService;
+        this.writeService = writeService;
+
+        setFiles(FXCollections.observableArrayList(
+                readService.listFiles(System.currentTimeMillis(), archivePath)
+                               .stream()
+                               .collect(Collectors.toList())));
+    }
+
+    public AtomicInteger getDepth() {
+        return depth;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public ObservableList<FileInfo> getFiles() {
+        return files;
+    }
+
+    public void setFiles(ObservableList<FileInfo> files) {
+        this.files = files;
+    }
+
+    public String getArchivePath() {
+        return archivePath;
+    }
+
+    public ArchiveReadService getReadService() {
+        return readService;
+    }
+
+    public ArchiveWriteService getWriteService() {
+        return writeService;
+    }
+
+    public String getParentPath() {
+        return parentPath;
+    }
+
+    public FXMigrationInfo getMigrationInfo() {
+        return migrationInfo;
+    }
+
+    public void refresh() {
+        files.clear();
+        files.addAll(readService.listFiles(System.currentTimeMillis(), archivePath));
+        setPrefix("");
+        depth.set(0);
+    }
+
+    public void setMainController(FrmMainController controller) {
+        this.controller = controller;
+    }
+
+    public Optional<FrmMainController> getController() {
+        return Optional.ofNullable(controller);
+    }
+}

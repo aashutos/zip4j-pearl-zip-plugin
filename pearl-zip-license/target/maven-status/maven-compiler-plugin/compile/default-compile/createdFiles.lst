@@ -1,0 +1,5 @@
+com/ntak/pearlzip/license/constants/LicenseConstants.class
+com/ntak/pearlzip/license/model/LicenseInfo.class
+com/ntak/pearlzip/license/pub/PearlZipLicenseService.class
+com/ntak/pearlzip/license/pub/LicenseService.class
+module-info.class

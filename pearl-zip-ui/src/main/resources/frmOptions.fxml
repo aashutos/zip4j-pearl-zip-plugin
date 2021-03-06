@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<!--
+  ~ Copyright (c) ${YEAR} 92AK
+  -->
+
+<AnchorPane prefHeight="415.0" prefWidth="428.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ntak.pearlzip.ui.pub.FrmOptionsController">
+   <children>
+      <TabPane prefHeight="364.0" prefWidth="428.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="tabGeneral" text="%options.general.text">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="428.0">
+                     <children>
+                        <Button fx:id="btnClearCache" layoutX="23.0" layoutY="74.0" mnemonicParsing="false" text="%options.general.btnClearCache.text" />
+                        <Label alignment="TOP_LEFT" layoutX="23.0" layoutY="14.0" prefHeight="52.0" prefWidth="391.0" text="%options.general.description.text" wrapText="true" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="%options.bootstrap-properties.text">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="tblBootstrap" editable="false" layoutX="10.0" layoutY="15.0" prefHeight="300.0" prefWidth="410.0">
+                          <columns>
+                            <TableColumn fx:id="key" prefWidth="211.0" text="%options.bootstrap-properties.key.text" />
+                            <TableColumn fx:id="value" minWidth="0.0" prefWidth="194.0" text="%options.bootstrap-properties.value.text" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab text="%options.providers.text">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="tblProviders" editable="false" layoutX="10.0" layoutY="15.0" prefHeight="300.0" prefWidth="410.0">
+                          <columns>
+                            <TableColumn fx:id="name" prefWidth="109.0" text="%options.providers.name.text" />
+                            <TableColumn fx:id="readCapability" prefWidth="68.0" text="%options.providers.name.readCapability.text" />
+                              <TableColumn fx:id="writeCapability" prefWidth="68.0" text="%options.providers.name.writeCapability.text" />
+                              <TableColumn fx:id="supportedFormat" prefWidth="163.0" text="%options.providers.name.supportedFormat.text" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <ButtonBar layoutY="364.0" prefHeight="51.0" prefWidth="428.0">
+        <buttons>
+            <Button fx:id="btnOk" mnemonicParsing="false" text="%options.btnOk.text" />
+            <Button fx:id="btnApply" disable="true" mnemonicParsing="false" text="%options.btnApply.text" />
+          <Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false" text="%options.btnCancel.text" translateX="-5.0" />
+        </buttons>
+      </ButtonBar>
+   </children>
+</AnchorPane>

@@ -1,0 +1,108 @@
+/*
+ *  Copyright (c) 2021 92AK
+ */
+package com.ntak.pearlzip.ui.event.handler;
+
+import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
+import com.ntak.pearlzip.archive.pub.FileInfo;
+import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.util.JFXUtil;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TableView;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+
+import java.io.File;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Objects;
+
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
+
+/**
+ *  Event Handler for Add File functionality.
+ *  @author Aashutos Kakshepati
+*/
+public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
+    private final TableView<FileInfo> fileContentsView;
+    private final FXArchiveInfo fxArchiveInfo;
+    private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnAddFileEventHandler.class);
+
+    public BtnAddFileEventHandler(TableView<FileInfo> fileContentsView, FXArchiveInfo fxArchiveInfo) {
+        this.fileContentsView = fileContentsView;
+        this.fxArchiveInfo = fxArchiveInfo;
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+        if (!ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).isPresent()) {
+            // LOG: Warning: Add functionality not supported for archive %s
+            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
+            // TITLE: Warning: Add functionality not supported
+            // HEADER: No Write provider for archive format
+            // BODY: Cannot add file to archive as functionality is not supported for file: %s
+            raiseAlert(Alert.AlertType.WARNING,
+                       resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
+                       resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
+                       resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
+                                      Paths.get(fxArchiveInfo.getArchivePath())
+                                          .getFileName()
+                                          .toString()),
+                       fileContentsView.getScene().getWindow()
+            );
+            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
+            return;
+        }
+
+        FileChooser addFileView = new FileChooser();
+        // Title: Add file to archive %s...
+        addFileView.setTitle(resolveTextKey(TITLE_ADD_TO_ARCHIVE_PATTERN, fxArchiveInfo.getArchivePath()));
+        File rawFile = addFileView.showOpenDialog(new Stage());
+
+        if (Objects.isNull(rawFile)) {
+            return;
+        }
+
+        String fileName;
+        if (fxArchiveInfo.getDepth().get() > 0) {
+            fileName = String.format("%s/%s", fxArchiveInfo.getPrefix(),
+                                            rawFile.toPath()
+                                                   .getFileName()
+                                                   .toString());
+        } else {
+            fileName = rawFile.toPath().getFileName().toString();
+        }
+        long sessionId = System.currentTimeMillis();
+        JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
+                                         ()-> {
+                                                  FileInfo fileToAdd = new FileInfo(fxArchiveInfo.getFiles().size(), fxArchiveInfo.getDepth().get(),
+                                                                                    fileName, -1, 0,
+                                                                                    rawFile.getTotalSpace(),
+                                                                                    LocalDateTime.ofInstant(Instant.ofEpochMilli(rawFile.lastModified()),
+                                                                                                            ZoneId.systemDefault()),
+                                                                                    null, null,
+                                                                                    null, null, 0,
+                                                                                    "", !rawFile.isFile(), false,
+                                                                                    Collections.singletonMap(KEY_FILE_PATH, rawFile.getAbsoluteFile().getPath()));
+                                                  ArchiveWriteService service = ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).get();
+                                                  service.addFile(sessionId, fxArchiveInfo.getArchivePath(), fileToAdd);
+                                              },
+                                         (s)-> {
+                                                  int depth = fxArchiveInfo.getDepth().get();
+                                                  String prefix = fxArchiveInfo.getPrefix();
+                                                  JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix);
+                                              }
+        );
+    }
+}
