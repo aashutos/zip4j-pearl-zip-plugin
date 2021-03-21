@@ -67,6 +67,7 @@ public class JFXUtil {
             vbox.getChildren().addAll(lblStackTrace,taTrace);
             alert.getDialogPane().setExpandableContent(vbox);
         }
+        ((Stage)alert.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
         return alert.showAndWait();
     }
 

@@ -9,6 +9,7 @@ module com.ntak.pearlzip.archive.acc  {
     requires org.apache.commons.compress;
     requires com.ntak.pearlzip.archive;
     requires org.tukaani.xz;
+    requires eventbus;
 
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;

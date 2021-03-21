@@ -20,6 +20,7 @@ public class LicenseConstants {
     public static final String TAG_VERSION = "version";
     public static final String TAG_LICENSE = "license";
     public static final String TAG_NAME = "name";
+    public static final String TAG_URL = "url";
     public static final String TAG_FILE = "file";
 
     public static final String LOG_ISSUE_PARSE_LICENSE_FILE = "logging.com.ntak.pearl-zip.license.issue-parse-license-file";

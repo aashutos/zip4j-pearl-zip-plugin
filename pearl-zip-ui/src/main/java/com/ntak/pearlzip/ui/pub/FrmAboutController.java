@@ -59,7 +59,7 @@ public class FrmAboutController {
                                                               LocalDate.now().format(
                                                                       DTF_YYYY)))
         );
-        lblWeblink.setText(System.getProperty(CNS_NTAK_PEARL_ZIP_WEBLINK, "http://www.92ak.co.uk"));
+        lblWeblink.setText(System.getProperty(CNS_NTAK_PEARL_ZIP_WEBLINK, "https://pearlzip.92ak.co.uk"));
     }
 
     public void initData(Stage stage) {

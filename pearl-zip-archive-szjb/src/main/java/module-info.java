@@ -13,6 +13,7 @@ module com.ntak.pearlzip.archive.szjb {
 
     requires com.ntak.pearlzip.archive;
     requires sevenzipjbinding;
+    requires eventbus;
 
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;

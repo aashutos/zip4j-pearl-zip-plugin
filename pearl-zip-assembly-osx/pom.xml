@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pearl-zip</artifactId>
+        <groupId>com.ntak</groupId>
+        <version>0.0.0.1</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <artifactId>pearl-zip-assembly-osx</artifactId>
+    <url>https://blog.92ak.co.uk</url>
+
+    <!--
+         NOTE: Maven Exec plugin is not compatible with latest Java on Macintosh.
+               Bash script will be executed manually as build step in Jenkins for now
+               Assembly jar will be inflated and executed.
+    -->
+
+</project>
