@@ -9,7 +9,7 @@ import java.util.Objects;
  *  Java record holding license information of dependencies for presentation into the UI.
  *  @author Aashutos Kakshepati
  */
-public record LicenseInfo(String canonicalName, String version, String licenseType, String licenseFile) {
+public record LicenseInfo(String canonicalName, String version, String licenseType, String licenseFile, String url) {
     public LicenseInfo {
         assert Objects.nonNull(canonicalName) : "Canonical name must be specified";
         if (Objects.isNull(licenseType)) {
@@ -24,6 +24,7 @@ public record LicenseInfo(String canonicalName, String version, String licenseTy
                 ", version='" + version + '\'' +
                 ", licenseType='" + licenseType + '\'' +
                 ", licenseFile='" + licenseFile + '\'' +
+                ", url='" + url + '\'' +
                 '}';
     }
 }

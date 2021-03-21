@@ -13,8 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.*;
 
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
@@ -32,31 +31,27 @@ public class PearlZipLicenseService implements LicenseService {
     @Override
     public Map<String,LicenseInfo> retrieveDeclaredLicenses() {
         Map<String,LicenseInfo> licMap = new HashMap<>();
-        Path licenseFile = Paths.get(
+        InputStream licenseFile =
                 PearlZipLicenseService.class
                         .getClassLoader()
-                        .getResource(System.getProperty(LicenseConstants.CNS_LICENSE_LOCATION,"LICENSE.xml"))
-                        .getFile()
-        );
-        Path licenseOverrideFile = Paths.get(
+                        .getResourceAsStream(System.getProperty(LicenseConstants.CNS_LICENSE_LOCATION,"LICENSE.xml"));
+        InputStream licenseOverrideFile =
                 PearlZipLicenseService.class
                         .getClassLoader()
-                        .getResource(System.getProperty(CNS_LICENSE_OVERRIDE_LOCATION, "LICENSE-OVERRIDE.xml"))
-                        .getFile()
-        );
+                        .getResourceAsStream(System.getProperty(CNS_LICENSE_OVERRIDE_LOCATION, "LICENSE-OVERRIDE.xml"));
 
         try {
 
             // Parse Maven generated license file
             DocumentBuilder documentBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-            Document document = documentBuilder.parse(licenseFile.toFile());
+            Document document = documentBuilder.parse(licenseFile);
             document.getDocumentElement().normalize();
 
             List<LicenseInfo> licenseInfoList = extractLicenseInfo(document);
             licenseInfoList.forEach(l->licMap.put(String.format("%s:%s", l.canonicalName(), l.licenseType()),l));
 
             // Parse Manual override license file
-            Document overrideDocument = documentBuilder.parse(licenseOverrideFile.toFile());
+            Document overrideDocument = documentBuilder.parse(licenseOverrideFile);
             List<LicenseInfo> licenseOverrideInfoList = extractLicenseInfo(overrideDocument);
             licenseOverrideInfoList.forEach(l->licMap.put(l.canonicalName(),l));
         } catch(Exception e) {
@@ -92,6 +87,7 @@ public class PearlZipLicenseService implements LicenseService {
 
                     String licenseName = null;
                     String licensePath = null;
+                    String url = null;
                     if (Objects.nonNull(licenses)) {
                         for (int j = 0; j < licenses.getLength(); j++) {
                             Node license = licenses.item(j);
@@ -100,6 +96,11 @@ public class PearlZipLicenseService implements LicenseService {
                                 licenseName = lElement.getElementsByTagName(TAG_NAME)
                                                       .item(0)
                                                       .getTextContent();
+                                final Node urlNode = lElement.getElementsByTagName(TAG_URL)
+                                                      .item(0);
+                                if (Objects.nonNull(urlNode)) {
+                                    url = urlNode.getTextContent();
+                                }
                                 final Node file = lElement.getElementsByTagName(TAG_FILE)
                                                           .item(0);
 
@@ -109,14 +110,14 @@ public class PearlZipLicenseService implements LicenseService {
 
                                 }
                             }
-                            LicenseInfo info = new LicenseInfo(uniqueId, version, licenseName, licensePath);
+                            LicenseInfo info = new LicenseInfo(uniqueId, version, licenseName, licensePath, url);
                             licenseInfoList.add(info);
                             // LOG: \nAdded license declaration. Details:\nUnique Id: %s\nVersion: %s\nLicense Name:
                             // %s\nLicense File: %s\n
                             LOGGER.info(resolveTextKey(LOG_ADDED_LICENSE_DECLARATION, uniqueId, version, licenseName, licensePath));
                         }
                     } else {
-                        LicenseInfo info = new LicenseInfo(uniqueId, version, licenseName, licensePath);
+                        LicenseInfo info = new LicenseInfo(uniqueId, version, licenseName, licensePath, url);
                         licenseInfoList.add(info);
                         // LOG: \nAdded license declaration. Details:\nUnique Id: %s\nVersion: %s\nLicense Name:
                         // %s\nLicense File: %s\n

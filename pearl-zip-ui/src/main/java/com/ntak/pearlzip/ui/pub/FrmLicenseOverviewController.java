@@ -22,7 +22,12 @@ import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
+import java.io.BufferedReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
@@ -74,12 +79,34 @@ public class FrmLicenseOverviewController {
                                                      .getSelectedItem();
                     String fileName = info.licenseFile();
                     if (Objects.nonNull(fileName)) {
-                        URL licenseDetailsFile = new URL(String.format("%s/%s", FrmLicenseOverviewController.class
-                                                                                    .getClassLoader()
-                                                                                    .getResource("ref")
-                                                                                    .toString(),
-                                                                                    fileName)
-                        );
+                        final URL refRootFolder = FrmLicenseOverviewController.class
+                                .getClassLoader()
+                                .getResource("ref");
+                        Path licenseUri;
+                        if (Objects.nonNull(refRootFolder)) {
+                            licenseUri =
+                                    Paths.get(new URL(String.format("%s/%s", refRootFolder
+                                                                            .toString(),
+                                                                    fileName)).getPath()).toAbsolutePath();
+                        } else {
+                            // Check module file system for resource...
+                            try {
+                                licenseUri = JRT_FILE_SYSTEM.getPath("modules", "com.ntak.pearlzip.license",
+                                                                     String.format("ref/%s", fileName)).toAbsolutePath();
+                            } catch(InvalidPathException ipe) {
+                                licenseUri = null;
+                            }
+                        }
+
+                        // LOG: License file URI: %s; Exists: %s
+                        LOGGER.info(resolveTextKey(LOG_LICENSE_FILE_INFO,
+                                                   licenseUri, Files.exists(licenseUri)));
+                        StringBuilder sb = new StringBuilder();
+                        try(BufferedReader br = Files.newBufferedReader(licenseUri)) {
+                            br.lines()
+                              .map(l->info.licenseFile().endsWith("txt") ? String.format("%s<br/>",l)  : l)
+                              .forEach(sb::append);
+                        }
                         Stage licDetailsStage = new Stage();
 
                         FXMLLoader loader = new FXMLLoader();
@@ -89,7 +116,7 @@ public class FrmLicenseOverviewController {
                         AnchorPane root = loader.load();
 
                         FrmLicenseDetailsController controller = loader.getController();
-                        controller.initData(licenseDetailsFile);
+                        controller.initData(sb.toString());
 
                         Scene scene = new Scene(root);
                         // License Details : %s

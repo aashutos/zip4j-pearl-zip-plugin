@@ -6,6 +6,7 @@ package com.ntak.pearlzip.ui.pub;
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
+import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.license.pub.LicenseService;
 import com.ntak.pearlzip.license.pub.PearlZipLicenseService;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
@@ -17,25 +18,34 @@ import com.ntak.pearlzip.ui.util.MetricThreadFactory;
 import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
 import de.jangassen.MenuToolkit;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 
+import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 import static com.ntak.pearlzip.archive.constants.ArchiveConstants.EVENTBUS_EXECUTOR_SERVICE;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.genLocale;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.addToRecentFile;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchMainStage;
@@ -45,23 +55,51 @@ import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchMainStage;
  *  @author Aashutos Kakshepati
 */
 public class ZipLauncher extends Application {
+
     private static MenuToolkit MENU_TOOLKIT;
+
+    static {
+        if (Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
+            Desktop.getDesktop().setOpenFileHandler((e)->{
+                e.getFiles()
+                 .stream()
+                 .peek(ROOT_LOGGER::info)
+                 .map(f -> f.toPath()
+                            .toAbsolutePath()
+                            .toString())
+                 .forEach(f -> {
+                     Stage stage = new Stage();
+                     ArchiveReadService readService = ZipState.getReadArchiveServiceForFile(f).get();
+                     ArchiveWriteService writeService = ZipState.getWriteArchiveServiceForFile(f).orElse(null);
+                     final FXArchiveInfo fxArchiveInfo = new FXArchiveInfo(f, readService, writeService);
+                     Platform.runLater(()->launchMainStage(stage, fxArchiveInfo));
+                 });
+                e.getFiles()
+                 .stream()
+                 .map(f -> f.toPath()
+                            .toAbsolutePath()
+                            .toString())
+                 .forEach(l -> {
+                     try {
+                         Files.writeString(Paths.get("~", "tmp"), l, StandardOpenOption.APPEND);
+                     } catch(IOException ioException) {
+                     }
+                 });
+            });
+        }
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
         APP = this;
+
+        CountDownLatch readyLatch = new CountDownLatch(1);
 
         ZipConstants.MESSAGE_TRACE_LOGGER = ProgressMessageTraceLogger.getMessageTraceLogger();
 
         ////////////////////////////////////////////
         ///// Create files and dir structure //////
         //////////////////////////////////////////
-
-        // Create root store
-        ZipConstants.STORE_ROOT = Paths.get(System.getProperty(CNS_STORE_ROOT, String.format("%s/.pz",
-                                                                                             System.getProperty("user.home"))));
-        ZipConstants.LOCAL_TEMP =
-                Paths.get(Optional.ofNullable(System.getenv("TMPDIR")).orElse(STORE_ROOT.toString()));
 
         // Create temporary store folder
         ZipConstants.STORE_TEMP = Paths.get(STORE_ROOT.toAbsolutePath().toString(), "temp");
@@ -84,7 +122,6 @@ public class ZipLauncher extends Application {
         //////////////////////////////////////////
 
         // Create a new System Menu
-        // TODO: Set CFBundleName in Info.plist
         String appName = System.getProperty(CNS_NTAK_PEARL_ZIP_APP_NAME, "PearlZip");
         MenuBar sysMenu = new MenuBar();
 
@@ -116,13 +153,20 @@ public class ZipLauncher extends Application {
         MENU_TOOLKIT.setGlobalMenuBar(sysMenu);
 
         // Initialise archive information
+        readyLatch.countDown();
         FXArchiveInfo fxArchiveInfo;
         String archivePath;
-        if (APP.getParameters().getRaw().size() > 0) {
+        if (APP.getParameters().getRaw().size() > 0 && Files.exists(Paths.get(APP.getParameters()
+                                                                                 .getRaw()
+                                                                                 .get(0)))) {
             archivePath = APP.getParameters()
                                     .getRaw()
                                     .get(0);
             addToRecentFile(new File(archivePath));
+        } else if (APP.getParameters().getRaw().size() > 0 && APP.getParameters().getRaw().get(0).startsWith("-psn_")) {
+            // LOG: OS Trigger detected...
+            ROOT_LOGGER.info(resolveTextKey(LOG_OS_TRIGGER_DETECTED));
+            return;
         } else {
             archivePath = Paths.get(STORE_TEMP.toString(),
                                     String.format("a%s.zip", System.currentTimeMillis())).toAbsolutePath().toString();
@@ -133,7 +177,6 @@ public class ZipLauncher extends Application {
         ArchiveWriteService writeService = ZipState.getWriteArchiveServiceForFile(archivePath).orElse(null);
                 fxArchiveInfo = new FXArchiveInfo(archivePath,
                                                   readService, writeService);
-
         launchMainStage(stage, fxArchiveInfo);
     }
 
@@ -143,52 +186,122 @@ public class ZipLauncher extends Application {
         PRIMARY_EXECUTOR_SERVICE.shutdown();
     }
 
-    public static void main(String[] args) throws IOException {
-        // Load bootstrap properties
-        Properties props = new Properties();
-        props.load(ZipLauncher.class.getClassLoader().getResourceAsStream("application.properties"));
-        props.putAll(System.getProperties());
-        System.setProperties(props);
+    public static void main(String[] args) {
+        try {
+            ROOT_LOGGER.debug(Arrays.toString(args));
 
-        // Setting Locale
-        Locale.setDefault(genLocale(props));
-        ResourceBundle.getBundle(System.getProperty(ConfigurationConstants.CNS_CUSTOM_RES_BUNDLE, "custom"),
-                                 Locale.getDefault());
-        LOG_BUNDLE = ResourceBundle.getBundle(System.getProperty(CNS_RES_BUNDLE, "pearlzip"),
-                                              Locale.getDefault());
-        MENU_TOOLKIT = MenuToolkit.toolkit(Locale.getDefault());
+            // Load bootstrap properties
+            Properties props = new Properties();
+            props.load(ZipLauncher.class.getClassLoader()
+                                        .getResourceAsStream("application.properties"));
+            ZipConstants.STORE_ROOT = Paths.get(System.getProperty(CNS_STORE_ROOT, String.format("%s/.pz",
+                                                                                                 System.getProperty(
+                                                                                                         "user.home"))));
+            ZipConstants.LOCAL_TEMP =
+                    Paths.get(Optional.ofNullable(System.getenv("TMPDIR"))
+                                      .orElse(STORE_ROOT.toString()));
+            Path externalBootstrapFile = Paths.get(STORE_ROOT.toString(), "application.properties");
 
-        // Load License Declarations
-        LicenseService licenseService = new PearlZipLicenseService();
-        licenseService.retrieveDeclaredLicenses().forEach((k,v)->ZipState.addLicenseDeclaration(k, v));
-
-        // Load Archive Services
-        ServiceLoader<ArchiveReadService> serviceReadLoader = ServiceLoader.load(ArchiveReadService.class);
-        serviceReadLoader.stream().map(p->p.get()).filter(p->p.isEnabled()).forEach(ZipState::addArchiveProvider);
-
-        ServiceLoader<ArchiveWriteService> serviceWriteLoader = ServiceLoader.load(ArchiveWriteService.class);
-        serviceWriteLoader.stream().map(p->p.get()).filter(p->p.isEnabled()).forEach(ZipState::addArchiveProvider);
-
-        // Initialising Thread Pool
-        String klassName;
-        MetricProfile profile = MetricProfile.getDefaultProfile();
-        if (Objects.nonNull(klassName = System.getProperty(CNS_METRIC_FACTORY))) {
-            try {
-                MetricProfileFactory factory = (MetricProfileFactory) Class.forName(klassName).getDeclaredConstructor().newInstance();
-                profile = factory.getProfile();
-            } catch(Exception e) {
-
+            // Overwrite with external properties file
+            // Reserved properties are kept as per internal key definition
+            Map<String,String> reservedKeyMap = new HashMap<>();
+            Path reservedKeys = Paths.get(ZipLauncher.class.getClassLoader()
+                                                           .getResource("reserved-keys")
+                                                           .getPath());
+            if (!Files.exists(reservedKeys)) {
+                reservedKeys = JRT_FILE_SYSTEM.getPath("modules", "com.ntak.pearlzip.ui", "reserved-keys");
             }
-            PRIMARY_EXECUTOR_SERVICE =
-                    Executors.newScheduledThreadPool(Math.max(Integer.parseInt(System.getProperty(CNS_THREAD_POOL_SIZE,
-                                                                                                  "4")), 1),
-                                                     MetricThreadFactory.create(profile));
-        } else {
-            PRIMARY_EXECUTOR_SERVICE =
-                    Executors.newScheduledThreadPool(Math.max(Integer.parseInt(System.getProperty(CNS_THREAD_POOL_SIZE,
-                                                                                                  "4")), 1),
-                                                     MetricThreadFactory.create(MetricProfile.getDefaultProfile()));
+
+            Files.lines(reservedKeys)
+                 .filter(k -> Objects.nonNull(k) && Objects.nonNull(props.getProperty(k)))
+                 .forEach(k -> reservedKeyMap.put(k, props.getProperty(k)));
+
+            if (Files.exists(externalBootstrapFile)) {
+                props.load(Files.newBufferedReader(externalBootstrapFile));
+            }
+
+            props.putAll(System.getProperties());
+            props.putAll(reservedKeyMap);
+            System.setProperties(props);
+            ROOT_LOGGER.info(props);
+
+            ////////////////////////////////////////////
+            ///// Log4j Setup ////// //////////////////
+            //////////////////////////////////////////
+
+            // Create root store
+            Files.createDirectories(ZipConstants.STORE_ROOT);
+
+            // Log4j configuration - handle fixed parameters when creating application image
+            String log4jCfg = Paths.get(STORE_ROOT.toString(), "log4j2.xml")
+                                   .toString();
+            final Path log4jPath = Paths.get(log4jCfg);
+            if (!Files.exists(log4jPath)) {
+                Path logCfgFile = JRT_FILE_SYSTEM.getPath("modules", "com.ntak.pearlzip.archive", "log4j2.xml");
+                try(InputStream is = Files.newInputStream(logCfgFile)) {
+                    Files.copy(is, log4jPath);
+                } catch(Exception e) {
+
+                }
+            }
+            ConfigurationSource source = new ConfigurationSource(new FileInputStream(log4jCfg));
+            Configurator.initialize(null, source);
+
+            // Setting Locale
+            Locale.setDefault(genLocale(props));
+            ResourceBundle.getBundle(System.getProperty(ConfigurationConstants.CNS_CUSTOM_RES_BUNDLE, "custom"),
+                                     Locale.getDefault());
+            LOG_BUNDLE = ResourceBundle.getBundle(System.getProperty(CNS_RES_BUNDLE, "pearlzip"),
+                                                  Locale.getDefault());
+            MENU_TOOLKIT = MenuToolkit.toolkit(Locale.getDefault());
+
+            // Load License Declarations
+            LicenseService licenseService = new PearlZipLicenseService();
+            licenseService.retrieveDeclaredLicenses()
+                          .forEach((k, v) -> ZipState.addLicenseDeclaration(k, v));
+
+            // Load Archive Services
+            ServiceLoader<ArchiveReadService> serviceReadLoader = ServiceLoader.load(ArchiveReadService.class);
+            serviceReadLoader.stream()
+                             .map(p -> p.get())
+                             .filter(p -> p.isEnabled())
+                             .forEach(ZipState::addArchiveProvider);
+
+            ServiceLoader<ArchiveWriteService> serviceWriteLoader = ServiceLoader.load(ArchiveWriteService.class);
+            serviceWriteLoader.stream()
+                              .map(p -> p.get())
+                              .filter(p -> p.isEnabled())
+                              .forEach(ZipState::addArchiveProvider);
+
+            // Initialising Thread Pool
+            String klassName;
+            MetricProfile profile = MetricProfile.getDefaultProfile();
+            if (Objects.nonNull(klassName = System.getProperty(CNS_METRIC_FACTORY))) {
+                try {
+                    MetricProfileFactory factory = (MetricProfileFactory) Class.forName(klassName)
+                                                                               .getDeclaredConstructor()
+                                                                               .newInstance();
+                    profile = factory.getProfile();
+                } catch(Exception e) {
+
+                }
+                PRIMARY_EXECUTOR_SERVICE =
+                        Executors.newScheduledThreadPool(Math.max(Integer.parseInt(System.getProperty(
+                                CNS_THREAD_POOL_SIZE,
+                                "4")), 1),
+                                                         MetricThreadFactory.create(profile));
+            } else {
+                PRIMARY_EXECUTOR_SERVICE =
+                        Executors.newScheduledThreadPool(Math.max(Integer.parseInt(System.getProperty(
+                                CNS_THREAD_POOL_SIZE,
+                                "4")), 1),
+                                                         MetricThreadFactory.create(MetricProfile.getDefaultProfile()));
+            }
+
+            launch(args);
+        } catch(Exception e) {
+            ROOT_LOGGER.error(e.getMessage());
+            ROOT_LOGGER.error(LoggingUtil.getStackTraceFromException(e));
         }
-        launch(args);
     }
 }

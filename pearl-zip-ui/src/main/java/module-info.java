@@ -12,6 +12,7 @@ module com.ntak.pearlzip.ui {
     exports com.ntak.pearlzip.ui.util;
 
     // UI dependencies
+    requires java.desktop;
     requires javafx.base;
     requires javafx.controls;
     requires javafx.fxml;

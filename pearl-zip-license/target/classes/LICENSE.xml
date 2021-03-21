@@ -34,6 +34,22 @@
       </licenses>
     </dependency>
     <dependency>
+      <groupId>com.ntak</groupId>
+      <artifactId>pearl-zip-license</artifactId>
+      <version>0.0.0.1</version>
+      <licenses>
+        <!-- No license information available. -->
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>com.ntak</groupId>
+      <artifactId>pearl-zip-ui</artifactId>
+      <version>0.0.0.1</version>
+      <licenses>
+        <!-- No license information available. -->
+      </licenses>
+    </dependency>
+    <dependency>
       <groupId>de.jangassen</groupId>
       <artifactId>jfa</artifactId>
       <version>1.1.8</version>
@@ -235,6 +251,34 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
+      <version>15.0.1</version>
+      <licenses>
+        <license>
+          <name>GPLv2+CE</name>
+          <url>https://openjdk.java.net/legal/gplv2+ce.html</url>
+          <distribution>repo</distribution>
+          <file>gplv2+ce - gplv2+ce.html</file>
+          <comments>GNU General Public License version 2 with the Classpath Exception</comments>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>15.0.1</version>
+      <licenses>
+        <license>
+          <name>GPLv2+CE</name>
+          <url>https://openjdk.java.net/legal/gplv2+ce.html</url>
+          <distribution>repo</distribution>
+          <file>gplv2+ce - gplv2+ce.html</file>
+          <comments>GNU General Public License version 2 with the Classpath Exception</comments>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-web</artifactId>
       <version>15.0.1</version>
       <licenses>
         <license>

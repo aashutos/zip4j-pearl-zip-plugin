@@ -5,9 +5,13 @@ package com.ntak.pearlzip.ui.constants;
 
 import com.ntak.pearlzip.ui.pub.ZipLauncher;
 import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
+import de.jangassen.MenuToolkit;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
@@ -22,6 +26,8 @@ public class ZipConstants {
     public static final String CNS_NTAK_PEARL_ZIP_APP_NAME = "configuration.ntak.pearl-zip.app-name";
     public static final String CNS_NTAK_PEARL_ZIP_COPYRIGHT = "configuration.ntak.pearl-zip.copyright";
     public static final String CNS_NTAK_PEARL_ZIP_WEBLINK = "configuration.ntak.pearl-zip.weblink";
+    public static final String CNS_NTAK_PEARL_ZIP_LICENSE_LOCATION = "configuration.ntak.pearl-zip.license-location";
+    public static final String CNS_NTAK_PEARL_ZIP_LICENSE_OVERRIDE_LOCATION = "configuration.ntak.pearl-zip.license-override-location";
     public static final String CNS_PROVIDER_PRIORITY_ROOT_KEY = "configuration.ntak.pearl-zip.provider.priority.%s";
     public static final String CNS_STORE_ROOT = "configuration.ntak.pearl-zip.store.temp";
     public static final String CNS_WINDOW_HEIGHT = "configuration.ntak.pearl-zip.window-height";
@@ -39,7 +45,11 @@ public class ZipConstants {
     public static final String LOG_PROGRESS_MSG = "logging.ntak.pearl-zip.progress-msg";
     public static final String LOG_OS_TEMP_DIRS_TO_DELETE = "logging.ntak.pearl-zip.os-temp-dirs-to-delete";
 
-    public static final String LOG_ISSUE_RETRIEVE_META = "logging.ntak.pearl-zip.dragboard.issue-retrieve-meta=Issue obtaining meta data for file/folder %s";
+    public static final String LOG_ISSUE_RETRIEVE_META = "logging.ntak.pearl-zip.dragboard.issue-retrieve-meta";
+
+    public static final String LOG_LICENSE_FILE_INFO = "logging.ntak.pearl-zip.license.license-file-info";
+
+    public static final String LOG_OS_TRIGGER_DETECTED = "logging.ntak.pearl-zip.os-trigger-detected";
 
     // Paste exception
     public static final String LOG_PASTE_EXCEPTION = "logging.ntak.pearl-zip.paste-exception";
@@ -195,6 +205,7 @@ public class ZipConstants {
     public static final String LBL_CLEAR_UP_OS_TEMP = "label.ntak.pearl-zip.clear-up-os-temp";
     public static final String LBL_SKIP_OS_TEMP_CLEAN = "label.ntak.pearl-zip.skip-os-temp-clean";
     public static final String LBL_CLEAR_UP_RECENTS = "label.ntak.pearl-zip.clear-up-recents";
+    public static final FileSystem JRT_FILE_SYSTEM = FileSystems.getFileSystem(URI.create("jrt:/"));
 
     public static ZipLauncher APP;
     public static Path LOCAL_TEMP;
@@ -204,5 +215,6 @@ public class ZipConstants {
     public static ExecutorService PRIMARY_EXECUTOR_SERVICE;
     public static ThreadGroup THREAD_GROUP;
     public static ProgressMessageTraceLogger MESSAGE_TRACE_LOGGER;
+    public static MenuToolkit MENU_TOOLKIT;
     public static final Logger ROOT_LOGGER = LoggerContext.getContext().getRootLogger();
 }

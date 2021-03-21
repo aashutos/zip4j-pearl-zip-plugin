@@ -3,6 +3,7 @@
 
 # Log file
 *.log
+*.log.gz
 
 # BlueJ files
 *.ctxt
@@ -36,3 +37,7 @@ hs_err_pid*
 .idea/encodings.xml
 .idea/qaplug_profiles.xml
 PearlZip.iml
+
+# Build directories
+target/
+build/
