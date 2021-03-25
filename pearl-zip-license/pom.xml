@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) ${YEAR} 92AK
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -10,9 +14,15 @@
         <version>0.0.0.1</version>
     </parent>
 
-    <groupId>com.ntak</groupId>
     <artifactId>pearl-zip-license</artifactId>
     <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>BSD 3-Clause</name>
+            <url>http://opensource.org/licenses/BSD-3-Clause</url>
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>
@@ -25,6 +35,38 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>${project.basedir}/target/classes/LICENSE-OVERRIDE.xml</include>
+                    </includes>
+                    <replacements>
+                        <replacement>
+                            <token>:: PEARL-ZIP VERSION ::</token>
+                            <value>${project.version}</value>
+                        </replacement>
+                        <replacement>
+                            <token>:: LANG ::</token>
+                            <value>${lang}</value>
+                        </replacement>
+                        <replacement>
+                            <token>:: COUNTRY ::</token>
+                            <value>${country}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

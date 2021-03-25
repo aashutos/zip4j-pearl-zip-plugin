@@ -1,10 +1,11 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
+import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.license.pub.LicenseService;
@@ -226,7 +227,7 @@ public class ZipLauncher extends Application {
             ROOT_LOGGER.info(props);
 
             ////////////////////////////////////////////
-            ///// Log4j Setup ////// //////////////////
+            ///// Log4j Setup /////////////////////////
             //////////////////////////////////////////
 
             // Create root store
@@ -258,19 +259,19 @@ public class ZipLauncher extends Application {
             // Load License Declarations
             LicenseService licenseService = new PearlZipLicenseService();
             licenseService.retrieveDeclaredLicenses()
-                          .forEach((k, v) -> ZipState.addLicenseDeclaration(k, v));
+                          .forEach(ZipState::addLicenseDeclaration);
 
             // Load Archive Services
             ServiceLoader<ArchiveReadService> serviceReadLoader = ServiceLoader.load(ArchiveReadService.class);
             serviceReadLoader.stream()
-                             .map(p -> p.get())
-                             .filter(p -> p.isEnabled())
+                             .map(ServiceLoader.Provider::get)
+                             .filter(ArchiveService::isEnabled)
                              .forEach(ZipState::addArchiveProvider);
 
             ServiceLoader<ArchiveWriteService> serviceWriteLoader = ServiceLoader.load(ArchiveWriteService.class);
             serviceWriteLoader.stream()
-                              .map(p -> p.get())
-                              .filter(p -> p.isEnabled())
+                              .map(ServiceLoader.Provider::get)
+                              .filter(ArchiveService::isEnabled)
                               .forEach(ZipState::addArchiveProvider);
 
             // Initialising Thread Pool
