@@ -37,6 +37,7 @@ hs_err_pid*
 .idea/encodings.xml
 .idea/qaplug_profiles.xml
 PearlZip.iml
+*.iml
 
 # Build directories
 target/

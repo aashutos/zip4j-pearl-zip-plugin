@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Copyright (c) 2021 92AK -->
+<!--
+  ~ Copyright (c) ${YEAR} 92AK
+  -->
 
 <licenseSummary>
     <dependencies>
@@ -36,6 +38,78 @@
                     <name>unRAR restriction</name>
                     <url>http://www.7-zip.org/license.txt</url>
                     <file>unrar restriction - license.txt</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-archive-szjb</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-archive-acc</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-ui</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-license</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-lang-pack-:: LANG ::-:: COUNTRY ::</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-assembly-osx</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>BSD 3-Clause</name>
+                    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+                    <file>bsd 3-clause - bsd-3-clause.html</file>
                 </license>
             </licenses>
         </dependency>

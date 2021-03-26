@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Copyright (c) ${YEAR} 92AK
+#
+
 echo "Checking Maven and Java are installed"
 JAVA_ROOT="${JAVA_HOME:+$JAVA_HOME/bin/}"
 
@@ -9,7 +13,7 @@ then
   exit 1
 fi
 
-if [ $($JAVA_ROOTjava -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1) -lt 15 ]
+if [ $(${JAVA_ROOT}java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1) -lt 15 ]
 then
   echo "Java >= 15 has not been installed. Exiting..."
   exit 1
@@ -30,24 +34,25 @@ echo "Generating Dependencies..."
 mvn dependency:build-classpath -Dmdep.outputFile=$rootDir/deps.lst -f ../pearl-zip-ui/pom.xml
 
 echo "Retrieving Dependencies..."
-mkdir $rootDir/mods
+mkdir -p $rootDir/mods
 cp $(cat $rootDir/deps.lst | sed -e 's/\:/ /g') $rootDir/mods/
-cp ~/.m2/repository/com/ntak/pearl-zip-ui/0.0.0.1/pearl-zip-ui-0.0.0.1.jar $rootDir/mods/
+cp $(find ~/.m2/repository/com/ntak/pearl-zip-ui/*/pearl-zip-ui-*.jar | sort -r | head -n 1) $rootDir/mods/
+
+mkdir $rootDir/work
 
 echo "Identifying legacy modules..."
 ls -1 $rootDir/mods/ | while read line
 do
    echo "Archive: $rootDir/mods/$line"
-   $JAVA_ROOTjdeps --module-path $rootDir/mods/ --ignore-missing-deps --multi-release 15 --generate-module-info out "mods/$line" > /dev/null
+   ${JAVA_ROOT}jdeps --module-path $rootDir/mods/ --ignore-missing-deps --multi-release 15 --generate-module-info out "mods/$line" > /dev/null
    if [ "$?" -eq 0 ]
    then
      echo "Get module name"
-     moduleName=$($JAVA_ROOTjdeps --module-path $rootDir/mods/ --ignore-missing-deps --multi-release 15 --generate-module-info work "$rootDir/mods/$line" | grep "writing to" | cut -d" " -f3 | cut -d/ -f2)
+     moduleName=$(${JAVA_ROOT}jdeps --module-path $rootDir/mods/ --ignore-missing-deps --multi-release 15 --generate-module-info work "$rootDir/mods/$line" | grep "writing to" | cut -d" " -f3 | cut -d/ -f2)
      echo "Module name: $moduleName"
 
      echo "Generate module-info file..."
-     mkdir $rootDir/work
-     $JAVA_ROOTjdeps --ignore-missing-deps --multi-release 15 --generate-module-info $rootDir/work "$rootDir/mods/$line"
+     ${JAVA_ROOT}jdeps --ignore-missing-deps --multi-release 15 --generate-module-info $rootDir/work "$rootDir/mods/$line"
      cp "work/$(ls -1 $rootDir/work)/versions/15/module-info.java" $rootDir/work/$(ls -1 $rootDir/work)/module-info.java
 
      echo "Building new jar..."
@@ -57,7 +62,7 @@ do
 
      echo "Modularising legacy jars..."
      cd $rootDir
-     $JAVA_ROOTjavac -cp $rootDir/mods/ --module-path $rootDir/mods/ -d $rootDir/classes/ $rootDir/work/$moduleName/module-info.java
+     ${JAVA_ROOT}javac -cp $rootDir/mods/ --module-path $rootDir/mods/ -d $rootDir/classes/ $rootDir/work/$moduleName/module-info.java
      jar uf $rootDir/mods/$line -C classes module-info.class
 
      echo "Clearing work directories..."
@@ -74,17 +79,33 @@ cp $rootDir/src/main/resources/lib/javafx-jmods-15.0.1/* mods/
 find $rootDir/mods -name  "javafx*[^m][^a][^c].jar" -delete
 
 echo "Create shared archive..."
-$JAVA_ROOTjava -Xshare:off --enable-preview -XX:DumpLoadedClassList=pz-class.lst --module-path=$rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher
-nohup $JAVA_ROOTjava -Xshare:dump --enable-preview -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path=$rootDir/mods/ com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
-ps aux
+nohup ${JAVA_ROOT}java -Xshare:off --enable-preview -XX:DumpLoadedClassList=pz-class.lst --module-path=$rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher &
+pid=$!
+echo "Dump list process PID: $pid"
+sleep 5
+kill -9 $pid
+# KILL executed, Check for end of process
+while [ $(ps -p $pid > /dev/null) ]; do
+  sleep 10
+done
+
+nohup ${JAVA_ROOT}java -Xshare:dump --enable-preview -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path=$rootDir/mods/ com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
+pid=$!
+echo "Create JSA process PID: $pid"
+sleep 5
+kill -2 $pid
+#   SIGINT executed, Check for end of process
+while [ $(ps -p $pid > /dev/null) ]; do
+  sleep 10
+done
 
 echo "Create runtime..."
 find $rootDir/mods/ -name  "javafx*mac.jar" -delete
-$JAVA_ROOTjlink --module-path=$rootDir/mods/ --add-modules=ALL-MODULE-PATH --output $rootDir/pz-runtime
+${JAVA_ROOT}jlink --module-path=$rootDir/mods/ --add-modules=ALL-MODULE-PATH --output $rootDir/pz-runtime
 
 echo "Generate App Image"
-mkdir target
-$JAVA_ROOTjpackage --type app-image --app-version 1.0.0 --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
+mkdir -p target
+${JAVA_ROOT}jpackage --type app-image --app-version 1.0.0 --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
 
 echo "Clearing up working directories..."
 rm -f pz-shared.jsa
@@ -93,3 +114,5 @@ rm -rf pz-runtime
 rm -rf mods
 rm -rf deps.lst
 rm -rf out
+
+exit 0
