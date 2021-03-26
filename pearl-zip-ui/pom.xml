@@ -133,7 +133,42 @@
                             </replacements>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>hash-set</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>${project.basedir}/target/classes/application.properties</include>
+                            </includes>
+                            <replacements>
+                                <replacement>
+                                    <token>:: HASH ::</token>
+                                    <value>${git.commit.id}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.parent.basedir}/.git</dotGitDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
