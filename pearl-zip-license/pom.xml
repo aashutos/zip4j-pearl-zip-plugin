@@ -41,24 +41,6 @@
                 <version>1.5.3</version>
                 <executions>
                     <execution>
-                        <id>version-set</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>${project.basedir}/pom.xml</include>
-                            </includes>
-                            <replacements>
-                            <replacement>
-                                <token>${project.version}</token>
-                                <value>${pearlzip.next.version}</value>
-                            </replacement>
-                            </replacements>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>license-replacement</id>
                         <phase>compile</phase>
                         <goals>
@@ -118,4 +100,39 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>increment-version</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.5.3</version>
+                        <executions>
+                            <execution>
+                                <id>version-set</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>${project.basedir}/pom.xml</include>
+                                    </includes>
+                                    <replacements>
+                                        <replacement>
+                                            <token>${project.version}</token>
+                                            <value>${pearlzip.next.version}</value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

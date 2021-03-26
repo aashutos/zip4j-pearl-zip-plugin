@@ -78,6 +78,41 @@
                 <country>FR</country>
             </properties>
         </profile>
+        <profile>
+            <id>increment-version</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.5.3</version>
+                        <executions>
+                            <execution>
+                                <id>version-set</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>${project.basedir}/pom.xml</include>
+                                    </includes>
+                                    <replacements>
+                                        <replacement>
+                                            <token>${project.version}</token>
+                                            <value>${pearlzip.next.version}</value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>
@@ -109,31 +144,6 @@
                     <target>15</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <id>version-set</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>${project.basedir}/pom.xml</include>
-                            </includes>
-                            <replacements>
-                                <replacement>
-                                    <token>${project.version}</token>
-                                    <value>${pearlzip.next.version}</value>
-                                </replacement>
-                            </replacements>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
         <pluginManagement>
