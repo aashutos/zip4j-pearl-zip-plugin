@@ -36,7 +36,7 @@ mvn dependency:build-classpath -Dmdep.outputFile=$rootDir/deps.lst -f ../pearl-z
 echo "Retrieving Dependencies..."
 mkdir -p $rootDir/mods
 cp $(cat $rootDir/deps.lst | sed -e 's/\:/ /g') $rootDir/mods/
-cp ~/.m2/repository/com/ntak/pearl-zip-ui/0.0.0.1/pearl-zip-ui-0.0.0.1.jar $rootDir/mods/
+cp $(find ~/.m2/repository/com/ntak/pearl-zip-ui/*/pearl-zip-ui-*.jar | sort -r | head -n 1) $rootDir/mods/
 
 mkdir $rootDir/work
 

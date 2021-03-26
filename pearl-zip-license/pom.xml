@@ -41,6 +41,25 @@
                 <version>1.5.3</version>
                 <executions>
                     <execution>
+                        <id>version-set</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>${project.basedir}/pom.xml</include>
+                            </includes>
+                            <replacements>
+                            <replacement>
+                                <token>${project.version}</token>
+                                <value>${pearlzip.next.version}</value>
+                            </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>license-replacement</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>replace</goal>

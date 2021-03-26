@@ -20,7 +20,7 @@
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
         <javafx.version>15.0.1</javafx.version>
-        <pearl-zip.version>${project.version}</pearl-zip.version>
+        <pearl-zip.version>${project.parent.version}</pearl-zip.version>
     </properties>
 
     <licenses>
@@ -88,7 +88,7 @@
         </dependency>
         <dependency>
             <groupId>com.ntak</groupId>
-            <artifactId>pearl-zip-ap-commons-archive</artifactId>
+            <artifactId>pearl-zip-archive-acc</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -109,6 +109,31 @@
                 <configuration>
                     <mainClass>Application</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>version-set</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>${project.basedir}/pom.xml</include>
+                            </includes>
+                            <replacements>
+                                <replacement>
+                                    <token>${project.parent.version}</token>
+                                    <value>${pearlzip.next.version}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

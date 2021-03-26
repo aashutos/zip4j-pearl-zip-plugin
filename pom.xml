@@ -17,15 +17,16 @@
         <junit.version>5.5.2</junit.version>
         <dryrun.release>true</dryrun.release>
         <eventbus.version>3.2.0</eventbus.version>
+        <pearlzip.next.version>${project.version}</pearlzip.next.version>
     </properties>
 
     <modules>
-        <module>pearl-zip-license</module>
-        <module>pearl-zip-archive</module>
         <module>pearl-zip-lang-pack-en-GB</module>
-        <module>pearl-zip-ui</module>
+        <module>pearl-zip-archive</module>
         <module>pearl-zip-archive-acc</module>
         <module>pearl-zip-archive-szjb</module>
+        <module>pearl-zip-license</module>
+        <module>pearl-zip-ui</module>
         <module>pearl-zip-assembly-osx</module>
     </modules>
 
@@ -82,32 +83,19 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
                 <executions>
                     <execution>
-                        <id>parse-version</id>
                         <phase>validate</phase>
                         <goals>
-                            <goal>parse-version</goal>
+                            <goal>run</goal>
                         </goals>
                         <configuration>
-                            <!--suppress UnresolvedMavenProperty -->
-                            <versionString>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}.${parsedVersion.buildNumber}</versionString>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>invert-properties</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>bsh-property</goal>
-                        </goals>
-                        <configuration>
-                            <source>push.changes = !${dryrun.release};</source>
-                            <properties>
-                                <property>push.changes</property>
-                            </properties>
+                            <tasks>
+                                <echo>Next version: ${pearlzip.next.version}</echo>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
@@ -121,6 +109,31 @@
                     <target>15</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>version-set</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>${project.basedir}/pom.xml</include>
+                            </includes>
+                            <replacements>
+                                <replacement>
+                                    <token>${project.version}</token>
+                                    <value>${pearlzip.next.version}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <pluginManagement>

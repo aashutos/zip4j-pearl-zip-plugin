@@ -30,4 +30,34 @@
             <url>http://opensource.org/licenses/BSD-3-Clause</url>
         </license>
     </licenses>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>version-set</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>${project.basedir}/pom.xml</include>
+                            </includes>
+                            <replacements>
+                                <replacement>
+                                    <token>${project.version}</token>
+                                    <value>${pearlzip.next.version}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
