@@ -7,6 +7,10 @@
 echo "Checking Maven and Java are installed"
 JAVA_ROOT="${JAVA_HOME:+$JAVA_HOME/bin/}"
 
+echo "Input parameters: $*"
+
+VERSION=$1
+
 if [ "$(which mvn | echo $?)" -ne 0 ]
 then
   echo "Maven has not been installed. Exiting..."
@@ -36,7 +40,7 @@ mvn dependency:build-classpath -Dmdep.outputFile=$rootDir/deps.lst -f ../pearl-z
 echo "Retrieving Dependencies..."
 mkdir -p $rootDir/mods
 cp $(cat $rootDir/deps.lst | sed -e 's/\:/ /g') $rootDir/mods/
-cp $(find ~/.m2/repository/com/ntak/pearl-zip-ui/*/pearl-zip-ui-*.jar | sort -r | head -n 1) $rootDir/mods/
+cp ~/.m2/repository/com/ntak/pearl-zip-ui/$VERSION/pearl-zip-ui-$VERSION.jar $rootDir/mods/
 
 mkdir $rootDir/work
 
