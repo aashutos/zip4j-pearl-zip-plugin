@@ -51,7 +51,7 @@
                <configuration>
                    <executable>${project.basedir}/src/main/bash/build-pz-osx.sh</executable>
                    <arguments>
-                       <argument>${jdk.location}</argument>
+                       <argument>${project.version}</argument>
                    </arguments>
                    <environmentVariables>
                        <JAVA_HOME>${jdk.location}</JAVA_HOME>
