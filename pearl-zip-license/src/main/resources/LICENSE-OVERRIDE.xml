@@ -79,6 +79,30 @@
         </dependency>
         <dependency>
             <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-ui#graphics</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>Creative Commons Attribution 4.0 International</name>
+                    <url>https://creativecommons.org/licenses/by/4.0/</url>
+                    <file>CC-ATTR-4-LICENSE</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-ui#logo-resources</artifactId>
+            <version>:: PEARL-ZIP VERSION ::</version>
+            <licenses>
+                <license>
+                    <name>Creative Commons Attribution Non-Commercial No-Derivatives 4.0 International</name>
+                    <url>https://creativecommons.org/licenses/by-nc-nd/4.0/</url>
+                    <file>CC-NC-ND-4-LICENSE</file>
+                </license>
+            </licenses>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
             <artifactId>pearl-zip-license</artifactId>
             <version>:: PEARL-ZIP VERSION ::</version>
             <licenses>
