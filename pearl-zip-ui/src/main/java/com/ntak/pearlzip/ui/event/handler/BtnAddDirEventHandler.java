@@ -52,6 +52,11 @@ public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
             // TITLE: Select source directory location for augmentation...
             directoryChooser.setTitle(resolveTextKey(TITLE_SOURCE_DIR_LOCATION));
             final File dir = directoryChooser.showDialog(new Stage());
+
+            if (Objects.isNull(dir)) {
+                return;
+            }
+
             final Path dirPath = dir.toPath();
 
             int depth = fxArchiveInfo.getDepth().get();
