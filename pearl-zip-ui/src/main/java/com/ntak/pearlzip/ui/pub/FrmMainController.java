@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
@@ -7,6 +7,7 @@ import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.cell.*;
 import com.ntak.pearlzip.ui.event.handler.*;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -135,6 +136,13 @@ public class FrmMainController {
             btnDelete.setOnMouseClicked(new BtnDeleteEventHandler(fileContentsView, fxArchiveInfo));
             btnInfo.setOnMouseClicked(new BtnFileInfoEventHandler(fileContentsView, fxArchiveInfo));
             btnUp.setOnMouseClicked(new BtnUpEventHandler(fileContentsView, fxArchiveInfo, btnUp));
+
+            if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getArchivePath().substring(fxArchiveInfo.getArchivePath().lastIndexOf(".")+1))) {
+                btnAdd.setDisable(true);
+                btnCopy.setDisable(true);
+                btnMove.setDisable(true);
+                btnDelete.setDisable(true);
+            }
 
             stage.setOnCloseRequest(new ConfirmCloseEventHandler(stage, fxArchiveInfo));
         }
