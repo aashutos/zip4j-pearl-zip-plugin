@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -96,7 +96,7 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                                          .get();
 
                                                          FXArchiveInfo archiveInfo;
-                                                         // TODO: Deal with updating parent archive on close...
+
                                                          if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getArchivePath().substring(fxArchiveInfo.getArchivePath().lastIndexOf(".")+1))) {
                                                              archiveInfo = new FXArchiveInfo(fxArchiveInfo.getArchivePath(),
                                                                                              nestedArchive.toAbsolutePath().toString(), archiveService,
@@ -116,20 +116,21 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                          // HEADER: Issue extracting tarball
                                                          // BODY: An issue occurred on loading tar file: %s
                                                          Platform.runLater(
-                                                                 ()->{raiseAlert(Alert.AlertType.WARNING,
-                                                                    resolveTextKey(TITLE_ERR_OPEN_NESTED_TARBALL),
-                                                                    resolveTextKey(HEADER_ERR_OPEN_NESTED_TARBALL),
-                                                                    resolveTextKey(BODY_ERR_OPEN_NESTED_TARBALL,
+                                                                 ()-> raiseAlert(Alert.AlertType.WARNING,
+                                                                                 resolveTextKey(TITLE_ERR_OPEN_NESTED_TARBALL),
+                                                                                 resolveTextKey(HEADER_ERR_OPEN_NESTED_TARBALL),
+                                                                                 resolveTextKey(BODY_ERR_OPEN_NESTED_TARBALL,
                                                                                    clickedRow.getFileName()),
                                                                                  (Exception)e,
-                                                                    fileContentsView.getScene().getWindow());
-                                                         });
+                                                                                 fileContentsView.getScene().getWindow()));
                                                      },
                                                      (s)->{
-                                                         final KeyFrame step1 = new KeyFrame(Duration.millis(300), e -> row.setDisable(false));
+                                                         final KeyFrame step1 = new KeyFrame(Duration.millis(300),
+                                                                                             e -> {row.setDisable(false);
+                                                                                             ((Stage)fileContentsView.getScene().getWindow()).toBack();
+                                                         });
                                                          final Timeline timeline = new Timeline(step1);
                                                          Platform.runLater(timeline::play);
-                                                         Platform.runLater(((Stage)fileContentsView.getScene().getWindow())::toBack);
                                                      }
                     );
                     return;

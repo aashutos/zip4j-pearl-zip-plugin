@@ -64,7 +64,7 @@
         </dependency>
         <dependency>
             <groupId>com.ntak</groupId>
-            <artifactId>pearl-zip-language-pack-${lang}-${country}</artifactId>
+            <artifactId>pearl-zip-lang-pack-${lang}-${country}</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.archive.acc.pub;
 
@@ -33,7 +33,6 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.acc.constants.CommonsCompressLoggingConstants.*;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
@@ -41,6 +40,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 import static com.ntak.pearlzip.archive.util.CompressUtil.crcHashFile;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
+import static org.apache.commons.compress.compressors.CompressorStreamFactory.BZIP2;
 
 /**
  *   Implementation of an Archive Write Service, which utilises the Apache Commons Compress library underneath for
@@ -69,11 +69,10 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
     public void createArchive(long sessionId, ArchiveInfo archiveInfo, FileInfo... files) {
         try {
             String archivePath = archiveInfo.getArchivePath();
-            String format = archivePath.substring(archivePath.lastIndexOf(".") + 1)
-                                       .toLowerCase();
-            boolean isCompressor = switch(format) {
+            String format = getArchiveFormat(archivePath);
+            boolean isCompressor = switch(format.toLowerCase()) {
                 // Compressor streams - create tar file and then compress with the below
-                case CompressorStreamFactory.GZIP, "bz2", CompressorStreamFactory.XZ -> true;
+                case CompressorStreamFactory.GZIP, BZIP2, CompressorStreamFactory.XZ -> true;
 
                 // Archive Output Stream
                 case ArchiveStreamFactory.JAR, ArchiveStreamFactory.ZIP, ArchiveStreamFactory.SEVEN_Z,
@@ -83,7 +82,12 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
 
             if (!format.isEmpty()) {
                 if (isCompressor) {
-                    executeCompressor(sessionId, archivePath, files);
+                    // Compress first file
+                    if (Objects.nonNull(files) && files.length == 1) {
+                        executeFileCompressor(sessionId, archivePath, files);
+                    } else { // Empty Compressor archive created
+                        executeArchiveCompressor(sessionId, archivePath, files);
+                    }
                 } else {
                     executeArchiver(sessionId, archivePath, files);
                 }
@@ -93,27 +97,65 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
         }
     }
 
-    private void executeCompressor(long sessionId, String archivePath, FileInfo... files) {
-        String format = archivePath.substring(archivePath.lastIndexOf(".")+1).toUpperCase();
+    private void executeArchiveCompressor(long sessionId, String archivePath, FileInfo... files) {
+        String format = getArchiveFormat(archivePath);
         try (OutputStream fo = Files.newOutputStream(Paths.get(archivePath));
-             CompressorOutputStream cos = CompressorStreamFactory.findAvailableCompressorOutputStreamProviders()
-                                                                 .get(format)
-                                                                 .createCompressorOutputStream(format, fo);
-             ArchiveOutputStream aoStream = new TarArchiveOutputStream(cos)
-        ) {
-            addEntriesToArchiveStream(sessionId, aoStream, files);
-        } catch(CompressorException | IOException e) {
+            CompressorOutputStream cos = CompressorStreamFactory.findAvailableCompressorOutputStreamProviders()
+                                                                     .get(format)
+                                                                     .createCompressorOutputStream(format, fo);
+            TarArchiveOutputStream aoStream = new TarArchiveOutputStream(cos)) {
+                    aoStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
+                    aoStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+                    addEntriesToArchiveStream(sessionId, aoStream, files);
+                cos.flush();
+        } catch ( CompressorException | IOException e) {
             // LOG: Issue adding entries to archive or creating archive %s. Message: %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION, archivePath, e.getMessage()));
         }
     }
 
+    private String getArchiveFormat(String archivePath) {
+
+        String format =  archivePath.substring(archivePath.lastIndexOf(".") + 1)
+                          .toUpperCase();
+
+        return switch(format) {
+            case "BZ2" -> BZIP2.toUpperCase();
+            default -> format;
+        };
+    }
+
+    private void executeFileCompressor(long sessionId, String archivePath, FileInfo... files) {
+        String format = getArchiveFormat(archivePath);
+        Path path = null;
+        try (OutputStream fo = Files.newOutputStream(Paths.get(archivePath));
+             CompressorOutputStream cos = CompressorStreamFactory.findAvailableCompressorOutputStreamProviders()
+                                                                 .get(format)
+                                                                 .createCompressorOutputStream(format, fo)
+        ) {
+            path = Path.of((String) files[0].getAdditionalInfoMap()
+                                            .get(KEY_FILE_PATH));
+            cos.write(Files.readAllBytes(path));
+            cos.flush();
+        } catch(CompressorException | IOException | NullPointerException | IllegalArgumentException e) {
+            // LOG: Issue adding entries to archive or creating archive %s. Message: %s
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION, archivePath, e.getMessage()));
+        } finally {
+            DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
+                                                 resolveTextKey(LBL_PROGRESS_LOADED_ENTRY,
+                                                                path),
+                                                 1,
+                                                 1));
+        }
+    }
+
     private void executeArchiver(long sessionId, String archivePath, FileInfo[] files) {
+        final String extension = getArchiveFormat(archivePath);
         try(final OutputStream oStream = Files.newOutputStream(Path.of(archivePath));
             final ArchiveOutputStream aoStream =
                     ArchiveStreamFactory.findAvailableArchiveOutputStreamProviders()
-                                        .get(archivePath.substring(archivePath.lastIndexOf(".")+1).toUpperCase())
-                                        .createArchiveOutputStream(archivePath.substring(archivePath.lastIndexOf(".")+1).toUpperCase(), oStream, null)
+                                        .get(extension)
+                                        .createArchiveOutputStream(extension, oStream, null)
         ) {
             addEntriesToArchiveStream(sessionId, aoStream, files);
         } catch(IOException | ArchiveException e) {
@@ -123,7 +165,9 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
     }
 
     private void addEntriesToArchiveStream(long sessionId, ArchiveOutputStream aoStream, FileInfo... files) throws IOException {
-        int total = Arrays.stream(files).filter(s->!s.isFolder()).collect(Collectors.toList()).size();
+        int total = (int) Arrays.stream(files)
+                                .filter(s -> !s.isFolder())
+                                .count();
         for (FileInfo f : files) {
             if (!f.isFolder()) {
                 try {
@@ -183,8 +227,21 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
             BasicFileAttributeView basicView =
                     Files.getFileAttributeView(filePath, BasicFileAttributeView.class);
 
-            if (entry instanceof ZipArchiveEntry) {
-                ZipArchiveEntry zipEntry = (ZipArchiveEntry)entry;
+            if (entry instanceof JarArchiveEntry jarEntry) {
+                jarEntry.setMethod(JarArchiveOutputStream.DEFLATED);
+                jarEntry.setComment(file.getComments());
+                jarEntry.setCrc(crcHashFile(filePath.toFile()));
+                jarEntry.setCreationTime(basicView.readAttributes()
+                                                  .creationTime());
+                jarEntry.setLastModifiedTime(basicView.readAttributes()
+                                                      .lastModifiedTime());
+                jarEntry.setLastAccessTime(basicView.readAttributes()
+                                                    .lastModifiedTime());
+                jarEntry.setInternalAttributes(file.getAttributes());
+                return;
+            }
+
+            if (entry instanceof ZipArchiveEntry zipEntry) {
                 zipEntry.setMethod(ZipArchiveOutputStream.DEFLATED);
                 zipEntry.setCrc(crcHashFile(filePath.toFile()));
                 zipEntry.setComment(file.getComments());
@@ -200,8 +257,7 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                 return;
             }
 
-            if (entry instanceof TarArchiveEntry) {
-                TarArchiveEntry tarEntry = (TarArchiveEntry) entry;
+            if (entry instanceof TarArchiveEntry tarEntry) {
                 if (Objects.nonNull(file.getUser())) {
                     tarEntry.setUserName(file.getUser());
                 }
@@ -213,22 +269,6 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                 if (Objects.nonNull(basicView) && Objects.nonNull(basicView.readAttributes()) && !Files.isSymbolicLink(filePath)) {
                     tarEntry.setModTime(basicView.readAttributes().lastModifiedTime().toMillis());
                 }
-                return;
-            }
-
-            if (entry instanceof JarArchiveEntry) {
-                JarArchiveEntry jarEntry = (JarArchiveEntry) entry;
-                jarEntry.setMethod(JarArchiveOutputStream.DEFLATED);
-                jarEntry.setComment(file.getComments());
-                jarEntry.setCrc(crcHashFile(filePath.toFile()));
-                jarEntry.setCreationTime(basicView.readAttributes()
-                                                  .creationTime());
-                jarEntry.setLastModifiedTime(basicView.readAttributes()
-                                                      .lastModifiedTime());
-                jarEntry.setLastAccessTime(basicView.readAttributes()
-                                                    .lastModifiedTime());
-                jarEntry.setInternalAttributes(file.getAttributes());
-                return;
             }
         } catch (Exception e) {
             // Issue occurred on preparing archive entry: %s.\nException type: %s.\nStack trace:\n%s
@@ -250,13 +290,13 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                     final InputStream iStream = Files.newInputStream(Path.of(archivePath));
                     final ArchiveInputStream aiStream =
                             ArchiveStreamFactory.findAvailableArchiveInputStreamProviders()
-                                                .get(archivePath.substring(archivePath.lastIndexOf(".")+1).toUpperCase())
-                                                .createArchiveInputStream(archivePath.substring(archivePath.lastIndexOf(".")+1).toUpperCase(), iStream, null);
+                                                .get(getArchiveFormat(archivePath))
+                                                .createArchiveInputStream(getArchiveFormat(archivePath), iStream, null);
                     final OutputStream oStream = Files.newOutputStream(Path.of(tmpArchive.toString()));
                     final ArchiveOutputStream aoStream =
                             ArchiveStreamFactory.findAvailableArchiveOutputStreamProviders()
-                                                .get(tmpArchive.toString().substring(tmpArchive.toString().lastIndexOf(".")+1).toUpperCase())
-                                                .createArchiveOutputStream(tmpArchive.toString().substring(tmpArchive.toString().lastIndexOf(".")+1).toUpperCase(), oStream, null)
+                                                .get(getArchiveFormat(tmpArchive.toString()))
+                                                .createArchiveOutputStream(getArchiveFormat(tmpArchive.toString()), oStream, null)
             ) {
                 ArchiveEntry existingEntry;
                 while ((existingEntry = aiStream.getNextEntry()) != null) {
@@ -309,19 +349,13 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                     final InputStream iStream = Files.newInputStream(Path.of(archivePath));
                     final ArchiveInputStream aiStream =
                             ArchiveStreamFactory.findAvailableArchiveInputStreamProviders()
-                                                .get(archivePath.substring(archivePath.lastIndexOf(".") + 1)
-                                                                .toUpperCase())
-                                                .createArchiveInputStream(archivePath.substring(archivePath.lastIndexOf(
-                                                        ".") + 1)
-                                                                                     .toUpperCase(), iStream, null);
+                                                .get(getArchiveFormat(archivePath))
+                                                .createArchiveInputStream(getArchiveFormat(archivePath), iStream, null);
                     final OutputStream oStream = Files.newOutputStream(tmpArchive);
                     final ArchiveOutputStream aoStream =
                             ArchiveStreamFactory.findAvailableArchiveOutputStreamProviders()
-                                                .get(archivePath.substring(archivePath.lastIndexOf(".") + 1)
-                                                                .toUpperCase())
-                                                .createArchiveOutputStream(archivePath.substring(archivePath.lastIndexOf(
-                                                        ".") + 1)
-                                                                                      .toUpperCase(), oStream, null)
+                                                .get(getArchiveFormat(archivePath))
+                                                .createArchiveOutputStream(getArchiveFormat(archivePath), oStream, null)
             ) {
                 // Deleting entries...
                 DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,

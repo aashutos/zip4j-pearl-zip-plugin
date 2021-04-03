@@ -30,14 +30,10 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -206,16 +202,34 @@ public class ZipLauncher extends Application {
             // Overwrite with external properties file
             // Reserved properties are kept as per internal key definition
             Map<String,String> reservedKeyMap = new HashMap<>();
-            Path reservedKeys = Paths.get(ZipLauncher.class.getClassLoader()
-                                                           .getResource("reserved-keys")
-                                                           .getPath());
-            if (!Files.exists(reservedKeys)) {
-                reservedKeys = JRT_FILE_SYSTEM.getPath("modules", "com.ntak.pearlzip.ui", "reserved-keys");
-            }
+            Path tmpRK = Paths.get(STORE_ROOT.toString(), "rk");
+            try (FileOutputStream fileOutputStream = new FileOutputStream(tmpRK.toString());
+                    FileChannel channel = fileOutputStream.getChannel();
+                    FileLock lock = channel.lock()) {
+                    // Standard resource case
+                    Path reservedKeys = Paths.get(ZipLauncher.class.getClassLoader()
+                                                               .getResource("reserved-keys")
+                                                               .getPath());
+                    ROOT_LOGGER.info(reservedKeys);
 
-            Files.lines(reservedKeys)
-                 .filter(k -> Objects.nonNull(k) && Objects.nonNull(props.getProperty(k)))
-                 .forEach(k -> reservedKeyMap.put(k, props.getProperty(k)));
+                    // standard/jar resource case
+                    if (Objects.nonNull(reservedKeys)) {
+
+                        try (InputStream is = ZipLauncher.class.getClassLoader()
+                                                               .getResourceAsStream("reserved-keys")) {
+                            Files.copy(is, tmpRK, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    } else if (!Files.exists(reservedKeys)) {
+                        reservedKeys = JRT_FILE_SYSTEM.getPath("modules", "com.ntak.pearlzip.ui", "reserved-keys");
+                        Files.copy(reservedKeys, tmpRK, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    Files.lines(tmpRK)
+                     .filter(k -> Objects.nonNull(k) && Objects.nonNull(props.getProperty(k)))
+                     // LOG: Locking in key: %s with value: %s
+                     .peek(k -> ROOT_LOGGER.info(resolveTextKey(LOG_LOCKING_IN_PROPERTY, k, props.getProperty(k))))
+                     .forEach(k -> reservedKeyMap.put(k, props.getProperty(k)));
+            }
 
             if (Files.exists(externalBootstrapFile)) {
                 props.load(Files.newBufferedReader(externalBootstrapFile));

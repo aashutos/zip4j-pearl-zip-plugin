@@ -1,11 +1,11 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
 import com.ntak.pearlzip.ui.model.ZipState;
 import com.ntak.pearlzip.ui.util.ArchiveUtil;
-import com.ntak.pearlzip.ui.util.JFXUtil;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.util.JFXUtil.executeBackgroundProcess;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
@@ -69,22 +71,25 @@ public class BtnOpenEventHandler implements EventHandler<MouseEvent> {
                                                    resolveTextKey(HEADER_OPEN_NEW_WINDOW),
                                                    resolveTextKey(BODY_OPEN_NEW_WINDOW), null,
                                                    stage,
-                                                   new ButtonType[]{
-                // Open in New Window
-                new ButtonType(resolveTextKey(BTN_OPEN_NEW_WINDOW_YES), ButtonBar.ButtonData.YES),
-                // Open in Current Window
-                new ButtonType(resolveTextKey(BTN_OPEN_NEW_WINDOW_NO), ButtonBar.ButtonData.NO)
-        });
+                                                   // Open in New Window
+                                                   new ButtonType(resolveTextKey(BTN_OPEN_NEW_WINDOW_YES), ButtonBar.ButtonData.YES),
+                                                   // Open in Current Window
+                                                   new ButtonType(resolveTextKey(BTN_OPEN_NEW_WINDOW_NO), ButtonBar.ButtonData.NO));
         long sessionId = System.currentTimeMillis();
-        JFXUtil.executeBackgroundProcess(sessionId, stage,
-                                         ()->ArchiveUtil.openFile(rawFile),
-                                         (s)-> {
+        final Stage newStage = new Stage();
+        executeBackgroundProcess(sessionId, newStage,
+                                 ()->ArchiveUtil.openFile(rawFile),
+                                 (s)-> {
                                              // Default new window
                                              if (response.isPresent() && response.get()
                                                                                  .getButtonData()
                                                                                  .equals(ButtonBar.ButtonData.NO)) {
                                                  Platform.runLater(() -> this.stage.fireEvent(new WindowEvent(this.stage,
                                                                                                               WindowEvent.WINDOW_CLOSE_REQUEST)));
+                                             } else {
+                                                 PauseTransition delay = new PauseTransition(Duration.millis(100));
+                                                 delay.setOnFinished((e)->this.stage.toBack());
+                                                 delay.play();
                                              }
                                          }
         );
