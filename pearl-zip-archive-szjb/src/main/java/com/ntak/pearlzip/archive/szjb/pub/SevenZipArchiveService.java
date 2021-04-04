@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.archive.szjb.pub;
 
@@ -43,7 +43,7 @@ public class SevenZipArchiveService implements ArchiveReadService {
     private static final TransformEntry<ISimpleInArchiveItem> transformer = new SimpleSevenZipEntryTransform();
 
     public List<FileInfo> listFiles(long sessionId, String archivePath) {
-        if (archivePath.matches(".*(tar.gz|tar.xz|tar.bz2)$")) {
+        if (archivePath.matches(".*(.gz|.xz|.bz2)$")) {
             return List.of(new FileInfo(0, 0,
                                         Paths.get(archivePath.substring(0, archivePath.lastIndexOf("."))).getFileName().toString(), -1,
                                         0, 0,
@@ -70,7 +70,7 @@ public class SevenZipArchiveService implements ArchiveReadService {
                             .collect(Collectors.toList());
 
             // Handle file path only archives
-            if (files.stream().noneMatch(f->f.isFolder())) {
+            if (files.stream().noneMatch(FileInfo::isFolder)) {
                 List<String> rootFileNames =
                 files.stream()
                      .filter(f -> Paths.get(f.getFileName()).getParent() != null)
@@ -95,32 +95,31 @@ public class SevenZipArchiveService implements ArchiveReadService {
             }
 
             // Handle directory creation
-            HashSet<FileInfo> setFiles = new HashSet<>();
-            setFiles.addAll(files);
-            for (int i = 0; i < files.size(); i++) {
-                FileInfo file = files.get(i);
+            HashSet<FileInfo> setFiles = new HashSet<>(files);
+            for (FileInfo file : files) {
                 final int level = file.getLevel();
                 Path parent = Paths.get(file.getFileName());
                 for (int j = 1; j <= level; j++) {
-                        parent = parent.getParent();
+                    parent = parent.getParent();
                     final FileInfo fileInfo = new FileInfo(setFiles.size(),
-                                                    level - j,
-                                                    parent.toString(),
-                                                    -1,
-                                                    0,
-                                                    0,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    0,
-                                                    null,
-                                                    true,
-                                                    false,
-                                                    Collections.singletonMap(
-                                                            ConfigurationConstants.KEY_ICON_REF, System.getProperty(
-                                                                    CNS_NTAK_PEARL_ZIP_ICON_FOLDER, "")));
+                                                           level - j,
+                                                           parent.toString(),
+                                                           -1,
+                                                           0,
+                                                           0,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           0,
+                                                           null,
+                                                           true,
+                                                           false,
+                                                           Collections.singletonMap(
+                                                                   ConfigurationConstants.KEY_ICON_REF,
+                                                                   System.getProperty(
+                                                                           CNS_NTAK_PEARL_ZIP_ICON_FOLDER, "")));
                     setFiles.add(fileInfo);
                 }
             }
@@ -146,7 +145,7 @@ public class SevenZipArchiveService implements ArchiveReadService {
             List<ISimpleInArchiveItem> rawArchiveItems = List.of(archive.getSimpleInterface().getArchiveItems());
 
             // Nested archive file handling
-            if (archivePath.matches(".*(tar.gz|tar.xz|tar.bz2)$")) {
+            if (archivePath.matches(".*(.gz|.xz|.bz2)$")) {
                 optItem = Optional.of(rawArchiveItems.get(0));
             } else {
                 optItem = rawArchiveItems.stream()

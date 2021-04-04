@@ -166,8 +166,8 @@ public class FrmOptionsController {
                                                        resolveTextKey(TITLE_CLEAR_CACHE),
                                                        resolveTextKey(HEADER_CLEAR_CACHE),
                                                        resolveTextKey(BODY_CLEAR_CACHE),
-                                                       null, stage, new ButtonType[]{ButtonType.YES, ButtonType.NO}
-            );
+                                                       null, stage,
+                                                       ButtonType.YES, ButtonType.NO);
 
             if (response.isPresent() && response.get()
                                                 .getButtonData()
@@ -198,7 +198,7 @@ public class FrmOptionsController {
                                                                             .map(s -> ((FXArchiveInfo) s.getUserData()).getMigrationInfo().getType())
                                                      .filter(t->!t.equals(FXMigrationInfo.MigrationType.NONE))
                                                      .count();
-                                             if (activeMigrationsCount > 0) {
+                                             if (activeMigrationsCount == 0) {
                                                  ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId,
                                                                                                      PROGRESS,
                                                                                                      resolveTextKey(
@@ -228,7 +228,7 @@ public class FrmOptionsController {
                                                                              });
                                                                         // Delete nested directories
                                                                         Files.walk(d)
-                                                                             .filter(p -> Files.isDirectory(p))
+                                                                             .filter(Files::isDirectory)
                                                                              .forEach(p -> {
                                                                                  try {
                                                                                      Files.deleteIfExists(p);
@@ -255,7 +255,7 @@ public class FrmOptionsController {
                                                                                                  INDETERMINATE_PROGRESS, 1));
                                              Files.deleteIfExists(ZipConstants.RECENT_FILE);
                                          },
-                                         (exc)->{System.out.println(exc);},
+                                         System.out::println,
                                          (s) -> {});
             }
         });

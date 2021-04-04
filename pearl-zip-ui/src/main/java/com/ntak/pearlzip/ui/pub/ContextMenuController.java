@@ -6,6 +6,7 @@ package com.ntak.pearlzip.ui.pub;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.event.handler.*;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
@@ -62,7 +63,14 @@ public class ContextMenuController {
                                 mnuCopy.setText(resolveTextKey(LBL_BUTTON_COPY));
                                 mnuMove.setText(resolveTextKey(LBL_BUTTON_MOVE));
             }
+
+            if (ZipState.getCompressorArchives().contains(archiveInfo.getArchivePath().substring(archiveInfo.getArchivePath().lastIndexOf(".")+1))) {
+                mnuCopy.setDisable(true);
+                mnuMove.setDisable(true);
+                mnuDelete.setDisable(true);
+            }
         });
+
         FrmMainController controller;
         if (archiveInfo.getController().isPresent()) {
             controller = archiveInfo.getController().get();
@@ -85,6 +93,7 @@ public class ContextMenuController {
             mnuMove.setDisable(true);
             mnuDelete.setDisable(true);
         }
+
         mnuOpen.setOnAction((e)->openExternally(System.currentTimeMillis(), (Stage) row.getScene().getWindow(), archiveInfo,
                                                  fileInfo));
         mnuExtract.setOnAction((e)->new BtnExtractFileEventHandler(row.getTableView(), archiveInfo).handle(e));

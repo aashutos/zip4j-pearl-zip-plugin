@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright (c) ${YEAR} 92AK
  */
 package com.ntak.pearlzip.ui.constants;
 
@@ -50,6 +50,12 @@ public class ZipConstants {
     public static final String LOG_LICENSE_FILE_INFO = "logging.ntak.pearl-zip.license.license-file-info";
 
     public static final String LOG_OS_TRIGGER_DETECTED = "logging.ntak.pearl-zip.os-trigger-detected";
+
+    public static final String LOG_ISSUE_INTEGRATING_CHANGES = "logging.ntak.pearl-zip.issue-integrating-changes";
+
+    public static final String LOG_CREATE_ARCHIVE = "logging.ntak.pearl-zip.log-create-archive";
+
+    public static final String LOG_LOCKING_IN_PROPERTY = "logging.ntak.pearl-zip.locking-in-property";
 
     // Paste exception
     public static final String LOG_PASTE_EXCEPTION = "logging.ntak.pearl-zip.paste-exception";
@@ -108,6 +114,11 @@ public class ZipConstants {
     public static final String TITLE_CONFIRM_SAVE_ARCHIVE = "title.ntak.pearl-zip.confirm-save-archive";
     public static final String HEADER_CONFIRM_SAVE_ARCHIVE = "header.ntak.pearl-zip.confirm-save-archive";
     public static final String BODY_CONFIRM_SAVE_ARCHIVE = "body.ntak.pearl-zip.confirm-save-archive";
+
+    // confirm save nested archive
+    public static final String TITLE_CONFIRM_SAVE_NESTED_ARCHIVE = "title.ntak.pearl-zip.confirm-save-nested-archive";
+    public static final String HEADER_CONFIRM_SAVE_NESTED_ARCHIVE = "header.ntak.pearl-zip.confirm-save-nested-archive";
+    public static final String BODY_CONFIRM_SAVE_NESTED_ARCHIVE = "body.ntak.pearl-zip.confirm-save-nested-archive";
 
     // confirm save archive
     public static final String TITLE_CONFIRM_ADD_FILE = "title.ntak.pearl-zip.confirm-add-file";

@@ -79,24 +79,22 @@ echo "Manual override with pre-compiled modules..."
 cp $rootDir/src/main/resources/lib/org.apache.logging.log4j.core/log4j-core-2.14.0.jar mods/
 cp $rootDir/src/main/resources/lib/org.apache.commons.compress/commons-compress-1.20.jar mods/
 cp $rootDir/src/main/resources/lib/com.sun.jna/jna-5.6.0.jar mods/
-cp $rootDir/src/main/resources/lib/javafx-jmods-15.0.1/* mods/
-find $rootDir/mods -name  "javafx*[^m][^a][^c].jar" -delete
 
 echo "Create shared archive..."
-nohup ${JAVA_ROOT}java -Xshare:off --enable-preview -XX:DumpLoadedClassList=pz-class.lst --module-path=$rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher &
+${JAVA_ROOT}java -Xshare:off -Djava.awt.headless=true --enable-preview -XX:DumpLoadedClassList=pz-class.lst --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher &
 pid=$!
 echo "Dump list process PID: $pid"
-sleep 5
+sleep 10
 kill -9 $pid
 # KILL executed, Check for end of process
 while [ $(ps -p $pid > /dev/null) ]; do
   sleep 10
 done
 
-nohup ${JAVA_ROOT}java -Xshare:dump --enable-preview -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path=$rootDir/mods/ com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
+${JAVA_ROOT}java -Xshare:dump -Djava.awt.headless=true --enable-preview -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
 pid=$!
 echo "Create JSA process PID: $pid"
-sleep 5
+sleep 10
 kill -2 $pid
 #   SIGINT executed, Check for end of process
 while [ $(ps -p $pid > /dev/null) ]; do
@@ -104,12 +102,14 @@ while [ $(ps -p $pid > /dev/null) ]; do
 done
 
 echo "Create runtime..."
-find $rootDir/mods/ -name  "javafx*mac.jar" -delete
+#cp $rootDir/src/main/resources/lib/javafx-jmods-15.0.1/* mods/
+#find $rootDir/mods -name  "javafx*[^m][^a][^c].jar" -delete
+#find $rootDir/mods/ -name  "javafx*mac.jar" -delete
 ${JAVA_ROOT}jlink --module-path=$rootDir/mods/ --add-modules=ALL-MODULE-PATH --output $rootDir/pz-runtime
 
 echo "Generate App Image"
 mkdir -p target
-${JAVA_ROOT}jpackage --type app-image --app-version 1.0.0 --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
+${JAVA_ROOT}jpackage --type app-image --app-version 1.0.0 --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa -XX:+UseZGC" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip  --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
 
 echo "Clearing up working directories..."
 rm -f pz-shared.jsa
@@ -118,5 +118,6 @@ rm -rf pz-runtime
 rm -rf mods
 rm -rf deps.lst
 rm -rf out
+rm -r  nohup.out
 
 exit 0

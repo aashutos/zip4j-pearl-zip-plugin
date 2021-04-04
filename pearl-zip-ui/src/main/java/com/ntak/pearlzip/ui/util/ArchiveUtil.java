@@ -60,24 +60,22 @@ public class ArchiveUtil {
 
         if (Objects.nonNull(dir)) {
             Map<Integer,List<FileInfo>> mapFiles =
-                    fxArchiveInfo.getFiles().stream().collect(Collectors.groupingBy(f->f.getLevel()));
+                    fxArchiveInfo.getFiles().stream().collect(Collectors.groupingBy(FileInfo::getLevel));
 
             for (int level : mapFiles.keySet().stream().sorted().collect(Collectors.toList())) {
                 List<FileInfo> files = mapFiles.getOrDefault(level, Collections.emptyList());
-                files.stream().filter(f -> f.isFolder()).forEach(f-> {
+                files.stream().filter(FileInfo::isFolder).forEach(f-> {
                     try {
                         Files.createDirectory(Paths.get(dir.getAbsolutePath(), f.getFileName()));
                     } catch(IOException e) {
                     }
                 });
 
-                files.stream().filter(f -> !f.isFolder()).forEach(f -> {
-                                                                      archiveReadService.extractFile(sessionId,
-                                                                                                     Paths.get(dir.getAbsolutePath(),
-                                                                                                               Paths.get(f.getFileName()).toString()),
-                                                                                                     fxArchiveInfo.getArchivePath(),
-                                                                                                     f);
-                                                                  }
+                files.stream().filter(f -> !f.isFolder()).forEach(f -> archiveReadService.extractFile(sessionId,
+                                                Paths.get(dir.getAbsolutePath(),
+                                                         Paths.get(f.getFileName()).toString()),
+                                                fxArchiveInfo.getArchivePath(),
+                                                f)
                 );
             }
         }
@@ -93,15 +91,13 @@ public class ArchiveUtil {
     public static List<FileInfo> handleDirectory(String prefix, Path root, Path directory, int depth, int index) throws IOException {
         List<FileInfo> files = new ArrayList<>();
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            Iterator<Path> paths = dirStream.iterator();
-            while (paths.hasNext()) {
-                Path path = paths.next();
+            for (Path path : dirStream) {
                 if (Files.isDirectory(path)) {
                     final List<FileInfo> subDirFiles = handleDirectory(prefix, root, path, (depth + 1), index);
                     files.addAll(subDirFiles);
                     index += subDirFiles.size();
-                    if (!files.stream()
-                              .anyMatch(f -> f.getFileName()
+                    if (files.stream()
+                             .noneMatch(f -> f.getFileName()
                                               .equals(root.relativize(path)
                                                           .toString()))) {
                         files.add(new FileInfo(index++, depth,
@@ -195,14 +191,14 @@ public class ArchiveUtil {
 
     public static void newArchive(long sessionId, ArchiveInfo archiveInfo, File archive) {
         // LOG: Creating file: %s
-        LOGGER.info(archive);
+        LOGGER.info(resolveTextKey(LOG_CREATE_ARCHIVE, archive));
         archiveInfo.setArchivePath(archive.getAbsolutePath());
 
         FXArchiveInfo fxArchiveInfo = new FXArchiveInfo(archive.getAbsolutePath(),
                                                         ZipState.getReadArchiveServiceForFile(archive.getName()).get(),
                                                         ZipState.getWriteArchiveServiceForFile(archive.getName()).get());
         fxArchiveInfo.getWriteService().createArchive(sessionId, archiveInfo);
-        Platform.runLater(() -> {launchMainStage(fxArchiveInfo);});
+        Platform.runLater(() -> launchMainStage(fxArchiveInfo));
         addToRecentFile(archive);
     }
 
@@ -243,8 +239,8 @@ public class ArchiveUtil {
             String appName = System.getProperty(CNS_NTAK_PEARL_ZIP_APP_NAME, "PearlZip");
             String version = System.getProperty(CNS_NTAK_PEARL_ZIP_VERSION, "0.0.0.0");
 
-            stage.setTitle(String.format(resolveTextKey(TITLE_FILE_PATTERN, appName, version,
-                                                           fxArchiveInfo.getArchivePath())));
+            stage.setTitle(resolveTextKey(TITLE_FILE_PATTERN, appName, version,
+                                                           fxArchiveInfo.getArchivePath()));
 
             stage.show();
             stage.setAlwaysOnTop(true);
@@ -276,7 +272,7 @@ public class ArchiveUtil {
             controller.initData(progressStage, latch, callback, sessionId);
             progressStage.initStyle(StageStyle.UNDECORATED);
 
-            Platform.runLater(()->progressStage.show());
+            Platform.runLater(progressStage::show);
         } catch (Exception e) {
         }
 

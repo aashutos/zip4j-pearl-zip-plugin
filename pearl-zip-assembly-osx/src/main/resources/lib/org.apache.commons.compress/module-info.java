@@ -30,4 +30,7 @@ module org.apache.commons.compress {
     exports org.apache.commons.compress.utils;
 
     uses org.apache.commons.compress.archivers.ArchiveStreamProvider;
+    uses org.apache.commons.compress.compressors.CompressorStreamProvider;
+
+    requires org.tukaani.xz;
 }
