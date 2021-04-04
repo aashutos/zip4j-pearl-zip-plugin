@@ -31,4 +31,6 @@ module org.apache.commons.compress {
 
     uses org.apache.commons.compress.archivers.ArchiveStreamProvider;
     uses org.apache.commons.compress.compressors.CompressorStreamProvider;
+
+    requires org.tukaani.xz;
 }
