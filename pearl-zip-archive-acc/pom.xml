@@ -46,6 +46,11 @@
             <artifactId>xz</artifactId>
             <version>${xz.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-lang-pack-${lang}-${country}</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>

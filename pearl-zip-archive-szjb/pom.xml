@@ -34,6 +34,11 @@
             <systemPath>${basedir}/lib/sevenzipjbinding-16.02-2.01.jar</systemPath>
             <scope>system</scope>
         </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-lang-pack-${lang}-${country}</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
