@@ -9,14 +9,18 @@ import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.openExternally;
+import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
  *  Controller for the Context menu.
@@ -94,8 +98,27 @@ public class ContextMenuController {
             mnuDelete.setDisable(true);
         }
 
-        mnuOpen.setOnAction((e)->openExternally(System.currentTimeMillis(), (Stage) row.getScene().getWindow(), archiveInfo,
-                                                 fileInfo));
+        mnuOpen.setOnAction((e)->{
+            if (Objects.isNull(fileInfo) || fileInfo.isFolder()) {
+                // LOG: No file has been selected from archive %s
+                ROOT_LOGGER.warn(resolveTextKey(LOG_NO_FILE_SELECTED, archiveInfo.getArchivePath()));
+                // TITLE: Information: No file selected
+                // HEADER: A file has not been selected
+                // BODY: Please select a file.
+                raiseAlert(Alert.AlertType.INFORMATION,
+                           resolveTextKey(TITLE_NO_FILE_SELECTED),
+                           resolveTextKey(HEADER_NO_FILE_SELECTED),
+                           resolveTextKey(BODY_NO_FILE_SELECTED),
+                           row.getScene().getWindow()
+                );
+            } else {
+                openExternally(System.currentTimeMillis(),
+                               (Stage) row.getScene()
+                                          .getWindow(),
+                               archiveInfo,
+                               fileInfo);
+            }
+        });
         mnuExtract.setOnAction((e)->new BtnExtractFileEventHandler(row.getTableView(), archiveInfo).handle(e));
         mnuFileInfo.setOnAction((e)->new BtnFileInfoEventHandler(row.getTableView(),archiveInfo).handle(null));
     }

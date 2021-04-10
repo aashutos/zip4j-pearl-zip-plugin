@@ -81,7 +81,7 @@ cp $rootDir/src/main/resources/lib/org.apache.commons.compress/commons-compress-
 cp $rootDir/src/main/resources/lib/com.sun.jna/jna-5.6.0.jar mods/
 
 echo "Create shared archive..."
-${JAVA_ROOT}java -Xshare:off -Djava.awt.headless=true --enable-preview -XX:DumpLoadedClassList=pz-class.lst --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher &
+${JAVA_ROOT}java -Xshare:off -Djava.awt.headless=true --enable-preview -XX:+UseZGC -XX:DumpLoadedClassList=pz-class.lst --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher &
 pid=$!
 echo "Dump list process PID: $pid"
 sleep 10
@@ -91,7 +91,7 @@ while [ $(ps -p $pid > /dev/null) ]; do
   sleep 10
 done
 
-${JAVA_ROOT}java -Xshare:dump -Djava.awt.headless=true --enable-preview -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
+${JAVA_ROOT}java -Xshare:dump -Djava.awt.headless=true --enable-preview -XX:+UseZGC -XX:SharedClassListFile=pz-class.lst -XX:SharedArchiveFile=pz-shared.jsa --module-path="$(ls mods | xargs -I{} echo mods/{} | tr '\n' ':'):mods/pearl-zip-ui-$VERSION.jar" com.ntak.pearlzip.ui.pub.ZipLauncher -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher > /dev/null 2>&1 &
 pid=$!
 echo "Create JSA process PID: $pid"
 sleep 10
