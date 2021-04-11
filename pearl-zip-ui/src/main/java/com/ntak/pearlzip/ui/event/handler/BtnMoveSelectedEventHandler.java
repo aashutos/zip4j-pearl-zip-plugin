@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -166,14 +166,14 @@ public class BtnMoveSelectedEventHandler implements EventHandler<ActionEvent> {
                                                                                    "",
                                                                                    0,
                                                                                    String.format("File %s copied into archive by %s",
-                                                                                                 fileName.toString(), APP),
+                                                                                                 fileName, APP),
                                                                                    Files.isDirectory(tempFile),
                                                                                    false,
                                                                                    Collections.singletonMap(KEY_FILE_PATH, tempFile.toAbsolutePath().toString())
                                                                       );
 
-                                                              LOGGER.info(String.format(resolveTextKey(LOG_PASTE_FILE_DETAILS, newFile.getFileName(),
-                                                                                                       fxArchiveInfo.getDepth(), fxArchiveInfo.getPrefix())));
+                                                              LOGGER.info(resolveTextKey(LOG_PASTE_FILE_DETAILS, newFile.getFileName(),
+                                                                                         fxArchiveInfo.getDepth(), fxArchiveInfo.getPrefix()));
 
                                                               success = archiveWriteService.addFile(sessionId,
                                                                                                     fxArchiveInfo.getArchivePath(), newFile);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;

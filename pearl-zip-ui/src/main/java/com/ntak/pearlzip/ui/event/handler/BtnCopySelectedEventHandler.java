@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -186,7 +186,7 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                                                                                    0,
                                                                                    String.format(
                                                                                            "File %s copied into archive by %s",
-                                                                                           fileName.toString(),
+                                                                                           fileName,
                                                                                            APP),
                                                                                    Files.isDirectory(tempFile),
                                                                                    false,
@@ -196,11 +196,11 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                                                                                                    .toString())
                                                                       );
 
-                                                              LOGGER.info(String.format(resolveTextKey(
+                                                              LOGGER.info(resolveTextKey(
                                                                       LOG_PASTE_FILE_DETAILS,
                                                                       newFile.getFileName(),
                                                                       fxArchiveInfo.getDepth(),
-                                                                      fxArchiveInfo.getPrefix())));
+                                                                      fxArchiveInfo.getPrefix()));
 
                                                               archiveWriteService.addFile(sessionId,
                                                                                           fxArchiveInfo.getArchivePath(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
@@ -85,8 +85,7 @@ public class FrmLicenseOverviewController {
                         Path licenseUri;
                         if (Objects.nonNull(refRootFolder)) {
                             licenseUri =
-                                    Paths.get(new URL(String.format("%s/%s", refRootFolder
-                                                                            .toString(),
+                                    Paths.get(new URL(String.format("%s/%s", refRootFolder,
                                                                     fileName)).getPath()).toAbsolutePath();
                         } else {
                             // Check module file system for resource...

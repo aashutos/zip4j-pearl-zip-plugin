@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.archive.szjb.pub;
 
@@ -29,8 +29,10 @@ public void testListFiles_ValidFile_ReturnsContents() {
     List<String> expectations = new ArrayList<>(List.of("first-file", "second-file", "first-folder", "first-folder/.DS_Store",
                                          "first-folder/first-nested-file"));
     int i = 0;
-    List<String> fileNames = new ArrayList<>(files.stream().map(f->f.getFileName()).collect(Collectors.toList()));
-    fileNames.sort(CharSequence::compare);
+    List<String> fileNames = files.stream()
+                                  .map(FileInfo::getFileName)
+                                  .sorted(CharSequence::compare)
+                                  .collect(Collectors.toList());
     expectations.sort(CharSequence::compare);
     for (String file : fileNames) {
         Assertions.assertEquals(expectations.get(i), file, String.format("File: %s was not found as " +

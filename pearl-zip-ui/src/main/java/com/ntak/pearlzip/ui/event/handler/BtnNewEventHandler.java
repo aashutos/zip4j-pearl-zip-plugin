@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -42,7 +42,7 @@ public class BtnNewEventHandler implements EventHandler<MouseEvent> {
                 Stage newStage = new Stage();
                 VBox root;
 
-                newStage.setTitle(String.format(resolveTextKey(TITLE_NEW_ARCHIVE_PATTERN)));
+                newStage.setTitle(resolveTextKey(TITLE_NEW_ARCHIVE_PATTERN));
                 newStage.setResizable(false);
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(ZipLauncher.class.getClassLoader()

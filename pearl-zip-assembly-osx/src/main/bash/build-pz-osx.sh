@@ -1,8 +1,18 @@
 #!/bin/bash
 
 #
-# Copyright (c) ${YEAR} 92AK
+# Copyright © 2021 92AK
 #
+
+while read line; do
+  if [ $(echo "$line" | grep = | wc -l) == 1 ]
+  then
+    echo "Setting environment variable: $line"
+    key=$(echo $line | cut -d= -f1)
+    value=$(echo $line | cut -d= -f2-)
+    declare P_$key="$value"
+  fi
+done < ./src/main/resources/settings.properties
 
 echo "Checking Maven and Java are installed"
 JAVA_ROOT="${JAVA_HOME:+$JAVA_HOME/bin/}"
@@ -10,6 +20,13 @@ JAVA_ROOT="${JAVA_HOME:+$JAVA_HOME/bin/}"
 echo "Input parameters: $*"
 
 VERSION=$1
+if [ $(echo "$VERSION" | cut -d. -f1) -eq 0 ] || [ $(echo "$VERSION" | cut -d. -f1) -eq 1 ]
+then # Mac versioning cannot start with major increment = 0
+  MAC_APP_VERSION=1.$(echo "$VERSION" | cut -d. -f2).$(echo "$VERSION" | cut -d. -f3)
+else
+  MAC_APP_VERSION=$(echo "$VERSION" | cut -d. -f1).$(echo "$VERSION" | cut -d. -f2).$(echo "$VERSION" | cut -d. -f3)
+fi
+YT_VERSION=PA-$VERSION
 
 if [ "$(which mvn | echo $?)" -ne 0 ]
 then
@@ -109,7 +126,17 @@ ${JAVA_ROOT}jlink --module-path=$rootDir/mods/ --add-modules=ALL-MODULE-PATH --o
 
 echo "Generate App Image"
 mkdir -p target
-${JAVA_ROOT}jpackage --type app-image --app-version 1.0.0 --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa -XX:+UseZGC" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip  --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
+${JAVA_ROOT}jpackage --type app-image --app-version $MAC_APP_VERSION --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa -XX:+UseZGC" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip  --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
+
+mkdir -p components
+echo "Generating changelog"
+# Retrieve Change Log for release
+curl -X GET "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20PearlZip%20%23Bug%20%23Feature%20%23Task%20Fix%20versions:%20${YT_VERSION}" -H 'Accept: application/json' -H "Authorization: Bearer ${P_YOUTRACK_AUTH}" -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' | tr , "\n" | grep summary | cut -d'"' -f4 | sort | xargs -I{} echo "+ {}" > components/changelog
+printf "PearlZip Version $VERSION Change Log\nCopyright © $(date +%Y) 92AK\n====================================\n\nThe following features are in scope for this release of PearlZip:\n\n$(cat components/changelog)" > components/changelog
+
+echo "Building installation package..."
+cp -R target/PearlZip.app ${P_LICENSE_DIRECTORY}/BSD-3-CLAUSE-LICENSE ${P_LICENSE_DIRECTORY}/CC-ATTR-4-LICENSE ${P_LICENSE_DIRECTORY}/CC-NC-ND-4-LICENSE components
+pkgbuild --root components --component-plist ./src/main/resources/PearlZip.plist --install-location /Applications/PearlZip --identifier com.ntak.pearlzip --version ${MAC_APP_VERSION} --ownership recommended ./target/PearlZip-Installer-${VERSION}.pkg
 
 echo "Clearing up working directories..."
 rm -f pz-shared.jsa
@@ -119,5 +146,6 @@ rm -rf mods
 rm -rf deps.lst
 rm -rf out
 rm -r  nohup.out
+rm -rf components
 
 exit 0

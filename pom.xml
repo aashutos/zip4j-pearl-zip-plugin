@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) ${YEAR} 92AK
+  ~ Copyright © 2021 92AK
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
@@ -11,6 +11,7 @@
     <version>0.0.0.1</version>
     <name>PearlZip Application</name>
     <packaging>pom</packaging>
+    <url>https://pearlzip.92ak.co.uk</url>
 
     <properties>
         <log4j.version>2.14.0</log4j.version>
@@ -28,6 +29,7 @@
         <module>pearl-zip-license</module>
         <module>pearl-zip-ui</module>
         <module>pearl-zip-assembly-osx</module>
+        <module>pearl-zip-deploy-common</module>
     </modules>
 
     <licenses>

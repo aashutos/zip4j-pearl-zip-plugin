@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 

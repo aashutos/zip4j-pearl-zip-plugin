@@ -2,7 +2,7 @@ import com.ntak.pearlzip.license.pub.LicenseService;
 import com.ntak.pearlzip.license.pub.PearlZipLicenseService;
 
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 /**
  *  Provides license information of core dependencies of the Pearl Zip project.
