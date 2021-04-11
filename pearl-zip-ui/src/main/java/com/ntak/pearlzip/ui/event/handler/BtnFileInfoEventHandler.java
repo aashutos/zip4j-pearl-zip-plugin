@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -61,7 +61,7 @@ public class BtnFileInfoEventHandler implements EventHandler<MouseEvent> {
         }
 
         try {
-            if (isRendered.get() == false) {
+            if (!isRendered.get()) {
 
                 isRendered.getAndSet(true);
                 Stage stage = new Stage();

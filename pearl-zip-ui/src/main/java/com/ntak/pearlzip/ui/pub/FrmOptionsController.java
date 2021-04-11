@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
@@ -88,7 +88,8 @@ public class FrmOptionsController {
         name.setCellValueFactory((s)-> new SimpleStringProperty(s.getValue().getValue().getClass().getCanonicalName()));
         readCapability.setCellValueFactory((s)-> new SimpleObjectProperty<>(s.getValue()));
         readCapability.setCellFactory((c)->{
-            TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>> cell = new TableCell<>() {
+
+            return new TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>>() {
                 @Override
                 public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
                     super.updateItem(item, empty);
@@ -102,12 +103,10 @@ public class FrmOptionsController {
                     }
                 }
             };
-
-            return cell;
         });
         writeCapability.setCellValueFactory((s)-> new SimpleObjectProperty<>(s.getValue()));
         writeCapability.setCellFactory((c)->{
-            TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>> cell = new TableCell<>() {
+            return new TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>>() {
                 @Override
                 public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
                     super.updateItem(item, empty);
@@ -121,7 +120,6 @@ public class FrmOptionsController {
                     }
                 }
             };
-            return cell;
         });
         supportedFormat.setCellValueFactory((s)-> {
             try {

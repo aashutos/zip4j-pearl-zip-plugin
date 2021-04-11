@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.util;
 
@@ -86,14 +86,14 @@ public class JFXUtil {
         return (Stage.getWindows()
                      .stream()
                      .filter(Window::isFocused)
-                     .map(w->(Stage)w))
+                     .map(Stage.class::cast))
                 .findFirst();
     }
 
     public static List<Stage> getMainStageInstances() {
         return Stage.getWindows()
                     .stream()
-                    .map(w -> (Stage) w)
+                    .map(Stage.class::cast)
                     .filter(s -> s.isShowing() && Optional.ofNullable(s.getTitle()).orElse("")
                                                    .matches(resolveTextKey(TITLE_FILE_PATTERN, ".*", ".*", ".*")))
                     .collect(Collectors.toList());

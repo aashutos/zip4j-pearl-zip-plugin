@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
@@ -50,9 +50,7 @@ public class FrmProgressController {
         this.sessionId = sessionId;
         stage.setOnShown((e)->latch.countDown());
         this.callback = callback;
-        stage.setOnCloseRequest((e)->{
-            ArchiveService.DEFAULT_BUS.unregister(this);
-        });
+        stage.setOnCloseRequest((e)-> ArchiveService.DEFAULT_BUS.unregister(this));
     }
 
     @Subscribe(threadMode=ThreadMode.BACKGROUND)
@@ -62,7 +60,7 @@ public class FrmProgressController {
             Platform.runLater(()-> {
                 lblProgress.setText(message.message());
                 if ((message.completed() / message.total()) >= 0) {
-                    barProgress.setProgress(barProgress.getProgress() + (message.completed()/(double)message.total()));
+                    barProgress.setProgress(barProgress.getProgress() + (message.completed()/message.total()));
                 }
             });
         }

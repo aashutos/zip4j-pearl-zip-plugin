@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) ${YEAR} 92AK
+  ~ Copyright © 2021 92AK
   -->
 
 <?import javafx.scene.control.*?>
-<MenuBar fx:id="mbarSys" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/15.0.1" fx:controller="com.ntak.pearlzip.ui.pub.SysMenuController">
-  <useSystemMenuBar>true</useSystemMenuBar>
-  <menus>
-    <Menu fx:id="mnuFile" mnemonicParsing="true" text="%sysmenu.file.text">
-      <items>
-            <MenuItem fx:id="mnuNew" mnemonicParsing="true" text="%sysmenu.file.new.text" />
-            <SeparatorMenuItem mnemonicParsing="true" />
-            <MenuItem fx:id="mnuOpen" mnemonicParsing="true" text="%sysmenu.open.text" />
-            <Menu fx:id="mnuOpenRecent" mnemonicParsing="true" text="%sysmenu.recent.text">
+<MenuBar fx:id="mbarSys" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/15.0.1"
+         fx:controller="com.ntak.pearlzip.ui.pub.SysMenuController">
+    <useSystemMenuBar>true</useSystemMenuBar>
+    <Menu fx:id="mnuFile" text="%sysmenu.file.text">
+        <items>
+            <MenuItem fx:id="mnuNew" text="%sysmenu.file.new.text"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="mnuOpen" text="%sysmenu.open.text"/>
+            <Menu fx:id="mnuOpenRecent" text="%sysmenu.recent.text">
 
             </Menu>
-            <SeparatorMenuItem mnemonicParsing="true" />
-            <MenuItem fx:id="mnuSaveAs" mnemonicParsing="true" text="%sysmenu.file.save-as.text" />
-            <SeparatorMenuItem mnemonicParsing="true" />
-        <MenuItem fx:id="mnuClose" mnemonicParsing="true" text="%sysmenu.file.close.text" />
-      </items>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="mnuSaveAs" text="%sysmenu.file.save-as.text"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="mnuClose" text="%sysmenu.file.close.text"/>
+        </items>
     </Menu>
-    <Menu mnemonicParsing="true" text="%sysmenu.tools.text">
-       <items>
-          <MenuItem fx:id="mnuOptions" mnemonicParsing="true" text="%sysmenu.tools.options.text" />
-       </items>
+    <Menu text="%sysmenu.tools.text">
+        <items>
+            <MenuItem fx:id="mnuOptions" text="%sysmenu.tools.options.text"/>
+        </items>
     </Menu>
-  </menus>
 </MenuBar>

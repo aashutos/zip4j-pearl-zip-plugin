@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -74,7 +74,6 @@ public class BtnExtractFileEventHandler implements EventHandler<ActionEvent> {
                        resolveTextKey(BODY_NO_FILE_SELECTED),
                        fileContentsView.getScene().getWindow()
             );
-            return;
         } else {
             FileChooser addFileView = new FileChooser();
             // Title: Extract file %s to...

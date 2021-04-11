@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.model;
 
@@ -13,7 +13,7 @@ import static com.ntak.pearlzip.ui.model.FXMigrationInfo.MigrationType.NONE;
 */
 public class FXMigrationInfo {
     public enum MigrationType {
-        COPY, MOVE, DELETE, NONE;
+        COPY, MOVE, DELETE, NONE
     }
 
     private MigrationType type = NONE;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -86,7 +86,7 @@ public class FileContentsDragDropRowEventHandler implements EventHandler<DragEve
                                                        resolveTextKey(BODY_CONFIRM_ADD_FILE),
                                                        null,
                                                        fileContentsView.getScene().getWindow(),
-                                                       new ButtonType[]{ButtonType.YES, ButtonType.NO});
+                                                       ButtonType.YES, ButtonType.NO);
 
             if (response.isPresent() && response.get()
                                                 .getButtonData()
@@ -152,7 +152,7 @@ public class FileContentsDragDropRowEventHandler implements EventHandler<DragEve
                     archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
                                                   files.toArray(new FileInfo[files.size()]));
                   },
-                  (e)->e.printStackTrace(),
+                  Throwable::printStackTrace,
                   (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix));
             }
         }

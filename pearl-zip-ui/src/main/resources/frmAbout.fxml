@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<!--
+  ~ Copyright © 2021 92AK
+  -->
+
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-
 <VBox prefHeight="487.0" prefWidth="490.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ntak.pearlzip.ui.pub.FrmAboutController">
     <minWidth>490.0</minWidth>
     <maxWidth>490.0</maxWidth>

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.cell;
 
@@ -22,7 +22,7 @@ public abstract class AbstractHighlightFileInfoCellCallback implements Callback<
 
     @Override
     public TableCell<FileInfo,FileInfo> call(TableColumn<FileInfo,FileInfo> param) {
-        TableCell<FileInfo,FileInfo> cell = new TableCell<>() {
+        return new TableCell<>() {
             @Override
             public void updateItem(FileInfo item, boolean empty) {
                 super.updateItem(item, empty);
@@ -34,9 +34,9 @@ public abstract class AbstractHighlightFileInfoCellCallback implements Callback<
                         setField(this, item);
 
                         // Highlight logic
-                        if (getTableView().getScene().getWindow().getUserData() instanceof FXArchiveInfo) {
-                            FXArchiveInfo fxArchiveInfo =
-                                    (FXArchiveInfo) getTableView().getScene().getWindow().getUserData();
+                        if (getTableView().getScene()
+                                          .getWindow()
+                                          .getUserData() instanceof FXArchiveInfo fxArchiveInfo) {
                             if (fxArchiveInfo.getMigrationInfo().getType() != FXMigrationInfo.MigrationType.NONE) {
                                 final FileInfo rootMigrationFile = fxArchiveInfo.getMigrationInfo()
                                                                    .getFile();
@@ -46,7 +46,6 @@ public abstract class AbstractHighlightFileInfoCellCallback implements Callback<
                 }
             }
         };
-        return cell;
     }
 
     public abstract void setField(TableCell<FileInfo,FileInfo> cell, FileInfo fileInfo);

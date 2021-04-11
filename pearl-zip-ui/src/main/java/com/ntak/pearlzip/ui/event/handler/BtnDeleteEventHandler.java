@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.event.handler;
 
@@ -55,8 +55,8 @@ public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
     @Override
     public void handle(MouseEvent event) {
         try {
-            if (!ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath())
-                         .isPresent()) {
+            if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath())
+                        .isEmpty()) {
                 // LOG: Delete functionality not supported for archive %s
                 LOGGER.warn(resolveTextKey(LOG_DEL_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
                 // TITLE: Warning: Delete functionality not supported
@@ -99,11 +99,11 @@ public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
                             // TITLE: Error: Issue deleting file from archive
                             // HEADER: File could not be removed from the archive
                             // BODY: File %s has not been removed from the archive. The backup of archive has been restored.
-                            Platform.runLater(()->{raiseAlert(Alert.AlertType.ERROR,
-                                       resolveTextKey(TITLE_ISSUE_DELETE_FILE),
-                                       resolveTextKey(HEADER_ISSUE_DELETE_FILE),
-                                       resolveTextKey(BODY_ISSUE_DELETE_FILE, fileToDelete.getFileName()),
-                                       fileContentsView.getScene().getWindow());}
+                            Platform.runLater(()-> raiseAlert(Alert.AlertType.ERROR,
+                                                              resolveTextKey(TITLE_ISSUE_DELETE_FILE),
+                                                              resolveTextKey(HEADER_ISSUE_DELETE_FILE),
+                                                              resolveTextKey(BODY_ISSUE_DELETE_FILE, fileToDelete.getFileName()),
+                                                              fileContentsView.getScene().getWindow())
                             );
                             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
                                                                                 resolveTextKey(LBL_PROGRESS_LOADING),

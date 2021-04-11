@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) ${YEAR} 92AK
+# Copyright © 2021 92AK
 #
 
 JARPATH=$1

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.util;
 
@@ -24,12 +24,8 @@ public record MetricProfile(Consumer<Thread> beforeMetric, Consumer<Thread> afte
     }
 
     public static MetricProfile getDefaultProfile() {
-        Consumer<Thread> loggerStart = (t)->{
-            LOGGER.info(String.format("Thread %s : started at: %s", t.getName(), LocalDateTime.now()));
-        };
-        Consumer<Thread> loggerComplete = (t)->{
-            LOGGER.info(String.format("Thread %s : completed at: %s", t.getName(), LocalDateTime.now()));
-        };
+        Consumer<Thread> loggerStart = (t)-> LOGGER.info(String.format("Thread %s : started at: %s", t.getName(), LocalDateTime.now()));
+        Consumer<Thread> loggerComplete = (t)-> LOGGER.info(String.format("Thread %s : completed at: %s", t.getName(), LocalDateTime.now()));
         return new MetricProfile(loggerStart, loggerComplete);
     }
 }

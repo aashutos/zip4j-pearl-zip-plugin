@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.model;
 
@@ -12,10 +12,10 @@ import javafx.collections.ObservableList;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_INFO_ASSERT_PATH;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_INFO_ASSERT_READ_SERVICE;
@@ -53,9 +53,7 @@ public class FXArchiveInfo {
         this.writeService = writeService;
 
         setFiles(FXCollections.observableArrayList(
-                readService.listFiles(System.currentTimeMillis(), archivePath)
-                               .stream()
-                               .collect(Collectors.toList())));
+                new ArrayList<>(readService.listFiles(System.currentTimeMillis(), archivePath))));
     }
 
     public AtomicInteger getDepth() {

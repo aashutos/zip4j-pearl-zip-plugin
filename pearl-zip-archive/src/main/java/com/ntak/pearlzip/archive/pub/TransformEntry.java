@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.archive.pub;
 
@@ -12,6 +12,6 @@ import java.util.Optional;
  *  @author Aashutos Kakshepati
  */
 public interface TransformEntry<T> {
-    default Optional<FileInfo> transform(T rawEntry) {return Optional.empty();};
-    default Optional<T> transform(FileInfo rawEntry) {return Optional.empty();};
+    default Optional<FileInfo> transform(T rawEntry) {return Optional.empty();}
+    default Optional<T> transform(FileInfo rawEntry) {return Optional.empty();}
 }

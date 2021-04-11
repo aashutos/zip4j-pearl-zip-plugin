@@ -1,5 +1,5 @@
 /*
- * Copyright (c) ${YEAR} 92AK
+ * Copyright © 2021 92AK
  */
 package com.ntak.pearlzip.ui.pub;
 
@@ -112,7 +112,7 @@ public class SysMenuController {
                 Stage newStage = new Stage();
                 AnchorPane root;
 
-                newStage.setTitle(String.format(resolveTextKey(TITLE_OPTIONS_PATTERN)));
+                newStage.setTitle(resolveTextKey(TITLE_OPTIONS_PATTERN));
                 newStage.setResizable(false);
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(ZipLauncher.class.getClassLoader()
