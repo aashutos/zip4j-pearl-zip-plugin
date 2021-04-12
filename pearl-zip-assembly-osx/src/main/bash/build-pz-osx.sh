@@ -131,7 +131,7 @@ ${JAVA_ROOT}jpackage --type app-image --app-version $MAC_APP_VERSION --copyright
 mkdir -p components
 echo "Generating changelog"
 # Retrieve Change Log for release
-curl -X GET "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20PearlZip%20%23Bug%20%23Feature%20%23Task%20Fix%20versions:%20${YT_VERSION}" -H 'Accept: application/json' -H "Authorization: Bearer ${P_YOUTRACK_AUTH}" -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' | tr , "\n" | grep summary | cut -d'"' -f4 | sort | xargs -I{} echo "+ {}" > components/changelog
+curl -X GET "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20PearlZip%20%23Bug%20%23Feature%20%23Task%20Fix%20versions:%20${YT_VERSION}%20tag:%20release-tickets" -H 'Accept: application/json' -H "Authorization: Bearer ${P_YOUTRACK_AUTH}" -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' | tr , "\n" | grep summary | cut -d'"' -f4 | sort | xargs -I{} echo "+ {}" > components/changelog
 printf "PearlZip Version $VERSION Change Log\nCopyright © $(date +%Y) 92AK\n====================================\n\nThe following features are in scope for this release of PearlZip:\n\n$(cat components/changelog)" > components/changelog
 
 echo "Building installation package..."
