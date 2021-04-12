@@ -42,3 +42,7 @@ PearlZip.iml
 # Build directories
 target/
 build/
+
+# Deployment configuration
+/pearl-zip-deploy-common/src/main/resources/settings.properties
+/pearl-zip-assembly-osx/src/main/resources/settings.properties
