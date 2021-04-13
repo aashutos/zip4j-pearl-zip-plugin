@@ -20,6 +20,7 @@
         <eventbus.version>3.2.0</eventbus.version>
         <pearlzip.next.version>${project.version}</pearlzip.next.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <modules>

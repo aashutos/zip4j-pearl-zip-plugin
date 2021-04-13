@@ -24,6 +24,10 @@ done < ./src/main/resources/settings.properties
 # Get set environment variables
 # ( set -o posix ; set )
 
+echo 'Configuring release name...'
+P_RELEASE="${P_PREFIX_RELEASE:+$P_PREFIX_RELEASE-}$P_RELEASE"
+echo "Release name has been set to: ${P_RELEASE}"
+
 # Dependencies check on environment
 if [ "$(which 7z | echo $?)" -ne 0 ]
 then
@@ -72,6 +76,7 @@ fi
 P_TAGS_API="${P_GITHUB_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/tags/${P_RELEASE}"
 P_TOKEN_HEADER="Authorization: token ${P_GITHUB_API_TOKEN}"
 
+CHANGELOG=$(cat ../pearl-zip-assembly-osx/components/changelog | tr '\n' '\\n')
 echo "Uploading asset ${INSTALLER} to ${P_REPOSITORY} for tag ${P_RELEASE}... "
 NEW_RELEASE_JSON=$(curl -X POST -sH "${P_TOKEN_HEADER}" -d "{\"name\":\"PearlZip Release ${P_RELEASE}${P_CODENAME:+" ($P_CODENAME)"}\",\"body\":\"PearlZip Release version ${P_RELEASE} as an Apple pkg installer.\",\"tag_name\":\"${P_RELEASE}\",\"draft\":${P_DRAFT_RELEASE}" https://api.github.com/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases)
 
@@ -80,3 +85,6 @@ echo "Asset Id: $ID"
 echo "Uploading asset ${INSTALLER} "
 sleep 10
 curl --progress-bar -sH "${P_TOKEN_HEADER}" --data-binary @"${INSTALLER}" -H "Content-Type: application/octet-stream" "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/${ID}/assets?name=$(basename ${INSTALLER})"
+
+echo 'resetting to master branch...'
+git checkout master
