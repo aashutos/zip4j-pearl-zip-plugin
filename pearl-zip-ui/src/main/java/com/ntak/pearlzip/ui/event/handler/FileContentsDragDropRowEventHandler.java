@@ -108,7 +108,7 @@ public class FileContentsDragDropRowEventHandler implements EventHandler<DragEve
                               if (file.isFile()) {
                                   // Retrieving metadata for file %s
                                   ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
-                                                                                      resolveTextKey(LBL_RETRIEVE_FILE_META),
+                                                                                      resolveTextKey(LBL_RETRIEVE_FILE_META, file.getAbsolutePath()),
                                                                                       INDETERMINATE_PROGRESS, 1));
                                   Path destFile = Paths.get(prefix,
                                                             file.toPath()
@@ -125,7 +125,7 @@ public class FileContentsDragDropRowEventHandler implements EventHandler<DragEve
                               } else { // folder
                                       // Retrieving metadata for files in folder %s
                                       ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
-                                                                                          resolveTextKey(LBL_RETRIEVE_FOLDER_META),
+                                                                                          resolveTextKey(LBL_RETRIEVE_FOLDER_META, file.getAbsolutePath()),
                                                                                       INDETERMINATE_PROGRESS, 1));
                                       List<FileInfo> genFiles = handleDirectory(prefix,
                                                                                 file.toPath().getParent(),
@@ -150,7 +150,7 @@ public class FileContentsDragDropRowEventHandler implements EventHandler<DragEve
                     }
 
                     archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
-                                                  files.toArray(new FileInfo[files.size()]));
+                                                  files.toArray(new FileInfo[0]));
                   },
                   Throwable::printStackTrace,
                   (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix));
