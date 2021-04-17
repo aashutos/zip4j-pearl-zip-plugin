@@ -257,6 +257,6 @@ public class SevenZipArchiveService implements ArchiveReadService {
 
     @Override
     public List<String> supportedReadFormats() {
-        return Arrays.asList("tar","zip","gz","bz2","xz","7z", "jar", "rar", "iso", "msi", "cab");
+        return Arrays.asList("tar","zip","gz","bz2","xz","7z", "jar", "rar", "iso", "cab");
     }
 }
