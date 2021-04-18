@@ -20,6 +20,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,6 +73,22 @@ public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
                 },
                                              (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)
             );
+        } else {
+            // LOG: Warning: Add functionality not supported for archive %s
+            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
+            // TITLE: Warning: Add functionality not supported
+            // HEADER: No Write provider for archive format
+            // BODY: Cannot add file to archive as functionality is not supported for file: %s
+            raiseAlert(Alert.AlertType.WARNING,
+                       resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
+                       resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
+                       resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
+                                      Paths.get(fxArchiveInfo.getArchivePath())
+                                           .getFileName()
+                                           .toString()),
+                       fileContentsView.getScene().getWindow()
+            );
+            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
         }
         } catch (Exception e) {
             // LOG: Issue creating stage.\nException type: %s\nMessage:%s\nStack trace:\n%s
