@@ -231,13 +231,15 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                 jarEntry.setMethod(JarArchiveOutputStream.DEFLATED);
                 jarEntry.setComment(file.getComments());
                 jarEntry.setCrc(crcHashFile(filePath.toFile()));
-                jarEntry.setCreationTime(basicView.readAttributes()
-                                                  .creationTime());
-                jarEntry.setLastModifiedTime(basicView.readAttributes()
-                                                      .lastModifiedTime());
-                jarEntry.setLastAccessTime(basicView.readAttributes()
-                                                    .lastModifiedTime());
-                jarEntry.setInternalAttributes(file.getAttributes());
+                if (Objects.nonNull(basicView) && Objects.nonNull(basicView.readAttributes()) && !Files.isSymbolicLink(filePath)) {
+                    jarEntry.setCreationTime(basicView.readAttributes()
+                                                      .creationTime());
+                    jarEntry.setLastModifiedTime(basicView.readAttributes()
+                                                          .lastModifiedTime());
+                    jarEntry.setLastAccessTime(basicView.readAttributes()
+                                                        .lastModifiedTime());
+                    jarEntry.setInternalAttributes(file.getAttributes());
+                }
                 return;
             }
 

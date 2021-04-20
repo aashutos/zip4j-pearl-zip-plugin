@@ -6,6 +6,8 @@
  *  compression functionality for various common archive formats.
  */
 module com.ntak.pearlzip.archive.acc  {
+    exports com.ntak.pearlzip.archive.acc.pub;
+
     requires org.apache.commons.compress;
     requires com.ntak.pearlzip.archive;
     requires org.tukaani.xz;

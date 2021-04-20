@@ -1,0 +1,19 @@
+#
+# Copyright © 2021 92AK
+#
+
+#####################################################################
+#  LOCAL CONFIGURATION                                              #
+#####################################################################
+BINARY_DIRECTORY=../pearl-zip-assembly-osx/target
+
+#####################################################################
+#  GITHUB CONFIGURATION                                             #
+#####################################################################
+GITHUB_API=https://api.github.com
+GITHUB_UPLOAD_API=https://uploads.github.com
+REPO_OWNER=
+REPOSITORY=pearl-zip
+GITHUB_API_TOKEN=
+DRAFT_RELEASE=false
+PREFIX_RELEASE=
