@@ -31,16 +31,15 @@ public class PearlZipLicenseService implements LicenseService {
     @Override
     public Map<String,LicenseInfo> retrieveDeclaredLicenses() {
         Map<String,LicenseInfo> licMap = new HashMap<>();
-        InputStream licenseFile =
-                PearlZipLicenseService.class
-                        .getClassLoader()
-                        .getResourceAsStream(System.getProperty(LicenseConstants.CNS_LICENSE_LOCATION,"LICENSE.xml"));
-        InputStream licenseOverrideFile =
-                PearlZipLicenseService.class
-                        .getClassLoader()
-                        .getResourceAsStream(System.getProperty(CNS_LICENSE_OVERRIDE_LOCATION, "LICENSE-OVERRIDE.xml"));
 
-        try {
+        try(InputStream licenseFile =
+                    PearlZipLicenseService.class
+                            .getClassLoader()
+                            .getResourceAsStream(System.getProperty(LicenseConstants.CNS_LICENSE_LOCATION,"LICENSE.xml"));
+            InputStream licenseOverrideFile =
+                    PearlZipLicenseService.class
+                            .getClassLoader()
+                            .getResourceAsStream(System.getProperty(CNS_LICENSE_OVERRIDE_LOCATION, "LICENSE-OVERRIDE.xml"))) {
 
             // Parse Maven generated license file
             DocumentBuilder documentBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
@@ -53,7 +52,7 @@ public class PearlZipLicenseService implements LicenseService {
             // Parse Manual override license file
             Document overrideDocument = documentBuilder.parse(licenseOverrideFile);
             List<LicenseInfo> licenseOverrideInfoList = extractLicenseInfo(overrideDocument);
-            licenseOverrideInfoList.forEach(l->licMap.put(l.canonicalName(),l));
+            licenseOverrideInfoList.forEach(l->licMap.put(String.format("%s:%s", l.canonicalName(), l.licenseType()),l));
         } catch(Exception e) {
             // LOG: Issue parsing license files. Exception type: %s\nMessage: %s\nStack trace:%s
             LOGGER.warn(resolveTextKey(LOG_ISSUE_PARSE_LICENSE_FILE, e.getClass().getCanonicalName(), e.getMessage(),
