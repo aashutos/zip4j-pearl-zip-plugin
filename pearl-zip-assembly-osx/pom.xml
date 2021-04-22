@@ -22,6 +22,7 @@
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
         <jdk.location>/Library/Java/JavaVirtualMachines/jdk-15.0.2.jdk/Contents/Home/</jdk.location>
+        <project.use-build-dir>true</project.use-build-dir>
     </properties>
 
     <licenses>
@@ -52,6 +53,8 @@
                    <executable>${project.basedir}/src/main/bash/build-pz-osx.sh</executable>
                    <arguments>
                        <argument>${project.version}</argument>
+                       <argument>${lang}_${country}</argument>
+                       <argument>${project.use-build-dir}</argument>
                    </arguments>
                    <environmentVariables>
                        <JAVA_HOME>${jdk.location}</JAVA_HOME>

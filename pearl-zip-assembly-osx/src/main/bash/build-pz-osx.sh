@@ -18,8 +18,9 @@ echo "Checking Maven and Java are installed"
 JAVA_ROOT="${JAVA_HOME:+$JAVA_HOME/bin/}"
 
 echo "Input parameters: $*"
-
 VERSION=$1
+LOCALE=$2
+USE_BUILD_DIR=$3
 if [ $(echo "$VERSION" | cut -d. -f1) -eq 0 ] || [ $(echo "$VERSION" | cut -d. -f1) -eq 1 ]
 then # Mac versioning cannot start with major increment = 0
   MAC_APP_VERSION=1.$(echo "$VERSION" | cut -d. -f2).$(echo "$VERSION" | cut -d. -f3)
@@ -125,8 +126,8 @@ echo "Create runtime..."
 ${JAVA_ROOT}jlink --module-path=$rootDir/mods/ --add-modules=ALL-MODULE-PATH --output $rootDir/pz-runtime
 
 echo "Generate App Image"
-mkdir -p target
-${JAVA_ROOT}jpackage --type app-image --app-version $MAC_APP_VERSION --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa -XX:+UseZGC" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip  --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime -d target --verbose
+mkdir -p target/${LOCALE}
+${JAVA_ROOT}jpackage --dest target/${LOCALE} --type app-image --app-version $MAC_APP_VERSION --copyright "© copyright 2021 92AK" --description "A JavaFX front-end wrapper for some common archive formats" --name PearlZip --vendor 92AK --verbose --java-options "--enable-preview -XX:SharedArchiveFile=pz-shared.jsa -XX:+UseZGC" --icon "$rootDir/src/main/resources/pz-icon.icns" --mac-package-identifier com.ntak.pearl-zip --mac-package-identifier PearlZip  --module-path $rootDir/mods/ -m com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.pub.ZipLauncher --file-associations $rootDir/src/main/resources/file-associations/fa-xz.properties --file-associations $rootDir/src/main/resources/file-associations/fa-bz2.properties --file-associations $rootDir/src/main/resources/file-associations/fa-zip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-gzip.properties --file-associations $rootDir/src/main/resources/file-associations/fa-tar.properties --file-associations $rootDir/src/main/resources/file-associations/fa-jar.properties --runtime-image $rootDir/pz-runtime --verbose
 
 mkdir -p components
 echo "Generating changelog"
@@ -135,8 +136,17 @@ curl -X GET "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20Pearl
 printf "PearlZip Version $VERSION Change Log\nCopyright © $(date +%Y) 92AK\n====================================\n\nThe following features are in scope for this release of PearlZip:\n\n$(cat components/changelog)" > components/changelog
 
 echo "Building installation package..."
-cp -R target/PearlZip.app ${P_LICENSE_DIRECTORY}/BSD-3-CLAUSE-LICENSE ${P_LICENSE_DIRECTORY}/CC-ATTR-4-LICENSE ${P_LICENSE_DIRECTORY}/CC-NC-ND-4-LICENSE components
-pkgbuild --root components --component-plist ./src/main/resources/PearlZip.plist --install-location /Applications/PearlZip --identifier com.ntak.pearlzip --version ${MAC_APP_VERSION} --ownership recommended ./target/PearlZip-Installer-${VERSION}.pkg
+cp -R target/${LOCALE}/PearlZip.app ${P_LICENSE_DIRECTORY}/BSD-3-CLAUSE-LICENSE ${P_LICENSE_DIRECTORY}/CC-ATTR-4-LICENSE ${P_LICENSE_DIRECTORY}/CC-NC-ND-4-LICENSE components
+pkgbuild --root components --component-plist ./src/main/resources/PearlZip.plist --install-location /Applications/PearlZip --identifier com.ntak.pearlzip --version ${MAC_APP_VERSION} --ownership recommended ./target/${LOCALE}/PearlZip-Installer-${LOCALE}-${VERSION}.pkg
+
+if [ "$USE_BUILD_DIR" == 'true' ]
+then
+  echo "Keeping packages in build directory..."
+  mkdir -p build
+  cp -R target/* build
+else
+  rm -rf build
+fi
 
 echo "Clearing up working directories..."
 rm -f pz-shared.jsa

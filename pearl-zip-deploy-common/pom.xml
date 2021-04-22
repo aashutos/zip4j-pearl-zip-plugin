@@ -40,6 +40,7 @@
                             <executable>${project.basedir}/src/main/bash/deploy-release-github.sh</executable>
                             <arguments>
                                 <argument>${project.version}</argument>
+                                <argument>${lang}_${country}</argument>
                                 <argument>${project.codename}</argument>
                             </arguments>
                             <environmentVariables>
