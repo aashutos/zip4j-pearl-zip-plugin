@@ -8,6 +8,7 @@ import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
  *  General UI/front-end JavaFX code for the Pearl Zip application.
  */
 module com.ntak.pearlzip.ui {
+    exports com.ntak.pearlzip.ui.cell;
     exports com.ntak.pearlzip.ui.pub;
     exports com.ntak.pearlzip.ui.util;
 
