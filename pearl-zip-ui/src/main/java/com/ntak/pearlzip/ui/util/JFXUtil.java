@@ -19,11 +19,13 @@ import javafx.stage.Window;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
@@ -107,14 +109,30 @@ public class JFXUtil {
         fxArchiveInfo.setPrefix(prefix);
         fileInfoTableView.setItems(FXCollections.observableArrayList(fxArchiveInfo.getFiles()
                                                                                   .stream()
-                                                                                  .filter(f -> f.getLevel() == fxArchiveInfo.getDepth()
-                                                                                                                           .get()
-                                                                                         && f.getFileName()
-                                                                                             .startsWith(
-                                                                                                     fxArchiveInfo.getPrefix()))
+                                                                                  .filter(isFileInArchiveLevel(
+                                                                                          fxArchiveInfo))
                                                                                   .collect(
                                                                                          Collectors.toList())));
         fileInfoTableView.refresh();
+    }
+
+    public static Predicate<FileInfo> isFileInArchiveLevel(FXArchiveInfo fxArchiveInfo) {
+        return f -> {
+            final boolean sameDepth = f.getLevel() == fxArchiveInfo.getDepth()
+                                                                   .get();
+            if (fxArchiveInfo.getDepth()
+                             .get() > 0) {
+                return sameDepth
+                        && f.getFileName()
+                            .startsWith(
+                                    String.format("%s%s",
+                                                  fxArchiveInfo.getPrefix(),
+                                                  File.separator)
+                            );
+            } else {
+                return sameDepth;
+            }
+        };
     }
 
     public static void executeBackgroundProcess(long sessionId, Stage parent, CaughtRunnable process,
