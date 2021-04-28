@@ -74,7 +74,13 @@ public class MetricThreadFactoryTest {
         Assertions.assertFalse(atoUncaught.get(), "atoAfter not initialised");
         CountDownLatch latch = new CountDownLatch(1);
 
-        factory = MetricThreadFactory.create(profile);
+        MetricProfile metricProfile = new MetricProfile((t)->atoBefore.set(true),
+                                                        (t)->{
+                                                            atoAfter.set(true);
+                                                            latch.countDown();
+                                                        });
+
+        factory = MetricThreadFactory.create(metricProfile);
         Assertions.assertNotNull(factory, "No factory was returned");
         Assertions.assertTrue(factory instanceof MetricThreadFactory, "The factory was not a MetricThreadFactory");
 
@@ -82,11 +88,7 @@ public class MetricThreadFactoryTest {
             atoRunnable.set(true);
             throw new RuntimeException("A runtime exception");
         });
-        t.setUncaughtExceptionHandler((th,e)->
-        {
-          atoUncaught.set(true);
-          latch.countDown();
-        });
+        t.setUncaughtExceptionHandler((th,e)->atoUncaught.set(true));
         Assertions.assertNotNull(t, "No thread was returned");
         Assertions.assertTrue(t instanceof MetricThreadFactory.LoggingMetricThread, "A LoggingMetricThread was not " +
                 "returned");
@@ -97,6 +99,6 @@ public class MetricThreadFactoryTest {
         Assertions.assertTrue(atoBefore.get(), "atoBefore did not run");
         Assertions.assertTrue(atoRunnable.get(), "atoRunnable did not run");
         Assertions.assertTrue(atoUncaught.get(), "atoUncaught did not run");
-        Assertions.assertTrue(atoAfter.get(), "atoAfter did run unexpectedly");
+        Assertions.assertTrue(atoAfter.get(), "atoAfter did not run");
     }
 }
