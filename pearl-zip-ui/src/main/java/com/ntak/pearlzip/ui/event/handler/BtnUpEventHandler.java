@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.ui.util.JFXUtil.isFileInArchiveLevel;
+
 /**
  *  Event Handler for Parent Archive Directory Navigation functionality.
  *  @author Aashutos Kakshepati
@@ -38,10 +40,7 @@ public class BtnUpEventHandler implements EventHandler<MouseEvent> {
         fxArchiveInfo.setPrefix(Optional.ofNullable(Paths.get(fxArchiveInfo.getPrefix()).getParent()).orElse(Paths.get("")).toString());
         fileContentsView.setItems(FXCollections.observableArrayList(fxArchiveInfo.getFiles()
                                                                             .stream()
-                                                                            .filter(f -> f.getLevel() == fxArchiveInfo.getDepth()
-                                                                                                                 .get()
-                                                                                    && f.getFileName().startsWith(fxArchiveInfo.getPrefix())
-                                                                            )
+                                                                            .filter(isFileInArchiveLevel(fxArchiveInfo))
                                                                             .collect(
                                                                                     Collectors.toList())));
         fileContentsView.refresh();
