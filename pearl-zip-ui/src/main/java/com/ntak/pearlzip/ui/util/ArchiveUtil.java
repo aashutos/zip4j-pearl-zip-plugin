@@ -58,7 +58,7 @@ public class ArchiveUtil {
     public static void extractToDirectory(long sessionId, FXArchiveInfo fxArchiveInfo, File dir) {
         ArchiveReadService archiveReadService = fxArchiveInfo.getReadService();
 
-        if (Objects.nonNull(dir)) {
+        if (Objects.nonNull(dir) && dir.exists()) {
             Map<Integer,List<FileInfo>> mapFiles =
                     fxArchiveInfo.getFiles().stream().collect(Collectors.groupingBy(FileInfo::getLevel));
 
