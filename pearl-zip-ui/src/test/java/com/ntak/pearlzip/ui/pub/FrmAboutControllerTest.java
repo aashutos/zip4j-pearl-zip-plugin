@@ -42,7 +42,6 @@ public class FrmAboutControllerTest {
     @BeforeAll
     public static void setUpOnce() throws InterruptedException, NoSuchFieldException {
         try {
-            // TODO: Replicate below other relevant tests
             Platform.startup(() -> latch.countDown());
         } catch (Exception e) {
             latch.countDown();

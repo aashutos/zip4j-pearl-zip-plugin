@@ -46,6 +46,7 @@ public class ArchiveUtilTest {
     private static ArchiveWriteService mockArchiveWriteService;
     private static Path tempDirectory;
     private static Menu menuRecent;
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
         Test cases:
@@ -67,12 +68,13 @@ public class ArchiveUtilTest {
     */
 
     @BeforeAll
-    public static void setUpOnce() throws NoSuchAlgorithmException, IOException {
+    public static void setUpOnce() throws NoSuchAlgorithmException, IOException, InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
         } finally {
+            latch.await();
             menuRecent = new Menu();
 
             digest = MessageDigest.getInstance("SHA-256");

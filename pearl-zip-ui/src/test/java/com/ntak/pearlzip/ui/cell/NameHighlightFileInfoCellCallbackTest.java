@@ -11,12 +11,14 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_ICON_REF;
 
 public class NameHighlightFileInfoCellCallbackTest {
 
     NameHighlightFileInfoCellCallback callback = new NameHighlightFileInfoCellCallback();
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
          Test cases:
@@ -26,11 +28,13 @@ public class NameHighlightFileInfoCellCallbackTest {
      */
 
     @BeforeAll
-    public static void setUpOnce() {
+    public static void setUpOnce() throws InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
+        } finally {
+            latch.await();
         }
     }
 

@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.Mockito.when;
 
@@ -42,6 +43,8 @@ public class ContextMenuControllerTest {
     private static FrmMainController mockMainController;
     private static ArchiveReadService mockArchiveReadService;
 
+    private static CountDownLatch latch = new CountDownLatch(1);
+
     /*
         Test cases:
         + Context menu options set up on COPY mode
@@ -53,12 +56,14 @@ public class ContextMenuControllerTest {
      */
 
     @BeforeAll
-    public static void setUpOnce() throws NoSuchFieldException {
+    public static void setUpOnce() throws NoSuchFieldException, InterruptedException {
         try {
-            Platform.startup(() -> {});
+            Platform.startup(() -> latch.countDown());
         } catch (Exception e) {
-
+            latch.countDown();
         } finally {
+            latch.await();
+
             controller = new ContextMenuController();
             ctxMenu = new ContextMenu();
             fileInfo =  new FileInfo(1, 0, "file", 0, 0, 0,

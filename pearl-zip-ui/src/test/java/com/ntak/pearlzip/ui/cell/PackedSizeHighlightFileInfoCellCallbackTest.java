@@ -10,10 +10,12 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 public class PackedSizeHighlightFileInfoCellCallbackTest {
 
     PackedSizeHighlightFileInfoCellCallback callback = new PackedSizeHighlightFileInfoCellCallback();
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
          Test cases:
@@ -21,11 +23,13 @@ public class PackedSizeHighlightFileInfoCellCallbackTest {
      */
 
     @BeforeAll
-    public static void setUpOnce() {
+    public static void setUpOnce() throws InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
+        } finally {
+            latch.await();
         }
     }
 
