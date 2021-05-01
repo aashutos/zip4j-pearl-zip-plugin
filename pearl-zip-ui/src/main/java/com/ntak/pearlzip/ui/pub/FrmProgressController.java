@@ -62,6 +62,9 @@ public class FrmProgressController {
                 if ((message.completed() / message.total()) >= 0) {
                     barProgress.setProgress(barProgress.getProgress() + (message.completed()/message.total()));
                 }
+                if (message.total() == ProgressIndicator.INDETERMINATE_PROGRESS) {
+                    barProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+                }
             });
         }
 
