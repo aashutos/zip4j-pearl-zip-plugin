@@ -61,6 +61,7 @@ public class FrmFileInfoControllerTest {
     private static TableColumn<Pair<String,String>, String> value;
 
     private static Button btnClose;
+    private static Map<String,Object> parameters;
 
     /*
         Test cases:
@@ -84,7 +85,7 @@ public class FrmFileInfoControllerTest {
             secondLatch.await();
 
             // Set up FileInfo
-            Map<String,Object> parameters = new HashMap<>();
+            parameters = new HashMap<>();
             parameters.put(KEY_FILE_PATH, "/tmp/archive.zip");
             parameters.put(KEY_ICON_REF, "archive.png");
             fileInfo =  new FileInfo(1, 0, "archive.zip", 1257468032, 1024, 10240,
@@ -233,5 +234,12 @@ public class FrmFileInfoControllerTest {
 
         Assertions.assertEquals("user", lblUserValue.getText(), "Label lblUserValue not set to the expected value");
         Assertions.assertEquals("group", lblGroupValue.getText(), "Label lblGroupValue not set to the expected value");
+
+        for (Pair<String,String> param : tblOtherInfo.getItems()) {
+            Assertions.assertTrue(parameters.containsKey(param.getKey()), String.format("Property %s not found",
+                                                                                        param.getKey()));
+            Assertions.assertEquals(parameters.get(param.getKey()), param.getValue(),
+                                    String.format("Property %s with unexpected value %s", param.getKey(), param.getValue()));
+        }
     }
 }
