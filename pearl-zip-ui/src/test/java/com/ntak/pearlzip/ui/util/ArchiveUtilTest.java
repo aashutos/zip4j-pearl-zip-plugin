@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
 import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -70,6 +71,7 @@ public class ArchiveUtilTest {
     @BeforeAll
     public static void setUpOnce() throws NoSuchAlgorithmException, IOException, InterruptedException {
         try {
+            System.setProperty(CNS_RES_BUNDLE, "pearlzip-ui");
             Platform.startup(() -> latch.countDown());
         } catch (Exception e) {
             latch.countDown();
