@@ -39,6 +39,7 @@ import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@Tag("Excluded")
 public class ArchiveUtilTest {
 
     private static MessageDigest digest;

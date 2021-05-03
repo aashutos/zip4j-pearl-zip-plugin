@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_ICON_REF;
 
+@Tag("Excluded")
 public class NameHighlightFileInfoCellCallbackTest {
 
     NameHighlightFileInfoCellCallback callback = new NameHighlightFileInfoCellCallback();

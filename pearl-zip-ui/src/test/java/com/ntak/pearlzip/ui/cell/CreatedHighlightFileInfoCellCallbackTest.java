@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
+@Tag("Excluded")
 public class CreatedHighlightFileInfoCellCallbackTest {
 
     CreatedHighlightFileInfoCellCallback callback = new CreatedHighlightFileInfoCellCallback();
