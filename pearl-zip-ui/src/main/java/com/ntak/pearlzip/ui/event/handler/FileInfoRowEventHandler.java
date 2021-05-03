@@ -69,7 +69,7 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                 final Path selectedFile = Paths.get(clickedRow.getFileName());
                 // An archive that can be opened by this application...
                 long sessionId = System.currentTimeMillis();
-                if (ZipState.supportedReadArchives().stream().anyMatch(e -> clickedRow.getFileName().endsWith(e))) {
+                if (ZipState.supportedReadArchives().stream().anyMatch(e -> clickedRow.getFileName().endsWith(String.format(".%s",e)))) {
                     JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
                                                      ()-> {
                                                          Platform.runLater(()->row.setDisable(true));
