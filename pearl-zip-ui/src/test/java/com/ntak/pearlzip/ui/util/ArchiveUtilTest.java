@@ -34,10 +34,12 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
 import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@Tag("Excluded")
 public class ArchiveUtilTest {
 
     private static MessageDigest digest;
@@ -46,6 +48,7 @@ public class ArchiveUtilTest {
     private static ArchiveWriteService mockArchiveWriteService;
     private static Path tempDirectory;
     private static Menu menuRecent;
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
         Test cases:
@@ -67,12 +70,14 @@ public class ArchiveUtilTest {
     */
 
     @BeforeAll
-    public static void setUpOnce() throws NoSuchAlgorithmException, IOException {
+    public static void setUpOnce() throws NoSuchAlgorithmException, IOException, InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            System.setProperty(CNS_RES_BUNDLE, "pearlzip-ui");
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
         } finally {
+            latch.await();
             menuRecent = new Menu();
 
             digest = MessageDigest.getInstance("SHA-256");

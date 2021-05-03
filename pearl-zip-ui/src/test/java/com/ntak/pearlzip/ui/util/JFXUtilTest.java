@@ -11,10 +11,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -24,12 +21,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+@Tag("Excluded")
 public class JFXUtilTest {
     private static Button button;
 
@@ -38,6 +37,7 @@ public class JFXUtilTest {
     private static TableView<FileInfo> fileInfoTableView;
     private static FXArchiveInfo archiveInfo;
     private static Path archive;
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
         Test cases:
@@ -48,12 +48,13 @@ public class JFXUtilTest {
      */
 
     @BeforeAll
-    public static void setUpOnce() throws IOException {
+    public static void setUpOnce() throws IOException, InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
         } finally {
+            latch.await();
             archive = Files.createTempFile("pz", "");
 
             button = new Button();
