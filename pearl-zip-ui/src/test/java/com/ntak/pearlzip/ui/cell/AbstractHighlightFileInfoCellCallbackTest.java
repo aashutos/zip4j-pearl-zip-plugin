@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
+@Tag("Excluded")
 public class AbstractHighlightFileInfoCellCallbackTest {
 
     private static AbstractHighlightFileInfoCellCallback callback;

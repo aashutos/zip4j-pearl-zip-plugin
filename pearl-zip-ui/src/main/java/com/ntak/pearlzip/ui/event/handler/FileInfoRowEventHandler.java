@@ -35,6 +35,7 @@ import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchMainStage;
+import static com.ntak.pearlzip.ui.util.JFXUtil.isFileInArchiveLevel;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
@@ -142,10 +143,7 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                     fxArchiveInfo.setPrefix(clickedRow.getFileName());
                     fileContentsView.setItems(FXCollections.observableArrayList(fxArchiveInfo.getFiles()
                                                                                         .stream()
-                                                                                        .filter(f -> f.getLevel() == fxArchiveInfo.getDepth()
-                                                                                                                             .get()
-                                                                                            && f.getFileName().startsWith(fxArchiveInfo.getPrefix())
-                                                                                        )
+                                                                                        .filter(isFileInArchiveLevel(fxArchiveInfo))
                                                                                         .collect(
                                                                                                 Collectors.toList())));
                     fileContentsView.refresh();

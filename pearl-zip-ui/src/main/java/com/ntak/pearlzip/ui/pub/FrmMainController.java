@@ -64,7 +64,7 @@ public class FrmMainController {
     private FXArchiveInfo FXArchiveInfo;
 
     @FXML
-    private void initialize()
+    public void initialize()
     {
         name.setCellFactory(new NameHighlightFileInfoCellCallback());
         name.setCellValueFactory(new PropertyValueFactory<>("Self"));

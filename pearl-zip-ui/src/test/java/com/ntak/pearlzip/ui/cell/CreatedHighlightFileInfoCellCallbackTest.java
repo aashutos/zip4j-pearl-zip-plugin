@@ -11,10 +11,13 @@ import org.junit.jupiter.api.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
+@Tag("Excluded")
 public class CreatedHighlightFileInfoCellCallbackTest {
 
     CreatedHighlightFileInfoCellCallback callback = new CreatedHighlightFileInfoCellCallback();
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     /*
          Test cases:
@@ -22,11 +25,13 @@ public class CreatedHighlightFileInfoCellCallbackTest {
      */
 
     @BeforeAll
-    public static void setUpOnce() {
+    public static void setUpOnce() throws InterruptedException {
         try {
-            Platform.startup(() -> {});
-        } catch (IllegalStateException e) {
-
+            Platform.startup(() -> latch.countDown());
+        } catch (Exception e) {
+            latch.countDown();
+        } finally {
+            latch.await();
         }
     }
 

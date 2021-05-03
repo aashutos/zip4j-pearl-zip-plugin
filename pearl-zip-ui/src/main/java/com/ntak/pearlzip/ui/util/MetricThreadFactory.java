@@ -76,8 +76,7 @@ public class MetricThreadFactory implements ThreadFactory {
             final Thread.UncaughtExceptionHandler exceptionHandler = Thread.currentThread()
                                                                            .getUncaughtExceptionHandler();
             if (!(exceptionHandler instanceof ThreadGroup)) {
-                exceptionHandler
-                        .uncaughtException(Thread.currentThread(), e);
+                exceptionHandler.uncaughtException(Thread.currentThread(), e);
             } else {
                 // Exception occurred on Thread: %s with exception message: %s\nStack trace: %s
                 LOGGER.error(resolveTextKey(LOG_THREAD_EXECUTION_ISSUE, Thread.currentThread()
