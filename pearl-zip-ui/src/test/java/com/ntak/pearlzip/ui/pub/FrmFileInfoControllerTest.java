@@ -11,10 +11,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.internal.util.reflection.InstanceField;
 
 import java.time.LocalDateTime;
@@ -27,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_ICON_REF;
 
+@Tag("Excluded")
 public class FrmFileInfoControllerTest {
 
     private static CountDownLatch latch = new CountDownLatch(1);

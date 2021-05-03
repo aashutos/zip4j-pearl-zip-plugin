@@ -8,10 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.InstanceField;
 
@@ -22,6 +19,7 @@ import static com.ntak.pearlzip.ui.constants.ResourceConstants.DTF_YYYY;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@Tag("Excluded")
 public class FrmAboutControllerTest {
     private static FrmAboutController controller;
     private static Stage mockStage;
