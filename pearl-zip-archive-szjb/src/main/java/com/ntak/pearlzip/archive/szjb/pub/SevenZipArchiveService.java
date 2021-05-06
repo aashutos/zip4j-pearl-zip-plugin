@@ -20,6 +20,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -252,6 +253,23 @@ public class SevenZipArchiveService implements ArchiveReadService {
         } finally {
             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED,COMPLETED,1,1));
         }
+
+        // Handle empty tar balls
+        if (archivePath.endsWith(".tar")) {
+            outer:
+            try(InputStream is = Files.newInputStream(Paths.get(archivePath))) {
+                for (byte b : is.readAllBytes()) {
+                    if (b != 0) {
+                        // fail test
+                        break outer;
+                    }
+                }
+                // Empty tar is in expected state
+                return true;
+            } catch(IOException e) {
+            }
+        }
+
         return false;
     }
 
