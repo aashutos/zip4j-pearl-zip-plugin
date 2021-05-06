@@ -5,6 +5,7 @@ package com.ntak.pearlzip.ui.util;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
+import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
@@ -194,10 +195,12 @@ public class ArchiveUtil {
         LOGGER.info(resolveTextKey(LOG_CREATE_ARCHIVE, archive));
         archiveInfo.setArchivePath(archive.getAbsolutePath());
 
+        final ArchiveWriteService writeService = ZipState.getWriteArchiveServiceForFile(archive.getName())
+                                                         .get();
+        writeService.createArchive(sessionId, archiveInfo);
         FXArchiveInfo fxArchiveInfo = new FXArchiveInfo(archive.getAbsolutePath(),
                                                         ZipState.getReadArchiveServiceForFile(archive.getName()).get(),
-                                                        ZipState.getWriteArchiveServiceForFile(archive.getName()).get());
-        fxArchiveInfo.getWriteService().createArchive(sessionId, archiveInfo);
+                                                        writeService);
         Platform.runLater(() -> launchMainStage(fxArchiveInfo));
         addToRecentFile(archive);
     }
