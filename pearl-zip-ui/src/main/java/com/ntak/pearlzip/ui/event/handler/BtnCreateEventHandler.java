@@ -109,6 +109,8 @@ public class BtnCreateEventHandler implements EventHandler<MouseEvent> {
     }
 
     private File genNewArchivePath(String path, String timestamp, String archiveFormat) {
+        path = path.replaceFirst(String.format("(\\.%s|\\.tar\\.%s)", archiveFormat, archiveFormat),"");
+
         if (ZipState.getCompressorArchives().contains(archiveInfo.getArchiveFormat())
         ) {
             // tar.<ext> file format

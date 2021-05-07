@@ -7,6 +7,7 @@ import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.util.ArchiveUtil;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,6 +24,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
@@ -46,7 +48,7 @@ public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
 
     @Override
     public void handle(ActionEvent event) {
-        if (!ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).isPresent()) {
+        if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).isEmpty()) {
             // LOG: Warning: Add functionality not supported for archive %s
             LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
             // TITLE: Warning: Add functionality not supported
@@ -84,25 +86,49 @@ public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
             fileName = rawFile.toPath().getFileName().toString();
         }
         long sessionId = System.currentTimeMillis();
+        int depth = fxArchiveInfo.getDepth().get();
+        int index = fxArchiveInfo.getFiles().size();
+        String prefix = fxArchiveInfo.getPrefix();
+
         JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
                                          ()-> {
-                                                  FileInfo fileToAdd = new FileInfo(fxArchiveInfo.getFiles().size(), fxArchiveInfo.getDepth().get(),
-                                                                                    fileName, -1, 0,
-                                                                                    rawFile.getTotalSpace(),
-                                                                                    LocalDateTime.ofInstant(Instant.ofEpochMilli(rawFile.lastModified()),
-                                                                                                            ZoneId.systemDefault()),
-                                                                                    null, null,
-                                                                                    null, null, 0,
-                                                                                    "", !rawFile.isFile(), false,
-                                                                                    Collections.singletonMap(KEY_FILE_PATH, rawFile.getAbsoluteFile().getPath()));
-                                                  ArchiveWriteService service = ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).get();
-                                                  service.addFile(sessionId, fxArchiveInfo.getArchivePath(), fileToAdd);
+                                                  ArchiveWriteService service = ZipState.getWriteArchiveServiceForFile(
+                                                         fxArchiveInfo.getArchivePath()).get();
+                                                  if (rawFile.isFile()) {
+                                                      FileInfo fileToAdd = new FileInfo(fxArchiveInfo.getFiles()
+                                                                                                     .size(),
+                                                                                        fxArchiveInfo.getDepth()
+                                                                                                     .get(),
+                                                                                        fileName,
+                                                                                        -1,
+                                                                                        0,
+                                                                                        rawFile.getTotalSpace(),
+                                                                                        LocalDateTime.ofInstant(Instant.ofEpochMilli(
+                                                                                                rawFile.lastModified()),
+                                                                                                                ZoneId.systemDefault()),
+                                                                                        null,
+                                                                                        null,
+                                                                                        null,
+                                                                                        null,
+                                                                                        0,
+                                                                                        "",
+                                                                                        !rawFile.isFile(),
+                                                                                        false,
+                                                                                        Collections.singletonMap(
+                                                                                                KEY_FILE_PATH,
+                                                                                                rawFile.getAbsoluteFile()
+                                                                                                       .getPath()));
+                                                      service.addFile(sessionId,
+                                                                      fxArchiveInfo.getArchivePath(),
+                                                                      fileToAdd);
+                                                  } else { // Mac App is a directory
+                                                      List<FileInfo> files = ArchiveUtil.handleDirectory(prefix,
+                                                                                                         rawFile.toPath().getParent(), rawFile.toPath(), depth+1, index);
+                                                      service.addFile(sessionId, fxArchiveInfo.getArchivePath(),
+                                                                                  files.toArray(new FileInfo[0]));
+                                                  }
                                               },
-                                         (s)-> {
-                                                  int depth = fxArchiveInfo.getDepth().get();
-                                                  String prefix = fxArchiveInfo.getPrefix();
-                                                  JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix);
-                                              }
+                                         (s)-> JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)
         );
     }
 }
