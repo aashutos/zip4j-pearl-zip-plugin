@@ -45,6 +45,24 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>92AK</name>
+        <url>https://pearlzip.92ak.co.uk</url>
+    </organization>
+    <developers>
+        <developer>
+            <id>akakshepati</id>
+            <name>Aashutos Kakshepati</name>
+            <email>akakshepati@gmail.com</email>
+            <url>https://pearlzip.92ak.co.uk</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/London</timezone>
+        </developer>
+    </developers>
+
     <repositories>
         <repository>
             <id>Maven Central</id>
