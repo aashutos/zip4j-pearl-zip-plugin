@@ -161,7 +161,7 @@ public class ArchiveUtil {
         try (Scanner scanner = new Scanner(Files.newInputStream(RECENT_FILE))) {
             int i = 1;
             while (scanner.hasNext()) {
-                String filePath = scanner.next();
+                String filePath = scanner.nextLine();
                 if (Files.exists(Path.of(filePath))) {
                     MenuItem mnuFilePath = new MenuItem();
                     mnuFilePath.setText(String.format("%d. %s", i++, filePath));
