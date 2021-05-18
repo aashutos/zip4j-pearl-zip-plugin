@@ -18,11 +18,10 @@ import com.ntak.testfx.FormUtil;
 import com.ntak.testfx.NativeFileChooserUtil;
 import de.jangassen.MenuToolkit;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.TableRow;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -148,9 +147,12 @@ public class PearlZipFXUtil {
     }
 
     public static Optional<TableRow<FileInfo>> simTraversalArchive(FxRobot robot, String archiveName,
-            String tableName, Consumer<TableRow<FileInfo>> callback,
-            String... identifiers) {
-        String root = "";
+            String tableName, Consumer<TableRow<FileInfo>> callback, String... identifiers) {
+        return simTraversalArchive(robot, archiveName, tableName, "", callback, identifiers);
+    }
+
+    public static Optional<TableRow<FileInfo>> simTraversalArchive(FxRobot robot, String archiveName,
+            String tableName, String root, Consumer<TableRow<FileInfo>> callback, String... identifiers) {
         for (int i = 0; i < identifiers.length; i++) {
             Optional<TableRow<FileInfo>> selectedRow = FormUtil.selectTableViewEntry(robot,
                                                                                      FormUtil.lookupNode((s) -> s.getScene()
@@ -193,6 +195,125 @@ public class PearlZipFXUtil {
 
         NativeFileChooserUtil.chooseFile(PLATFORM, robot, targetDir);
         robot.sleep(50, MILLISECONDS);
+    }
+
+    public static void simCopyFile(FxRobot robot, boolean useContextMenu, String archiveName, String tableName,
+            Path path, String... transitions) {
+        TableView<FileInfo> fileContentsView = FormUtil.lookupNode((s) -> s.getScene()
+                                                                           .lookup(tableName) != null && s.getTitle().contains(archiveName),
+                                                                   tableName);
+
+        Consumer<TableRow<FileInfo>> copyConsumer = (r) -> {
+            // Initiate copy
+            if (useContextMenu) {
+                robot.clickOn(r, MouseButton.SECONDARY);
+                robot.clickOn("#mnuCopy");
+            } else {
+                robot.clickOn("#btnCopy");
+                robot.clickOn("#mnuCopySelected");
+            }
+
+            FXArchiveInfo archiveInfo = lookupArchiveInfo(archiveName).get();
+            String root = String.format("%s/", archiveInfo.getPrefix());
+
+            for (String transition : transitions) {
+                switch (transition) {
+                    case "..":  simUp(robot);
+                                break;
+
+                    case ".":   break;
+
+                    default: {
+                        simTraversalArchive(robot, archiveName, tableName, root, (e) -> {}, transition);
+                        int i;
+                        for (i = 0; i < fileContentsView.getItems()
+                                                        .size(); i++) {
+                            if (fileContentsView.getItems()
+                                                .get(i)
+                                                .getFileName()
+                                                .endsWith(transition)) {
+                                break;
+                            }
+                        }
+                        TableRow<FileInfo> row =
+                                ((TableCell) fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
+                                                                                       i, 0)).getTableRow();
+                        robot.doubleClickOn(row);
+                    }
+                }
+            }
+
+            // Initiate paste
+            if (useContextMenu) {
+                // TODO: Filter not required after fix goes in... PZ-92, PZ-101
+                FileInfo file = fileContentsView.getItems().stream().filter(f->!f.isFolder()).findFirst().get();
+                FormUtil.selectTableViewEntry(robot,  fileContentsView, FileInfo::getFileName, file.getFileName());
+                TableRow<FileInfo> row =
+                        ((TableCell)fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
+                                                                                   fileContentsView.getSelectionModel().getSelectedIndex(), 0)).getTableRow();
+                robot.clickOn(row, MouseButton.SECONDARY);
+                robot.clickOn("#mnuCopy");
+            } else {
+                robot.clickOn("#btnCopy");
+                robot.clickOn("#mnuCopySelected");
+            }
+
+            Assertions.assertTrue(fileContentsView.getItems()
+                                                  .stream()
+                                                  .map(FileInfo::getFileName)
+                                                  .noneMatch(f->f.equals(path.getFileName().toString())),
+                                  "File was not copied successfully");
+        };
+        simTraversalArchive(robot, archiveName, tableName, copyConsumer, SSV.split(path.toString()));
+    }
+
+    public static void simMoveFile(FxRobot robot, boolean useContextMenu, String archiveName, String tableName,
+            Path path, String... transitions) {
+        Consumer<TableRow<FileInfo>> copyConsumer = (r) -> {
+            // Initiate copy
+            if (useContextMenu) {
+                robot.clickOn(r, MouseButton.SECONDARY);
+                robot.clickOn("#mnuMove");
+            } else {
+                robot.clickOn("#btnMove");
+                robot.clickOn("#mnuMoveSelected");
+            }
+
+            for (String transition : transitions) {
+                switch (transition) {
+                    case "..":  simUp(robot);
+                        break;
+
+                    case ".":   break;
+
+                    default:    simTraversalArchive(robot, archiveName, tableName, (e)->{}, transition);
+                }
+            }
+
+            TableView<FileInfo> fileContentsView = FormUtil.lookupNode((s) -> s.getScene()
+                                                                               .lookup(tableName) != null && s.getTitle().contains(archiveName),
+                                                                       tableName);
+            // Initiate paste
+            if (useContextMenu) {
+                FileInfo file = fileContentsView.getItems().stream().filter(f->!f.isFolder()).findFirst().get();
+                FormUtil.selectTableViewEntry(robot,  fileContentsView, FileInfo::getFileName, file.getFileName());
+                TableRow<FileInfo> row =
+                        ((TableCell)fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
+                                                                              fileContentsView.getSelectionModel().getSelectedIndex(), 0)).getTableRow();
+                robot.clickOn(row, MouseButton.SECONDARY);
+                robot.clickOn("#mnuMove");
+            } else {
+                robot.clickOn("#btnMove");
+                robot.clickOn("#mnuMoveSelected");
+            }
+
+            Assertions.assertTrue(fileContentsView.getItems()
+                                                  .stream()
+                                                  .map(FileInfo::getFileName)
+                                                  .noneMatch(f->f.equals(path.getFileName().toString())),
+                                  "File was not moved successfully");
+        };
+        simTraversalArchive(robot, archiveName, tableName, copyConsumer, SSV.split(path.toString()));
     }
 
     public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
