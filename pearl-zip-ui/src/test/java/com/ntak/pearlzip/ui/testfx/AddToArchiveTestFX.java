@@ -38,7 +38,7 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
      */
 
     @BeforeEach
-    public void setUpOnce() throws IOException {
+    public void setUp() throws IOException {
         dir = Paths.get(Files.createTempDirectory("pz").toString(), "root");
         Files.createDirectories(dir);
 
@@ -65,8 +65,12 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
     }
 
     @AfterEach
-    public void tearDownOnce() throws IOException {
-        UITestSuite.clearDirectory(dir.getParent());
+    public void tearDown() throws IOException {
+        for (Path dir :
+                Files.list(dir.getParent().getParent()).filter(p->p.getFileName().toString().startsWith("pz")).collect(
+                        Collectors.toList())) {
+            UITestSuite.clearDirectory(dir);
+        }
     }
 
     @Test

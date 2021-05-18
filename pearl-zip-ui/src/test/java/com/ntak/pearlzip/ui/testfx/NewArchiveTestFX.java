@@ -3,16 +3,20 @@
  */
 package com.ntak.pearlzip.ui.testfx;
 
+import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.pearlzip.ui.util.PearlZipFXUtil;
 import javafx.geometry.Point2D;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 @Tag("fx-test")
 public class NewArchiveTestFX extends AbstractPearlZipTestFX {
@@ -26,6 +30,20 @@ public class NewArchiveTestFX extends AbstractPearlZipTestFX {
      *  + Create tar archive from System menu
      *  + Create jar archive from System menu
      */
+
+    @AfterEach
+    public void tearDown() throws IOException {
+        for (Path dir :
+                Files.list(Files.createTempDirectory("pz")
+                                .getParent()
+                                .getParent())
+                     .filter(p->p.getFileName()
+                                 .toString()
+                                 .startsWith("pz"))
+                     .collect(Collectors.toList())) {
+            UITestSuite.clearDirectory(dir);
+        }
+    }
 
     @Test
     @DisplayName("Test: Create new zip archive successfully from the main window")
