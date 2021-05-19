@@ -269,6 +269,10 @@ public class PearlZipFXUtil {
 
     public static void simMoveFile(FxRobot robot, boolean useContextMenu, String archiveName, String tableName,
             Path path, String... transitions) {
+        TableView<FileInfo> fileContentsView = FormUtil.lookupNode((s) -> s.getScene()
+                                                                           .lookup(tableName) != null && s.getTitle().contains(archiveName),
+                                                                   tableName);
+
         Consumer<TableRow<FileInfo>> copyConsumer = (r) -> {
             // Initiate copy
             if (useContextMenu) {
@@ -279,6 +283,9 @@ public class PearlZipFXUtil {
                 robot.clickOn("#mnuMoveSelected");
             }
 
+            FXArchiveInfo archiveInfo = lookupArchiveInfo(archiveName).get();
+            String root = String.format("%s/", archiveInfo.getPrefix());
+
             for (String transition : transitions) {
                 switch (transition) {
                     case "..":  simUp(robot);
@@ -286,13 +293,26 @@ public class PearlZipFXUtil {
 
                     case ".":   break;
 
-                    default:    simTraversalArchive(robot, archiveName, tableName, (e)->{}, transition);
+                    default:    {
+                        simTraversalArchive(robot, archiveName, tableName, root, (e) -> {}, transition);
+                        int i;
+                        for (i = 0; i < fileContentsView.getItems()
+                                                        .size(); i++) {
+                            if (fileContentsView.getItems()
+                                                .get(i)
+                                                .getFileName()
+                                                .endsWith(transition)) {
+                                break;
+                            }
+                        }
+                        TableRow<FileInfo> row =
+                                ((TableCell) fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
+                                                                                       i, 0)).getTableRow();
+                        robot.doubleClickOn(row);
+                    }
                 }
             }
 
-            TableView<FileInfo> fileContentsView = FormUtil.lookupNode((s) -> s.getScene()
-                                                                               .lookup(tableName) != null && s.getTitle().contains(archiveName),
-                                                                       tableName);
             // Initiate paste
             if (useContextMenu) {
                 FileInfo file = fileContentsView.getItems().stream().filter(f->!f.isFolder()).findFirst().get();
