@@ -5,6 +5,7 @@ package com.ntak.pearlzip.ui.util;
 
 import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveService;
 import com.ntak.pearlzip.archive.szjb.pub.SevenZipArchiveService;
+import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -30,6 +31,7 @@ public abstract class AbstractPearlZipTestFX extends ApplicationTest {
                                   List.of(new CommonsCompressArchiveService()),
                                   List.of(new SevenZipArchiveService())
         );
+        ZipConstants.LOCAL_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");
     }
 
     @AfterEach
@@ -44,5 +46,13 @@ public abstract class AbstractPearlZipTestFX extends ApplicationTest {
             Path archivePath = Paths.get(archive.getArchivePath());
             Files.deleteIfExists(archivePath);
         }
+
+        Files.list(ZipConstants.LOCAL_TEMP).filter(f->f.getFileName().toString().startsWith("test")).forEach(path -> {
+            try {
+                Files.deleteIfExists(
+                        path);
+            } catch(IOException e) {
+            }
+        });
     }
 }

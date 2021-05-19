@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.ui.UITestFXSuite.genSourceDataSet;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.SSV;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
 import static com.ntak.testfx.FormUtil.lookupNode;
@@ -38,34 +39,12 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
     @BeforeEach
     public void setUp() throws IOException {
-        dir = Paths.get(Files.createTempDirectory("pz").toString(), "root");
-        Files.createDirectories(dir);
-
-        // Creating files and directories...
-        Files.createDirectories(Paths.get(dir.toAbsolutePath().toString(), "level1a"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1a", "file1a1.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1a", "file1a2.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1a", "file1a3.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1a", "EXTRACT_ME.txt"));
-
-        Files.createDirectories(Paths.get(dir.toAbsolutePath().toString(), "level1b", "level1b1"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1b", "level1b1", "level2a.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1b", "file1b1.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1b", "file1b2.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1b", "DELETE_ME.txt"));
-
-        Files.createDirectories(Paths.get(dir.toAbsolutePath().toString(), "level1c", "level1c1", "level2b"));
-        Files.createDirectories(Paths.get(dir.toAbsolutePath().toString(), "level1c", "level1c2", "level2c"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "file1c1.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "MOVE_DOWN.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "COPY_DOWN.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "level1c1", "level2b", "COPY_UP.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "level1c1", "level2b", "MOVE_UP.txt"));
-        Files.createFile(Paths.get(dir.toAbsolutePath().toString(), "level1c", "level1c2", "level2c", "level2c1.txt"));
+        dir = genSourceDataSet();
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    public void tearDown() throws Exception {
+        super.tearDown();
         for (Path dir :
              Files.list(dir.getParent().getParent()).filter(p->p.getFileName().toString().startsWith("pz")).collect(
              Collectors.toList())) {
@@ -97,8 +76,8 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
         simCopyFile(this, true, archiveName, tableName, file, "level2b");
 
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
-        Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
+        Assertions.assertEquals(3,
+                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_DOWN.txt")).count(),
                                 "File was not copied");
     }
 
@@ -126,8 +105,8 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
         simCopyFile(this, true, archiveName, tableName, file, "level2b");
 
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
-        Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
+        Assertions.assertEquals(3,
+                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_DOWN.txt")).count(),
                                 "File was not copied");
     }
 
@@ -155,8 +134,8 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
         simCopyFile(this, true, archiveName, tableName, file, "level2b");
 
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
-        Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
+        Assertions.assertEquals(3,
+                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_DOWN.txt")).count(),
                                 "File was not copied");
     }
 
@@ -331,7 +310,7 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
         Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
+                                info.getFiles().stream().filter(f->f.getFileName().equals(file.toString())).count(),
                                 "File was not copied");
     }
 
@@ -359,10 +338,6 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith("Copy could not be initiated"), "The text in warning dialog was not matched as expected");
-        FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
-        Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
-                                "File was not copied");
     }
 
     @Test
@@ -388,9 +363,5 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith("Copy could not be initiated"), "The text in warning dialog was not matched as expected");
-        FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
-        Assertions.assertEquals(1,
-                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
-                                "File was not copied");
     }
 }
