@@ -451,4 +451,9 @@ public class PearlZipFXUtil {
 
         return expectationMap;
     }
+
+    public static void simDelete(FxRobot robot) {
+        robot.clickOn("#btnDelete");
+        robot.sleep(5, MILLISECONDS);
+    }
 }
