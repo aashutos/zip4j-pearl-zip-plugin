@@ -23,18 +23,27 @@ import java.nio.file.Path;
 public class UITestSuite {
 
     public static void clearDirectory(Path directory) throws IOException {
-        Files.walk(directory).filter((f)->!Files.isDirectory(f)).forEach(f-> {
-            try {
-                Files.deleteIfExists(f);
-            } catch(IOException e) {
-            }
-        });
-        Files.walk(directory).filter(Files::isDirectory).sorted((a,b)->b.toString().length()-a.toString().length()).forEach(f-> {
-            try {
-                Files.deleteIfExists(f);
-            } catch(IOException e) {
-            }
-        });
-        Files.deleteIfExists(directory);
+        if (Files.exists(directory)) {
+            Files.walk(directory)
+                 .filter((f) -> !Files.isDirectory(f))
+                 .forEach(f -> {
+                     try {
+                         Files.deleteIfExists(f);
+                     } catch(IOException e) {
+                     }
+                 });
+            Files.walk(directory)
+                 .filter(Files::isDirectory)
+                 .sorted((a, b) -> b.toString()
+                                    .length() - a.toString()
+                                                 .length())
+                 .forEach(f -> {
+                     try {
+                         Files.deleteIfExists(f);
+                     } catch(IOException e) {
+                     }
+                 });
+            Files.deleteIfExists(directory);
+        }
     }
 }
