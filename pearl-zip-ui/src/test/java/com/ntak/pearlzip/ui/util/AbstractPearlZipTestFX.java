@@ -22,16 +22,20 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import static com.ntak.pearlzip.ui.constants.ZipConstants.CNS_NTAK_PEARL_ZIP_NO_FILES_HISTORY;
+
 @Tag("fx-test")
 public abstract class AbstractPearlZipTestFX extends ApplicationTest {
 
     @Override
     public void start(Stage stage) throws IOException, TimeoutException {
+        System.setProperty(CNS_NTAK_PEARL_ZIP_NO_FILES_HISTORY, "5");
         PearlZipFXUtil.initialise(stage,
                                   List.of(new CommonsCompressArchiveService()),
                                   List.of(new SevenZipArchiveService())
         );
         ZipConstants.LOCAL_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");
+        ZipConstants.STORE_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");
     }
 
     @AfterEach

@@ -10,7 +10,6 @@ import javafx.scene.input.KeyCombination;
 import org.testfx.api.FxRobot;
 
 import java.nio.file.Path;
-import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -27,19 +26,6 @@ public class NativeFileChooserUtil {
     }
 
     private static void chooseFileMac(FxRobot robot, Path filePath) {
-        chooseFileMac(robot, filePath, s->s);
-    }
-
-    private static void chooseFileMac(FxRobot robot, Path filePath, Function<String,String> filenamePostTransform) {
-        Path fileNamePath = filePath.getFileName();
-        Path dirPath = filePath.getParent();
-        String filename = filenamePostTransform.apply(fileNamePath.toString());
-        String dir = dirPath.toString();
-
-        // Type filename
-        //TypeUtil.typeString(robot, filename);
-        //robot.sleep(50, MILLISECONDS);
-
         // Navigate to directory
         robot.push(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN));
         TypeUtil.typeString(robot, filePath.toString());

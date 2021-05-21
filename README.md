@@ -16,6 +16,7 @@ This can be placed in the Applications folder as per usual.
 | Specification | Details |
 |-------|------|
 | Operation System | Apple MacOS Mojave 10.14+ |
+| CPU | x86 based processor (64-bit)<br/>e.g. Intel Core i5 2.3 GHz |
 | RAM | 2GB+ |
 | Disk Space | 500 MB |
 
