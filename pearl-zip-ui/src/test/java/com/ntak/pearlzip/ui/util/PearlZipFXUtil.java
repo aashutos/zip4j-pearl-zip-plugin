@@ -19,6 +19,7 @@ import com.ntak.testfx.NativeFileChooserUtil;
 import de.jangassen.MenuToolkit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.AccessibleAttribute;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -39,12 +40,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.DSV;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.SSV;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.testfx.NativeFileChooserUtil.chooseFile;
 import static com.ntak.testfx.TestFXConstants.PLATFORM;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
@@ -74,7 +77,7 @@ public class PearlZipFXUtil {
         robot.sleep(50, MILLISECONDS);
 
         Files.deleteIfExists(archive);
-        NativeFileChooserUtil.chooseFile(PLATFORM, robot, archive);
+        chooseFile(PLATFORM, robot, archive);
         robot.sleep(50, MILLISECONDS);
 
         Assertions.assertTrue(Files.exists(archive), "Archive was not created");
@@ -98,7 +101,7 @@ public class PearlZipFXUtil {
         robot.clickOn("#mnuAddFile", MouseButton.PRIMARY);
         robot.sleep(50, MILLISECONDS);
 
-        NativeFileChooserUtil.chooseFile(PLATFORM, robot, file);
+        chooseFile(PLATFORM, robot, file);
         robot.sleep(50, MILLISECONDS);
     }
 
@@ -182,7 +185,7 @@ public class PearlZipFXUtil {
         robot.clickOn("#mnuExtractSelectedFile", MouseButton.PRIMARY);
         robot.sleep(50, MILLISECONDS);
 
-        NativeFileChooserUtil.chooseFile(PLATFORM, robot, file);
+        chooseFile(PLATFORM, robot, file);
         robot.sleep(50, MILLISECONDS);
     }
 
@@ -193,7 +196,7 @@ public class PearlZipFXUtil {
         robot.clickOn("#mnuExtractAll", MouseButton.PRIMARY);
         robot.sleep(50, MILLISECONDS);
 
-        NativeFileChooserUtil.chooseFile(PLATFORM, robot, targetDir);
+        chooseFile(PLATFORM, robot, targetDir);
         robot.sleep(50, MILLISECONDS);
     }
 
@@ -336,6 +339,23 @@ public class PearlZipFXUtil {
         simTraversalArchive(robot, archiveName, tableName, copyConsumer, SSV.split(path.toString()));
     }
 
+    public static void simOpenArchive(FxRobot robot, Path archive, boolean init, boolean inNewWindow) {
+        if (init) {
+            robot.clickOn("#btnOpen");
+            robot.sleep(5, MILLISECONDS);
+        }
+        chooseFile(PLATFORM, robot, archive);
+
+        Map<Boolean,List<Node>> buttonLookup =
+                robot.lookup(".button-bar")
+                     .queryAs(ButtonBar.class).getButtons()
+                     .stream()
+                     .collect(Collectors.partitioningBy((b)->((Button)b).getText().equals("Open in New Window")));
+        Button response = (Button)buttonLookup.get(inNewWindow).get(0);
+        robot.clickOn(response);
+        robot.sleep(50, MILLISECONDS);
+    }
+
     public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
             List<ArchiveReadService> readServices) throws IOException, TimeoutException {
 
@@ -428,6 +448,7 @@ public class PearlZipFXUtil {
         return Optional.of((FXArchiveInfo) Stage.getWindows()
                        .stream()
                        .map(Stage.class::cast)
+                       .filter(s->s.getTitle() != null)
                        .filter((s)->s.getTitle().contains(archiveName))
                        .findFirst()
                        .get()
