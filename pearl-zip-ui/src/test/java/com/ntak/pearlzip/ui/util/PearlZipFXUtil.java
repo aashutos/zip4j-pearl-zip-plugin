@@ -361,6 +361,16 @@ public class PearlZipFXUtil {
         robot.sleep(5, MILLISECONDS);
     }
 
+    public static void simDelete(FxRobot robot) {
+        robot.clickOn("#btnDelete");
+        robot.sleep(5, MILLISECONDS);
+    }
+
+    public static void simFileInfo(FxRobot robot) {
+        robot.clickOn("#btnInfo");
+        robot.sleep(5, MILLISECONDS);
+    }
+
     public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
             List<ArchiveReadService> readServices) throws IOException, TimeoutException {
 
@@ -476,10 +486,5 @@ public class PearlZipFXUtil {
         }
 
         return expectationMap;
-    }
-
-    public static void simDelete(FxRobot robot) {
-        robot.clickOn("#btnDelete");
-        robot.sleep(5, MILLISECONDS);
     }
 }
