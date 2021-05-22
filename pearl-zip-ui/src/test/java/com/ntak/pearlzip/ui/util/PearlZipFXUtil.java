@@ -356,6 +356,11 @@ public class PearlZipFXUtil {
         robot.sleep(50, MILLISECONDS);
     }
 
+    public static void simTestArchive(FxRobot robot) {
+        robot.clickOn("#btnTest");
+        robot.sleep(5, MILLISECONDS);
+    }
+
     public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
             List<ArchiveReadService> readServices) throws IOException, TimeoutException {
 
