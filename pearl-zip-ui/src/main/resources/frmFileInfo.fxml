@@ -83,7 +83,7 @@
                         </AnchorPane>
                     </content>
                 </TitledPane>
-                <TitledPane animated="false" text="%file-info.timestamp.text">
+                <TitledPane fx:id="tpTimestamps" animated="false" text="%file-info.timestamp.text">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
@@ -119,7 +119,7 @@
                         </AnchorPane>
                     </content>
                 </TitledPane>
-                <TitledPane animated="false" text="%file-info.ownership.text">
+                <TitledPane fx:id="tpOwnership" animated="false" text="%file-info.ownership.text">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
@@ -149,7 +149,7 @@
                         </AnchorPane>
                     </content>
                 </TitledPane>
-                <TitledPane animated="false" layoutX="10.0" layoutY="64.0" text="%file-info.other.text">
+                <TitledPane fx:id="tpOther" animated="false" layoutX="10.0" layoutY="64.0" text="%file-info.other.text">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
