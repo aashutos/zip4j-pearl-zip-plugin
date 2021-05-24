@@ -20,7 +20,7 @@
                   </AnchorPane>
             </content>
           </Tab>
-            <Tab text="%options.bootstrap-properties.text">
+            <Tab fx:id="tabBootstrap" text="%options.bootstrap-properties.text">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -34,7 +34,7 @@
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab text="%options.providers.text">
+            <Tab fx:id="tabProviders" text="%options.providers.text">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
