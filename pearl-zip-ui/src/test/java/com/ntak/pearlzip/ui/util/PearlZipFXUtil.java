@@ -373,6 +373,11 @@ public class PearlZipFXUtil {
 
     public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
             List<ArchiveReadService> readServices) throws IOException, TimeoutException {
+        initialise(stage, writeServices, readServices, Paths.get(Files.createTempDirectory("pz").toString(), "temp.zip"));
+    }
+
+    public static void initialise(Stage stage, List<ArchiveWriteService> writeServices,
+            List<ArchiveReadService> readServices, Path initialFile) throws IOException, TimeoutException {
 
         // Set up global constants
         ZipConstants.PRIMARY_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
@@ -400,7 +405,6 @@ public class PearlZipFXUtil {
         FrmMainController controller = loader.getController();
 
         // Set up initial archive
-        Path initialFile = Paths.get(Files.createTempDirectory("pz").toString(), "temp.zip");
         FXArchiveInfo fxArchiveInfo = initFxArchiveInfo(initialFile);
         controller.initData(stage, fxArchiveInfo);
         fxArchiveInfo.setMainController(controller);
