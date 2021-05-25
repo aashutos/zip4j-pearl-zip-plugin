@@ -115,6 +115,11 @@ public class PearlZipFXUtil {
         Assertions.assertTrue(lookupArchiveInfo(archiveName).isPresent(), "Archive is not open in PearlZip");
         simAddFolder(robot, dir);
 
+        checkArchiveFileHierarchy(robot, expectations, archiveName);
+    }
+
+    public static void checkArchiveFileHierarchy(FxRobot robot, Map<Integer,Map<String,String[]>> expectations,
+            String archiveName) {
         // Exhaustively Breath first search file tree to check all files have been found from that of what was added...
         for (int i = 0; i < expectations.size(); i++) {
             for (String root : expectations.get(i)
@@ -468,7 +473,7 @@ public class PearlZipFXUtil {
                        .stream()
                        .map(Stage.class::cast)
                        .filter(s->s.getTitle() != null)
-                       .filter((s)->s.getTitle().contains(archiveName))
+                       .filter((s)->s.getTitle().matches(String.format(".*%s$", archiveName)))
                        .findFirst()
                        .get()
                        .getUserData());
