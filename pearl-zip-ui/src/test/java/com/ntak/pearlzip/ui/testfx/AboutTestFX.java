@@ -59,7 +59,7 @@ public class AboutTestFX extends AbstractPearlZipTestFX {
         Label lblGeneral = lookup("#lblGeneral").queryAs(Label.class);
 
         Assertions.assertEquals("PearlZip", lblAppName.getText(), "Application Name did not match");
-        Assertions.assertTrue(lblVersion.getText().matches(".*\\d{1}\\.\\d{1}\\.\\d{1}\\.\\d{1}.*"),
+        Assertions.assertTrue(lblVersion.getText().matches(".*\\d\\.\\d\\.\\d\\.\\d.*"),
                               "Application version did not match");
         Assertions.assertEquals("\u00A9 2021 92AK\nProgram written by Aashutos Kakshepati", lblCopyright.getText(), "Copyright did not match");
         Assertions.assertEquals("https://pearlzip.92ak.co.uk", lblWeblink.getText(), "Weblink did not match");
