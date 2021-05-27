@@ -68,15 +68,14 @@ public class BtnMoveSelectedEventHandler implements EventHandler<ActionEvent> {
         FileInfo selectedItem;
         // If item not selected (and not in paste mode)
         // or if a compressor zip then exit method
-        // or s folder
+        // or selected is folder and not in paste mode
         // or Migration Info of type COPY
         final FXMigrationInfo migrationInfo = fxArchiveInfo.getMigrationInfo();
         if (((selectedItem = fileContentsView.getSelectionModel().getSelectedItem()) == null && !FXMigrationInfo.MigrationType.MOVE.equals(
                 migrationInfo.getType()))
                 || ZipState.getCompressorArchives().contains(fxArchiveInfo.getArchivePath().substring(fxArchiveInfo.getArchivePath().lastIndexOf(".")+1))
-                || FXMigrationInfo.MigrationType.COPY.equals(migrationInfo
-                                                                          .getType())
-                || (Objects.nonNull(selectedItem) && selectedItem.isFolder())
+                || (!FXMigrationInfo.MigrationType.MOVE.equals(migrationInfo.getType()) && selectedItem.isFolder())
+                || FXMigrationInfo.MigrationType.COPY.equals(migrationInfo.getType())
                 || Objects.isNull(fxArchiveInfo.getWriteService())
         ) {
             // TITLE: Warning: Cannot initiate move
@@ -228,20 +227,22 @@ public class BtnMoveSelectedEventHandler implements EventHandler<ActionEvent> {
 
         // If Migration Info type is null
         // COPY MODE START
-        synchronized(migrationInfo) {
-            if (migrationInfo.getType()
-                             .equals(FXMigrationInfo.MigrationType.NONE)) {
-                // Change picture to drop
-                changeButtonPicText(moveButton, "drop.png", resolveTextKey(LBL_BUTTON_DROP));
-                // Disable move button
-                copyButton.setDisable(true);
-                // Disable delete button
-                delButton.setDisable(true);
-                mnuMoveSelected.setText("Drop Selected");
+        if (!selectedItem.isFolder()) {
+            synchronized(migrationInfo) {
+                if (migrationInfo.getType()
+                                 .equals(FXMigrationInfo.MigrationType.NONE)) {
+                    // Change picture to drop
+                    changeButtonPicText(moveButton, "drop.png", resolveTextKey(LBL_BUTTON_DROP));
+                    // Disable move button
+                    copyButton.setDisable(true);
+                    // Disable delete button
+                    delButton.setDisable(true);
+                    mnuMoveSelected.setText("Drop Selected");
 
-                // Set MigrationInfo
-                migrationInfo.initMigration(FXMigrationInfo.MigrationType.MOVE, selectedItem);
-                fileContentsView.refresh();
+                    // Set MigrationInfo
+                    migrationInfo.initMigration(FXMigrationInfo.MigrationType.MOVE, selectedItem);
+                    fileContentsView.refresh();
+                }
             }
             // COPY MODE END
         }

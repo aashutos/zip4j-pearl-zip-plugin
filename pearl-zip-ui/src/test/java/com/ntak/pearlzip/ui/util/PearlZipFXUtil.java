@@ -253,8 +253,7 @@ public class PearlZipFXUtil {
 
             // Initiate paste
             if (useContextMenu) {
-                // TODO: Filter not required after fix goes in... PZ-92, PZ-101
-                FileInfo file = fileContentsView.getItems().stream().filter(f->!f.isFolder()).findFirst().get();
+                FileInfo file = fileContentsView.getItems().stream().findFirst().get();
                 FormUtil.selectTableViewEntry(robot,  fileContentsView, FileInfo::getFileName, file.getFileName());
                 TableRow<FileInfo> row =
                         ((TableCell)fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
@@ -323,7 +322,7 @@ public class PearlZipFXUtil {
 
             // Initiate paste
             if (useContextMenu) {
-                FileInfo file = fileContentsView.getItems().stream().filter(f->!f.isFolder()).findFirst().get();
+                FileInfo file = fileContentsView.getItems().stream().findFirst().get();
                 FormUtil.selectTableViewEntry(robot,  fileContentsView, FileInfo::getFileName, file.getFileName());
                 TableRow<FileInfo> row =
                         ((TableCell)fileContentsView.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,

@@ -67,8 +67,10 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent event) {
         FileInfo selectedItem;
-        // If item not selected (and not in paste mode) or if a compressor zip then exit method or Migration Info of
-        // type MOVE
+        // If item not selected (and not in paste mode)
+        // or if a compressor zip then exit method
+        // or selected is folder and not in paste mode
+        // or Migration Info of type MOVE
         final FXMigrationInfo migrationInfo = fxArchiveInfo.getMigrationInfo();
         if (((selectedItem = fileContentsView.getSelectionModel()
                                              .getSelectedItem()) == null && !FXMigrationInfo.MigrationType.COPY.equals(
@@ -77,9 +79,8 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                            .contains(fxArchiveInfo.getArchivePath()
                                                   .substring(fxArchiveInfo.getArchivePath()
                                                                           .lastIndexOf(".") + 1))
-                || FXMigrationInfo.MigrationType.MOVE.equals(migrationInfo
-                                                                     .getType())
-                || (Objects.nonNull(selectedItem) && selectedItem.isFolder())
+                || (!FXMigrationInfo.MigrationType.COPY.equals(migrationInfo.getType()) && selectedItem.isFolder())
+                || FXMigrationInfo.MigrationType.MOVE.equals(migrationInfo.getType())
                 || Objects.isNull(fxArchiveInfo.getWriteService())
         ) {
             // TITLE: Warning: Cannot initiate copy
@@ -263,23 +264,25 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
 
         // If Migration Info type is null
         // COPY MODE START
-        synchronized(migrationInfo) {
-            if (migrationInfo
-                    .getType()
-                    .equals(FXMigrationInfo.MigrationType.NONE)) {
-                // Change picture to paste
-                changeButtonPicText(copyButton, "paste.png", resolveTextKey(LBL_BUTTON_PASTE));
-                // Disable move button
-                moveButton.setDisable(true);
-                // Disable delete button
-                delButton.setDisable(true);
-                mnuCopySelected.setText("Paste Selected");
+        if (!selectedItem.isFolder()) {
+            synchronized(migrationInfo) {
+                if (migrationInfo
+                        .getType()
+                        .equals(FXMigrationInfo.MigrationType.NONE)) {
+                    // Change picture to paste
+                    changeButtonPicText(copyButton, "paste.png", resolveTextKey(LBL_BUTTON_PASTE));
+                    // Disable move button
+                    moveButton.setDisable(true);
+                    // Disable delete button
+                    delButton.setDisable(true);
+                    mnuCopySelected.setText("Paste Selected");
 
-                // Set MigrationInfo
-                migrationInfo.initMigration(FXMigrationInfo.MigrationType.COPY, selectedItem);
-                fileContentsView.refresh();
+                    // Set MigrationInfo
+                    migrationInfo.initMigration(FXMigrationInfo.MigrationType.COPY, selectedItem);
+                    fileContentsView.refresh();
+                }
+                // COPY MODE END
             }
-            // COPY MODE END
         }
     }
 }

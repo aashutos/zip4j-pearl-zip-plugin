@@ -62,8 +62,13 @@ public class ContextMenuController {
                                 mnuCopy.setText(resolveTextKey(LBL_BUTTON_COPY));
                                 mnuMove.setText(resolveTextKey(LBL_BUTTON_MOVE));
                                 break;
-                default:        mnuMove.setDisable(false);
-                                mnuCopy.setDisable(false);
+                default:        if (row.getItem().isFolder()) {
+                                    mnuMove.setDisable(true);
+                                    mnuCopy.setDisable(true);
+                                } else {
+                                    mnuMove.setDisable(false);
+                                    mnuCopy.setDisable(false);
+                                }
                                 mnuCopy.setText(resolveTextKey(LBL_BUTTON_COPY));
                                 mnuMove.setText(resolveTextKey(LBL_BUTTON_MOVE));
             }
