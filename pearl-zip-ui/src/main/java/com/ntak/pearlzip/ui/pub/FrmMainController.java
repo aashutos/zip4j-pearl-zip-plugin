@@ -10,12 +10,18 @@ import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
 
 import java.util.stream.Collectors;
+
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
+import static com.ntak.pearlzip.ui.model.ZipState.CONTEXT_MENU_INSTANCES;
+import static com.ntak.pearlzip.ui.model.ZipState.ROW_TRIGGER;
 
 /**
  *  Controller for the Main display dialog.
@@ -108,6 +114,37 @@ public class FrmMainController {
 
             fileContentsView.setOnDragOver(e->e.acceptTransferModes(TransferMode.COPY));
             fileContentsView.setOnDragDropped(new FileContentsDragDropRowEventHandler(fileContentsView, fxArchiveInfo));
+            fileContentsView.setOnMouseClicked(e->{
+                if (e.getButton() == MouseButton.PRIMARY && !ROW_TRIGGER.get()) {
+                    synchronized(CONTEXT_MENU_INSTANCES) {
+                        CONTEXT_MENU_INSTANCES.forEach(ContextMenu::hide);
+                        CONTEXT_MENU_INSTANCES.clear();
+                    }
+                    return;
+                }
+
+                if (e.getButton() == MouseButton.SECONDARY && !ROW_TRIGGER.get()) {
+                    try {
+                        FXMLLoader loader = new FXMLLoader();
+                        loader.setLocation(ZipLauncher.class.getClassLoader()
+                                                            .getResource("tablecontextmenu.fxml"));
+                        loader.setResources(LOG_BUNDLE);
+                        ContextMenu root = loader.load();
+                        TableContextMenuController controller = loader.getController();
+                        controller.initData(fxArchiveInfo);
+                        root.show(fileContentsView, e.getScreenX(), e.getScreenY());
+
+                        synchronized(CONTEXT_MENU_INSTANCES) {
+                            CONTEXT_MENU_INSTANCES.forEach(ContextMenu::hide);
+                            CONTEXT_MENU_INSTANCES.clear();
+                            CONTEXT_MENU_INSTANCES.add(root);
+                        }
+                    } catch (Exception exc) {
+                        exc.printStackTrace();
+                    }
+                }
+                ROW_TRIGGER.set(false);
+            });
 
             btnNew.setOnMouseClicked(new BtnNewEventHandler());
             btnOpen.setOnMouseClicked(new BtnOpenEventHandler(stage));
@@ -190,5 +227,9 @@ public class FrmMainController {
 
     public FXArchiveInfo getFXArchiveInfo() {
         return FXArchiveInfo;
+    }
+
+    public TableView<FileInfo> getFileContentsView() {
+        return fileContentsView;
     }
 }

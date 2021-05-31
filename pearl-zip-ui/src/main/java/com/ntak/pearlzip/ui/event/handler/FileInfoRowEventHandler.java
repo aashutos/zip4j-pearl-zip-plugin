@@ -29,11 +29,14 @@ import org.apache.logging.log4j.core.LoggerContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.model.ZipState.CONTEXT_MENU_INSTANCES;
+import static com.ntak.pearlzip.ui.model.ZipState.ROW_TRIGGER;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchMainStage;
 import static com.ntak.pearlzip.ui.util.JFXUtil.isFileInArchiveLevel;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
@@ -61,6 +64,10 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
 
     @Override
     public void handle(MouseEvent event) {
+            if (Objects.nonNull(row.getItem())) {
+                ROW_TRIGGER.set(true);
+            }
+
             if (!row.isEmpty() && event.getButton() == MouseButton.PRIMARY
                     && event.getClickCount() == 2) {
 
@@ -166,6 +173,11 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                     ContextMenuController controller = loader.getController();
                     controller.initData(fxArchiveInfo, row);
                     root.show(row, event.getScreenX(), event.getScreenY());
+                    synchronized(CONTEXT_MENU_INSTANCES) {
+                        CONTEXT_MENU_INSTANCES.forEach(ContextMenu::hide);
+                        CONTEXT_MENU_INSTANCES.clear();
+                        CONTEXT_MENU_INSTANCES.add(root);
+                    }
                 } catch (Exception e) {
 
                 }

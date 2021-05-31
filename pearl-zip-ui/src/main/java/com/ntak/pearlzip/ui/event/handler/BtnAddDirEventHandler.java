@@ -21,9 +21,11 @@ import org.apache.logging.log4j.core.LoggerContext;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
@@ -68,6 +70,14 @@ public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
             JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
                                              ()-> {
                     List<FileInfo> files = ArchiveUtil.handleDirectory(prefix, dirPath.getParent(), dirPath, depth+1, index);
+                    files.add(new FileInfo((index+1), depth,
+                                            dirPath.getFileName().toString(),
+                                            -1, 0,
+                                            0, null,
+                                            null, null,
+                                            "", "", 0, "",
+                                            true, false,
+                                            Collections.singletonMap(KEY_FILE_PATH, dirPath.toString())));
                     archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
                                                 files.toArray(new FileInfo[0]));
                 },

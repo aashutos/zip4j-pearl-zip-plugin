@@ -83,29 +83,64 @@ public class PearlZipFXUtil {
         Assertions.assertTrue(Files.exists(archive), "Archive was not created");
     }
 
+    public static void simAddFolder(FxRobot robot, Path folder, boolean useContextMenu, String archiveName) {
+        if (!useContextMenu) {
+            robot.clickOn("#btnAdd", MouseButton.PRIMARY);
+            robot.sleep(50, MILLISECONDS);
+
+            robot.clickOn("#mnuAddDir", MouseButton.PRIMARY);
+            robot.sleep(50, MILLISECONDS);
+
+            NativeFileChooserUtil.chooseFolder(PLATFORM, robot, folder);
+            robot.sleep(50, MILLISECONDS);
+        } else {
+            TableView<FileInfo> fileContentsView = FormUtil.lookupNode(s->s.getTitle().contains(archiveName),
+                                                                       "#fileContentsView");
+            robot.clickOn(fileContentsView, MouseButton.SECONDARY);
+            robot.sleep(50, MILLISECONDS);
+
+            robot.clickOn("#mnuAddDir");
+            robot.sleep(50, MILLISECONDS);
+
+            NativeFileChooserUtil.chooseFolder(PLATFORM, robot, folder);
+            robot.sleep(50, MILLISECONDS);
+        }
+    }
+
     public static void simAddFolder(FxRobot robot, Path folder) {
-        robot.clickOn("#btnAdd", MouseButton.PRIMARY);
-        robot.sleep(50, MILLISECONDS);
-
-        robot.clickOn("#mnuAddDir", MouseButton.PRIMARY);
-        robot.sleep(50, MILLISECONDS);
-
-        NativeFileChooserUtil.chooseFolder(PLATFORM, robot, folder);
-        robot.sleep(50, MILLISECONDS);
+        simAddFolder(robot, folder, false, null);
     }
 
     public static void simAddFile(FxRobot robot, Path file) {
-        robot.clickOn("#btnAdd", MouseButton.PRIMARY);
-        robot.sleep(50, MILLISECONDS);
-
-        robot.clickOn("#mnuAddFile", MouseButton.PRIMARY);
-        robot.sleep(50, MILLISECONDS);
-
-        chooseFile(PLATFORM, robot, file);
-        robot.sleep(50, MILLISECONDS);
+        simAddFile(robot, file, false, null);
     }
 
-    public static void simAddDirectoryToNewNonCompressorArchive(FxRobot robot, Path archive, Path dir) throws IOException {
+    public static void simAddFile(FxRobot robot, Path file, boolean useContextMenu, String archiveName) {
+        if (!useContextMenu) {
+            robot.clickOn("#btnAdd", MouseButton.PRIMARY);
+            robot.sleep(50, MILLISECONDS);
+
+            robot.clickOn("#mnuAddFile", MouseButton.PRIMARY);
+            robot.sleep(50, MILLISECONDS);
+
+            chooseFile(PLATFORM, robot, file);
+            robot.sleep(50, MILLISECONDS);
+        } else {
+            TableView<FileInfo> fileContentsView = FormUtil.lookupNode(s->s.getTitle().contains(archiveName),
+                                                                       "#fileContentsView");
+            robot.clickOn(fileContentsView, MouseButton.SECONDARY);
+            robot.sleep(50, MILLISECONDS);
+
+            robot.clickOn("#mnuAddFile");
+            robot.sleep(50, MILLISECONDS);
+
+            NativeFileChooserUtil.chooseFile(PLATFORM, robot, file);
+            robot.sleep(50, MILLISECONDS);
+        }
+    }
+
+    public static void simAddDirectoryToNewNonCompressorArchive(FxRobot robot, Path archive, Path dir,
+            boolean useContextMenu) throws IOException {
         // Generate expectations from directory to be added...
         Map<Integer,Map<String,String[]>> expectations = genArchiveContentsExpectationsAuto(dir);
         String archiveName = archive.getFileName().toString();
@@ -113,7 +148,7 @@ public class PearlZipFXUtil {
         // Create archive of the appropriate format and add folder to archive...
         simNewArchive(robot, archive);
         Assertions.assertTrue(lookupArchiveInfo(archiveName).isPresent(), "Archive is not open in PearlZip");
-        simAddFolder(robot, dir);
+        simAddFolder(robot, dir, useContextMenu, archiveName);
 
         checkArchiveFileHierarchy(robot, expectations, archiveName);
     }
