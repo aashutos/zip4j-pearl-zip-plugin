@@ -212,6 +212,18 @@ public class CommonsCompressArchiveService implements ArchiveWriteService {
                                                 e.getMessage()));
                 }
             }
+            else {
+                File file = new File((String) f.getAdditionalInfoMap()
+                                               .get(KEY_FILE_PATH));
+                if (file.exists()) {
+                    ArchiveEntry entry =
+                            aoStream.createArchiveEntry(file, f.getFileName());
+                    prepareArchiveEntry(entry, f);
+                    aoStream.putArchiveEntry(entry);
+                    aoStream.closeArchiveEntry();
+                    aoStream.flush();
+                }
+            }
         }
 
         DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,

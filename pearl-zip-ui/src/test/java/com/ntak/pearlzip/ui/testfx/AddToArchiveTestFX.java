@@ -36,6 +36,8 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
      * + Add symbolic soft link file to zip archive
      * + Add symbolic hard link file and document file to tar archive
      * + Add image file to jar archive
+     * + Table context menu Add File
+     * + Table context menu Add Directory
      */
 
     @BeforeEach
@@ -48,7 +50,7 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         super.tearDown();
         for (Path dir :
                 Files.list(dir.getParent().getParent()).filter(p->p.getFileName().toString().startsWith("pz")).collect(
-                        Collectors.toList())) {
+                        Collectors.toSet())) {
             UITestSuite.clearDirectory(dir);
         }
     }
@@ -60,7 +62,17 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
 
         final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
-        simAddDirectoryToNewNonCompressorArchive(this, archive, dir);
+        simAddDirectoryToNewNonCompressorArchive(this, archive, dir, false);
+    }
+
+    @Test
+    @DisplayName("Test: Add folder using context menu to zip archive and verify contents")
+    public void testFX_AddFolderCtxMenuToZipArchive_MatchExpectations() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simAddDirectoryToNewNonCompressorArchive(this, archive, dir, true);
     }
 
     @Test
@@ -70,7 +82,7 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
 
         final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
-        simAddDirectoryToNewNonCompressorArchive(this, archive, dir);
+        simAddDirectoryToNewNonCompressorArchive(this, archive, dir, false);
     }
 
     @Test
@@ -80,7 +92,7 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
 
         final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
-        simAddDirectoryToNewNonCompressorArchive(this, archive, dir);
+        simAddDirectoryToNewNonCompressorArchive(this, archive, dir, false);
     }
 
     @Test
@@ -154,6 +166,37 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
 
             Assertions.assertEquals(sourceHash, targetHash, "File hashes were not identical");
         }
+    }
+
+    @Test
+    @DisplayName("Test: Add image file using context menu to tar archive and verify contents")
+    public void testFX_AddImageFileCtxMenuToZipArchive_MatchExpectations() throws IOException {
+        final String archiveFormat = "jar";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        Path file = Paths.get("src", "test", "resources", "img.png").toAbsolutePath();
+        final long sourceHash = CompressUtil.crcHashFile(file.toFile());
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        simAddFile(this, file, true, archiveName);
+
+        TableView<FileInfo> fileContentsView = FormUtil.lookupNode(s->s.getTitle().contains(archiveName),
+                                                                   "#fileContentsView");
+        final List<String> files = fileContentsView.getItems()
+                                                   .stream()
+                                                   .map(FileInfo::getFileName)
+                                                   .collect(Collectors.toList());
+        Assertions.assertTrue(files.contains("img.png"),
+                              "Image was not found in archive");
+
+        // Extract file and check consistency
+        Path targetFile = Paths.get(dir.getParent().toAbsolutePath().toString(), file.getFileName().toString()).toAbsolutePath();
+        FormUtil.selectTableViewEntry(this, fileContentsView,
+                                      FileInfo::getFileName, file.getFileName().toString());
+        simExtractFile(this, targetFile);
+        final long targetHash = CompressUtil.crcHashFile(targetFile.toFile());
+
+        Assertions.assertEquals(sourceHash, targetHash, "File hashes were not identical");
     }
 
     @Test

@@ -3,10 +3,13 @@
  */
 package com.ntak.pearlzip.ui.testfx;
 
+import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
+import com.ntak.testfx.FormUtil;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.*;
 
@@ -26,6 +29,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
     private static Path dir;
+    private static Path emptyDir;
 
    /*
     *  Test cases:
@@ -35,11 +39,15 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
     *  + Copy cancel
     *  + Copy no file selected
     *  + Copy folder fail
+    *  + Table context menu paste
+    *  + Copy into empty folder
     */
 
     @BeforeEach
     public void setUp() throws IOException {
         dir = genSourceDataSet();
+        emptyDir = Paths.get(dir.toAbsolutePath().getParent().toString(), "empty-dir");
+        Files.createDirectories(emptyDir);
     }
 
     @AfterEach
@@ -78,6 +86,40 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
         Assertions.assertEquals(3,
                                 info.getFiles().stream().filter(f->f.getFileName().contains("COPY_DOWN.txt")).count(),
+                                "File was not copied");
+    }
+
+    @Test
+    @DisplayName("Test: Copy file by table context menu and button in application within a zip archive successfully")
+    public void testFX_copyFileByTableContextMenuAndButtonZip_MatchExpectations() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+
+        // Create archive of the appropriate format and add folder to archive...
+        simNewArchive(this, archive);
+        Assertions.assertTrue(lookupArchiveInfo(archiveName).isPresent(), "Archive is not open in PearlZip");
+        simAddFolder(this, dir);
+
+        Path file = Paths.get("root", "level1c", "level1c1", "level2b", "COPY_UP.txt");
+
+        final String tableName = "#fileContentsView";
+        TableView<FileInfo> fileContentsView = FormUtil.lookupNode(s->s.getTitle().contains(archiveName),
+                                                                   "#fileContentsView");
+        simTraversalArchive(this, archiveName, tableName, (r)->{}, SSV.split(file.toString()));
+        clickOn("#btnCopy");
+        clickOn("#mnuCopySelected");
+        simUp(this);
+
+        clickOn(fileContentsView, MouseButton.SECONDARY);
+        sleep(50, MILLISECONDS);
+        clickOn("#mnuPaste");
+        sleep(50, MILLISECONDS);
+
+        FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
+        Assertions.assertEquals(2,
+                                info.getFiles().stream().filter(f->f.getFileName().contains("COPY_UP.txt")).count(),
                                 "File was not copied");
     }
 
@@ -311,7 +353,7 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
         Assertions.assertEquals(1,
                                 info.getFiles().stream().filter(f->f.getFileName().equals(file.toString())).count(),
-                                "File was not copied");
+                                "File was copied unexpectedly");
     }
 
     @Test
@@ -363,5 +405,50 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
 
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith("Copy could not be initiated"), "The text in warning dialog was not matched as expected");
+    }
+
+    @Test
+    @DisplayName("Test: Copy file into empty directory")
+    public void testFX_copyFileIntoEmptyDirectory_Success() throws IOException {
+        final String archiveFormat = "jar";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+
+        // Create archive of the appropriate format and add folder to archive...
+        simNewArchive(this, archive);
+        Assertions.assertTrue(lookupArchiveInfo(archiveName).isPresent(), "Archive is not open in PearlZip");
+        simAddFolder(this, dir);
+        simAddFolder(this, emptyDir);
+
+        Path file = Paths.get("root", "level1c", "level1c1", "level2b", "COPY_UP.txt");
+
+        final String tableName = "#fileContentsView";
+        simTraversalArchive(this, archiveName, tableName, (r)->{}, SSV.split(file.toString()));
+        clickOn("#btnCopy");
+        sleep(5, MILLISECONDS);
+        clickOn("#mnuCopySelected");
+        sleep(5, MILLISECONDS);
+        simUp(this);
+        sleep(5, MILLISECONDS);
+        simUp(this);
+        sleep(5, MILLISECONDS);
+        simUp(this);
+        sleep(5, MILLISECONDS);
+        simUp(this);
+        sleep(5, MILLISECONDS);
+        simTraversalArchive(this, archiveName, tableName, this::doubleClickOn, "empty-dir");
+        TableView<FileInfo> fileContentsView = FormUtil.lookupNode(s->s.getTitle().contains(archiveName),
+                                                                   tableName);
+        clickOn(fileContentsView, MouseButton.SECONDARY);
+        sleep(5, MILLISECONDS);
+        clickOn("#mnuPaste");
+        sleep(5, MILLISECONDS);
+
+        FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
+        Assertions.assertEquals(1,
+                                info.getFiles().stream().filter(f->f.getFileName().equals(Paths.get("empty-dir",
+                                                                                                    "COPY_UP.txt").toString())).count(),
+                                "File was not copied");
     }
 }

@@ -7,10 +7,13 @@ import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.license.model.LicenseInfo;
+import javafx.scene.control.ContextMenu;
 import org.apache.logging.log4j.util.Strings;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
@@ -23,6 +26,8 @@ public class ZipState {
 
     public static final int WIDTH = Integer.parseInt(System.getProperty(CNS_WINDOW_WIDTH, "816"));
     public static final int HEIGHT = Integer.parseInt(System.getProperty(CNS_WINDOW_HEIGHT, "480"));
+    public static final AtomicBoolean ROW_TRIGGER = new AtomicBoolean(false);
+    public static final CopyOnWriteArrayList<ContextMenu> CONTEXT_MENU_INSTANCES = new CopyOnWriteArrayList<>();
 
     private static final List<ArchiveWriteService> WRITE_PROVIDERS = new LinkedList<>();
     private static final List<ArchiveReadService> READ_PROVIDERS = new LinkedList<>();
