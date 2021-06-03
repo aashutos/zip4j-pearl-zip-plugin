@@ -77,19 +77,21 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                 final Path selectedFile = Paths.get(clickedRow.getFileName());
                 // An archive that can be opened by this application...
                 long sessionId = System.currentTimeMillis();
-                if (ZipState.supportedReadArchives().stream().anyMatch(e -> clickedRow.getFileName().endsWith(String.format(".%s",e)))) {
-                    JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
+                final Stage thisStage = (Stage) fileContentsView.getScene()
+                                                             .getWindow();
+                // Extract tar ball into temp location from wrapped zip
+                final Path nestedArchive = Paths.get(STORE_TEMP.toAbsolutePath()
+                                                               .toString(),
+                                                     selectedFile
+                                                             .getFileName().toString());
+                if (ZipState.supportedReadArchives().stream().anyMatch(e -> clickedRow.getFileName().endsWith(String.format(".%s", e)))) {
+                    JFXUtil.executeBackgroundProcess(sessionId, thisStage,
                                                      ()-> {
                                                          Platform.runLater(()->row.setDisable(true));
 
                                                          // LOG: An archive which can be extracted...
                                                          LOGGER.debug(resolveTextKey(LOG_ARCHIVE_CAN_EXTRACT));
 
-                                                         // Extract tar ball into temp location from wrapped zip
-                                                         final Path nestedArchive = Paths.get(STORE_TEMP.toAbsolutePath()
-                                                                                                        .toString(),
-                                                                                              selectedFile
-                                                                                                      .getFileName().toString());
                                                          Files.deleteIfExists(nestedArchive);
                                                          ArchiveReadService archiveService =
                                                                  ZipState.getReadArchiveServiceForFile(clickedRow.getFileName())
@@ -135,7 +137,17 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                      (s)->{
                                                          final KeyFrame step1 = new KeyFrame(Duration.millis(300),
                                                                                              e -> {row.setDisable(false);
-                                                                                             ((Stage)fileContentsView.getScene().getWindow()).toBack();
+                                                                                             thisStage.toFront();
+                                                                                             Stage currentStage =
+                                                                                                     Stage.getWindows()
+                                                                                                          .stream()
+                                                                                                          .map(Stage.class::cast)
+                                                                                                          .filter(stg -> stg.getTitle() != null && stg.getTitle().contains(nestedArchive.toAbsolutePath().toString()))
+                                                                                                          .findFirst()
+                                                                                                          .orElse(null);
+                                                                                             if (Objects.nonNull(currentStage)) {
+                                                                                                 currentStage.toFront();
+                                                                                             }
                                                          });
                                                          final Timeline timeline = new Timeline(step1);
                                                          Platform.runLater(timeline::play);
@@ -159,7 +171,7 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                         btnUp.setVisible(true);
                     }
                 } else { // Open file externally?
-                    ArchiveUtil.openExternally(sessionId, (Stage) fileContentsView.getScene().getWindow(),
+                    ArchiveUtil.openExternally(sessionId, thisStage,
                                                fxArchiveInfo, clickedRow);
                 }
             }
