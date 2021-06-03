@@ -5,7 +5,6 @@ package com.ntak.pearlzip.ui.event.handler;
 
 import com.ntak.pearlzip.ui.model.ZipState;
 import com.ntak.pearlzip.ui.util.ArchiveUtil;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
@@ -15,7 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.util.List;
@@ -87,9 +85,17 @@ public class BtnOpenEventHandler implements EventHandler<MouseEvent> {
                                                  Platform.runLater(() -> this.stage.fireEvent(new WindowEvent(this.stage,
                                                                                                               WindowEvent.WINDOW_CLOSE_REQUEST)));
                                              } else {
-                                                 PauseTransition delay = new PauseTransition(Duration.millis(100));
-                                                 delay.setOnFinished((e)->this.stage.toBack());
-                                                 delay.play();
+                                                 this.stage.toFront();
+                                                 Stage currentStage =
+                                                         Stage.getWindows()
+                                                              .stream()
+                                                              .map(Stage.class::cast)
+                                                              .filter(stg -> stg.getTitle() != null && stg.getTitle().contains(rawFile.getAbsolutePath()))
+                                                              .findFirst()
+                                                              .orElse(null);
+                                                 if (Objects.nonNull(currentStage)) {
+                                                     currentStage.toFront();
+                                                 }
                                              }
                                          }
         );
