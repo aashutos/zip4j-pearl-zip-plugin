@@ -3,7 +3,7 @@
  */
 package com.ntak.pearlzip.ui.util;
 
-import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveService;
+import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveWriteService;
 import com.ntak.pearlzip.archive.szjb.pub.SevenZipArchiveService;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
@@ -31,7 +31,7 @@ public abstract class AbstractPearlZipTestFX extends ApplicationTest {
     public void start(Stage stage) throws IOException, TimeoutException {
         System.setProperty(CNS_NTAK_PEARL_ZIP_NO_FILES_HISTORY, "5");
         PearlZipFXUtil.initialise(stage,
-                                  List.of(new CommonsCompressArchiveService()),
+                                  List.of(new CommonsCompressArchiveWriteService()),
                                   List.of(new SevenZipArchiveService())
         );
         ZipConstants.LOCAL_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");

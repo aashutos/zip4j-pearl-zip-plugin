@@ -90,7 +90,11 @@ public class AboutTestFX extends AbstractPearlZipTestFX {
             TableRow<LicenseInfo> row =
                     ((TableCell<LicenseInfo,String>)tblLicenses.queryAccessibleAttribute(AccessibleAttribute.CELL_AT_ROW_COLUMN,
                                                             i, 0)).getTableRow();
-            tblLicenses.scrollTo(i);
+            sleep(50, MILLISECONDS);
+            final int finalI = i;
+            CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(()->{try{tblLicenses.scrollTo(finalI);}finally{latch.countDown();}});
+            latch.await();
             doubleClickOn(row);
             sleep(1, SECONDS);
 
@@ -101,15 +105,15 @@ public class AboutTestFX extends AbstractPearlZipTestFX {
                                     "License file was not as expected");
 
             // Close stage
-            CountDownLatch latch = new CountDownLatch(1);
+            CountDownLatch scrollLatch = new CountDownLatch(1);
             Platform.runLater(() -> {
                 try {
                     stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
                 } finally {
-                    latch.countDown();
+                    scrollLatch.countDown();
                 }
             });
-            latch.await();
+            scrollLatch.await();
             sleep(200, MILLISECONDS);
         }
     }
