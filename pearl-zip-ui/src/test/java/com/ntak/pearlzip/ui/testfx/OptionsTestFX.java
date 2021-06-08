@@ -3,7 +3,8 @@
  */
 package com.ntak.pearlzip.ui.testfx;
 
-import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveService;
+import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveReadService;
+import com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
@@ -65,8 +66,8 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
             }
         });
         PearlZipFXUtil.initialise(stage,
-                                  List.of(new CommonsCompressArchiveService()),
-                                  List.of(new SevenZipArchiveService()),
+                                  List.of(new CommonsCompressArchiveWriteService()),
+                                  List.of(new SevenZipArchiveService(), new CommonsCompressArchiveReadService()),
                                   Paths.get(LOCAL_TEMP.toAbsolutePath().toString(), String.format("a%d.zip",
                                                                                                   System.currentTimeMillis()))
         );
@@ -207,7 +208,8 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
         List<Pair<Boolean,ArchiveService>> props = propsGrid.getItems();
 
         // Validate expected services
-        Assertions.assertTrue(props.stream().map(Pair::getValue).anyMatch(s->s instanceof ArchiveReadService && s.getClass().getCanonicalName().equals("com.ntak.pearlzip.archive.szjb.pub.SevenZipArchiveService")), "No Read Service");
-        Assertions.assertTrue(props.stream().map(Pair::getValue).anyMatch(s->s instanceof ArchiveWriteService && s.getClass().getCanonicalName().equals("com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveService")), "No Write Service");
+        Assertions.assertTrue(props.stream().map(Pair::getValue).anyMatch(s->s instanceof ArchiveReadService && s.getClass().getCanonicalName().equals("com.ntak.pearlzip.archive.szjb.pub.SevenZipArchiveService")), "No 7-Zip Read Service");
+        Assertions.assertTrue(props.stream().map(Pair::getValue).anyMatch(s->s instanceof ArchiveReadService && s.getClass().getCanonicalName().equals("com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveReadService")), "No Apache Read Service");
+        Assertions.assertTrue(props.stream().map(Pair::getValue).anyMatch(s->s instanceof ArchiveWriteService && s.getClass().getCanonicalName().equals("com.ntak.pearlzip.archive.acc.pub.CommonsCompressArchiveWriteService")), "No Write Service");
     }
 }

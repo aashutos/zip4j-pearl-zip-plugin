@@ -16,14 +16,14 @@ import java.util.Collections;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 
-public class CommonsCompressArchiveServiceTest {
+public class CommonsCompressArchiveWriteServiceTest {
     private static Path tempDirectory;
     private static Path tempFile;
     private static Path anotherTempFile;
     private static FileInfo tfFileInfo;
     private static FileInfo atfFileInfo;
 
-    private ArchiveWriteService service = new CommonsCompressArchiveService();
+    private ArchiveWriteService service = new CommonsCompressArchiveWriteService();
 
     @BeforeAll
     public static void setUp() throws IOException {
@@ -220,7 +220,7 @@ public class CommonsCompressArchiveServiceTest {
         service.createArchive(sessionId, archive.toAbsolutePath().toString(), tfFileInfo);
         Assertions.assertTrue(Files.exists(archive), "Archive was not created");
         final byte[] bytes = Files.readAllBytes(archive);
-        Assertions.assertEquals(142, bytes.length, "File failed to create in the expected manner");
+        Assertions.assertEquals(186, bytes.length, "File failed to create in the expected manner");
         // Zip magic number
         Assertions.assertEquals((byte)0x50, bytes[0], "first byte");
         Assertions.assertEquals((byte)0x4b, bytes[1], "second byte issue");
@@ -260,7 +260,7 @@ public class CommonsCompressArchiveServiceTest {
 
         Assertions.assertTrue(Files.exists(archive), "Archive was not created");
         final byte[] bytes = Files.readAllBytes(archive);
-        Assertions.assertEquals(278, bytes.length, "File failed to create in the expected manner");
+        Assertions.assertEquals(382, bytes.length, "File failed to create in the expected manner");
         // Zip magic number
         Assertions.assertEquals((byte)0x50, bytes[0], "first byte");
         Assertions.assertEquals((byte)0x4b, bytes[1], "second byte issue");
