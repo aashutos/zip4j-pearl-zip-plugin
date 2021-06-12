@@ -24,11 +24,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.REGEX_TIMESTAMP_DIR;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR_PREFIX;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.PROGRESS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
@@ -87,39 +89,34 @@ public class FrmOptionsController {
         ///// Provider Properties /////
         name.setCellValueFactory((s)-> new SimpleStringProperty(s.getValue().getValue().getClass().getCanonicalName()));
         readCapability.setCellValueFactory((s)-> new SimpleObjectProperty<>(s.getValue()));
-        readCapability.setCellFactory((c)->{
-
-            return new TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>>() {
-                @Override
-                public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        CheckBox checkBox = new CheckBox();
-                        checkBox.setSelected(!item.getKey());
-                        this.setGraphic(checkBox);
-                    }
+        readCapability.setCellFactory((c)-> new TableCell<>() {
+            @Override
+            public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    CheckBox checkBox = new CheckBox();
+                    checkBox.setSelected(!item.getKey());
+                    this.setGraphic(checkBox);
                 }
-            };
+            }
         });
         writeCapability.setCellValueFactory((s)-> new SimpleObjectProperty<>(s.getValue()));
-        writeCapability.setCellFactory((c)->{
-            return new TableCell<Pair<Boolean,ArchiveService>,Pair<Boolean,ArchiveService>>() {
-                @Override
-                public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        CheckBox checkBox = new CheckBox();
-                        checkBox.setSelected(item.getKey());
-                        this.setGraphic(checkBox);
-                    }
+        writeCapability.setCellFactory((c)-> new TableCell<>() {
+            @Override
+            public void updateItem(Pair<Boolean,ArchiveService> item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    CheckBox checkBox = new CheckBox();
+                    checkBox.setSelected(item.getKey());
+                    this.setGraphic(checkBox);
                 }
-            };
+            }
         });
         supportedFormat.setCellValueFactory((s)-> {
             try {
@@ -204,11 +201,15 @@ public class FrmOptionsController {
                                                                                                      INDETERMINATE_PROGRESS,
                                                                                                      1));
                                                  LinkedList<Path> tempDirectories = new LinkedList<>();
-                                                 Files.newDirectoryStream(ZipConstants.LOCAL_TEMP,
+                                                 try (DirectoryStream<Path> dirs =
+                                                              Files.newDirectoryStream(ZipConstants.LOCAL_TEMP,
                                                                           (f) -> f.getFileName()
                                                                                   .toString()
-                                                                                  .startsWith(TMP_DIR_PREFIX))
-                                                      .forEach(tempDirectories::add);
+                                                                                  .startsWith(TMP_DIR_PREFIX) || f.getFileName().toString().matches(
+                                                                                  REGEX_TIMESTAMP_DIR))) {
+                                                      dirs.forEach(tempDirectories::add);
+                                                 }
+
                                                  // LOG: OS Temporary directories to be deleted: %s
                                                  LOGGER.debug(resolveTextKey(LOG_OS_TEMP_DIRS_TO_DELETE,
                                                                              tempDirectories));

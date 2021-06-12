@@ -32,6 +32,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FIL
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.addToRecentFile;
+import static com.ntak.pearlzip.ui.util.ArchiveUtil.removeBackupArchive;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
@@ -82,8 +83,8 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                             // If compressor - create new archive with nested file. replace existing archive.
                             if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getParentPath().substring(fxArchiveInfo.getParentPath().lastIndexOf(".")+1))) {
                                 long sessionId = System.currentTimeMillis();
-                                Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(),
-                                                             Paths.get(parentPath).getFileName().toString());
+                                Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(), String.format("pz%d", sessionId),
+                                                                   Paths.get(fxArchiveInfo.getArchivePath()).getFileName().toString());
                                 JFXUtil.executeBackgroundProcess(sessionId, stage,
                                                                  () -> archiveWriteService.createArchive(sessionId,
                                                                                                          parentTempArchive.toString(),
@@ -154,7 +155,7 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                         }
                     }
                 }
-                Files.delete(tempArchive);
+                removeBackupArchive(tempArchive);
             }
         } catch(IOException e) {
             // Issue with IO Process when saving down archive %s

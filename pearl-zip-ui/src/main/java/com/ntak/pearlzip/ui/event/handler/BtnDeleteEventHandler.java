@@ -32,9 +32,8 @@ import static com.ntak.pearlzip.archive.constants.LoggingConstants.LBL_PROGRESS_
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.PROGRESS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
-import static com.ntak.pearlzip.ui.util.ArchiveUtil.createBackupArchive;
+import static com.ntak.pearlzip.ui.util.ArchiveUtil.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS;
 
 /**
@@ -108,11 +107,11 @@ public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
                             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
                                                                                 resolveTextKey(LBL_PROGRESS_LOADING),
                                                                                 INDETERMINATE_PROGRESS, 1));
-                            Files.copy(tempArchive.get(), Paths.get(fxArchiveInfo.getArchivePath()), REPLACE_EXISTING);
-                            Files.deleteIfExists(tempArchive.get());
+                            restoreBackupArchive(tempArchive.get(), Paths.get(fxArchiveInfo.getArchivePath()));
                         }
                     } finally {
                         fxArchiveInfo.getMigrationInfo().clear();
+                        removeBackupArchive(tempArchive.get());
                     }
                },
                                              (s)->{

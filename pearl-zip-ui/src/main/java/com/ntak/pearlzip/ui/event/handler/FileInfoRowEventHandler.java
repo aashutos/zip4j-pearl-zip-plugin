@@ -81,9 +81,11 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                              .getWindow();
                 // Extract tar ball into temp location from wrapped zip
                 final Path nestedArchive = Paths.get(STORE_TEMP.toAbsolutePath()
-                                                               .toString(),
+                                                               .toString(), String.format("pz%d",
+                                                                                          sessionId),
                                                      selectedFile
                                                              .getFileName().toString());
+
                 if (ZipState.supportedReadArchives().stream().anyMatch(e -> clickedRow.getFileName().endsWith(String.format(".%s", e)))) {
                     JFXUtil.executeBackgroundProcess(sessionId, thisStage,
                                                      ()-> {
@@ -92,9 +94,10 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                          // LOG: An archive which can be extracted...
                                                          LOGGER.debug(resolveTextKey(LOG_ARCHIVE_CAN_EXTRACT));
 
+                                                         Files.createDirectories(nestedArchive.getParent());
                                                          Files.deleteIfExists(nestedArchive);
                                                          ArchiveReadService archiveService =
-                                                                 ZipState.getReadArchiveServiceForFile(clickedRow.getFileName())
+                                                                 ZipState.getReadArchiveServiceForFile(fxArchiveInfo.getArchivePath())
                                                                          .get();
                                                          archiveService.extractFile(sessionId, nestedArchive,
                                                                                     fxArchiveInfo.getArchivePath(),

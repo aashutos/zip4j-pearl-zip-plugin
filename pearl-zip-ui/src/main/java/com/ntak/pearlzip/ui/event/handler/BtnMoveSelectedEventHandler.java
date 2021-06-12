@@ -29,7 +29,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FIL
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR_PREFIX;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
-import static com.ntak.pearlzip.ui.util.ArchiveUtil.createBackupArchive;
+import static com.ntak.pearlzip.ui.util.ArchiveUtil.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.changeButtonPicText;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -181,8 +181,8 @@ public class BtnMoveSelectedEventHandler implements EventHandler<ActionEvent> {
                                                                                                                                                      .getFile());
 
                                                               if (!success) {
-                                                                  Files.copy(tempArchive, Paths.get(fxArchiveInfo.getArchivePath()), REPLACE_EXISTING);
-                                                                  Files.deleteIfExists(tempArchive);
+                                                                  restoreBackupArchive(tempArchive,
+                                                                                       Paths.get(fxArchiveInfo.getArchivePath()));
 
                                                                   // LOG: Issue adding file %s to archive %s
                                                                   LOGGER.error(resolveTextKey(LOG_ISSUE_ADDING_FILE_FOR_COPY, fileName.toString(),
@@ -190,6 +190,7 @@ public class BtnMoveSelectedEventHandler implements EventHandler<ActionEvent> {
                                                                   throw new IOException(resolveTextKey(LOG_ISSUE_ADDING_FILE_FOR_COPY, fileName.toString(),
                                                                                                        fxArchiveInfo.getArchivePath()));
                                                               }
+                                                              removeBackupArchive(tempArchive);
                                                           },
                                                           (e)->{
                                                               // LOG: Issue occurred on pasting migration item (root item: %s). Migration has been cancelled.
