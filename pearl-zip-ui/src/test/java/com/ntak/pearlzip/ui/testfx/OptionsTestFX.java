@@ -27,21 +27,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.ntak.pearlzip.ui.constants.ZipConstants.CNS_NTAK_PEARL_ZIP_NO_FILES_HISTORY;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.LOCAL_TEMP;
+import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.lookupArchiveInfo;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.simOpenArchive;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class OptionsTestFX extends AbstractPearlZipTestFX {
+    private Path tempOSDir;
+    private Path tempPZDir;
 
     /*
      *  Test cases:
@@ -53,32 +52,50 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
 
     @Override
     public void start(Stage stage) throws IOException, TimeoutException {
+        ZipConstants.STORE_ROOT = Paths.get(System.getProperty("user.home"), ".pz");
         System.setProperty(CNS_NTAK_PEARL_ZIP_NO_FILES_HISTORY, "5");
-        ZipConstants.LOCAL_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");
-        ZipConstants.STORE_TEMP = Paths.get(System.getProperty("user.home"), ".pz", "temp");
+        ZipConstants.LOCAL_TEMP =
+                Paths.get(Optional.ofNullable(System.getenv("TMPDIR"))
+                                  .orElse(STORE_ROOT.toString()));
+        ZipConstants.STORE_TEMP = Paths.get(STORE_ROOT.toAbsolutePath().toString(), "temp");
 
-        Files.list(LOCAL_TEMP)
+        Files.list(STORE_TEMP)
              .filter(Files::isRegularFile)
              .forEach(f-> {
-            try {
-                Files.deleteIfExists(f);
-            } catch(IOException e) {
-            }
-        });
+                 try {
+                     Files.deleteIfExists(f);
+                 } catch(IOException e) {
+                 }
+             });
+
         PearlZipFXUtil.initialise(stage,
                                   List.of(new CommonsCompressArchiveWriteService()),
                                   List.of(new SevenZipArchiveService(), new CommonsCompressArchiveReadService()),
-                                  Paths.get(LOCAL_TEMP.toAbsolutePath().toString(), String.format("a%d.zip",
+                                  Paths.get(STORE_TEMP.toAbsolutePath().toString(), String.format("a%d.zip",
                                                                                                   System.currentTimeMillis()))
         );
 
-        Files.createFile(Paths.get(LOCAL_TEMP.toAbsolutePath().toString(), "a1234567890.zip"));
+        tempOSDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
+                                        .toString(), String.format("pz%d", System.currentTimeMillis()));
+        sleep(250);
+        tempPZDir = Paths.get(STORE_TEMP.toAbsolutePath()
+                                        .toString(), String.format("pz%d", System.currentTimeMillis()));
+
+        Files.createFile(Paths.get(STORE_TEMP.toAbsolutePath().toString(), "a1234567890.zip"));
+
+        Files.createDirectories(tempOSDir);
+        Files.createDirectories(tempPZDir);
+
+        Files.createFile(Paths.get(tempOSDir.toAbsolutePath().toString(), "nestedFile.tar"));
+        Files.createFile(Paths.get(tempPZDir.toAbsolutePath().toString(), "anotherNestedFile.tar"));
     }
 
     @AfterEach
     @Override
     public void tearDown() throws Exception {
-        Files.list(LOCAL_TEMP)
+        clearDirectory(tempPZDir);
+        clearDirectory(tempOSDir);
+        Files.list(STORE_TEMP)
              .filter(Files::isRegularFile)
              .forEach(f-> {
                  try {
@@ -93,22 +110,26 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
     public void testFX_ClearCacheTemporaryArchiveOpen_MatchExpectations() throws IOException {
         // Verify initial state
         Assertions.assertEquals(2,
-                                Files.list(LOCAL_TEMP)
+                                Files.list(STORE_TEMP)
                                      .filter(Files::isRegularFile)
                                      .count(),
                                 "Initial files have not been setup");
 
         Path fileToBeKept =
-                Files.list(LOCAL_TEMP)
+                Files.list(STORE_TEMP)
                      .filter(f->!f.getFileName().toString().endsWith("a1234567890.zip"))
                      .findFirst()
                      .get();
 
         Path fileToBeDeleted =
-                Files.list(LOCAL_TEMP)
+                Files.list(STORE_TEMP)
                      .filter(f->f.getFileName().toString().endsWith("a1234567890.zip"))
                      .findFirst()
                      .get();
+
+        Assertions.assertTrue(Files.exists(tempOSDir), "Temp directory was not initialised");
+        Assertions.assertTrue(Files.exists(Paths.get(tempOSDir.toAbsolutePath().toString(), "nestedFile.tar")),
+                              "Temp file was not initialised");
 
         // Navigate to the clear cache option
         this.clickOn(Point2D.ZERO.add(160, 10))
@@ -123,15 +144,22 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
         // Check the outcomes are as expected
         Assertions.assertTrue(Files.exists(fileToBeKept), String.format("File %s was deleted unexpectedly", fileToBeKept));
         Assertions.assertFalse(Files.exists(fileToBeDeleted), String.format("File %s was kept unexpectedly", fileToBeDeleted));
+        Assertions.assertFalse(Files.exists(tempOSDir), "Temporary directory in OS ephemeral store was not deleted");
+        Assertions.assertFalse(Files.exists(Paths.get(tempOSDir.toAbsolutePath().toString(), "nestedFile.tar")),
+                               "temp file in OS ephemeral storage was not deleted");
     }
 
     @Test
     @DisplayName("Test: Clear cache with a saved archive. All temp files are removed")
     public void testFX_ClearCacheSavedArchiveOpen_MatchExpectations() throws IOException {
         // Verify initial state
-        final List<Path> filesToBeDeleted = Files.list(LOCAL_TEMP)
+        final List<Path> filesToBeDeleted = Files.list(STORE_TEMP)
                                              .filter(Files::isRegularFile).collect(Collectors.toList());
         Assertions.assertEquals(2, filesToBeDeleted.size(), "Initial files have not been setup");
+
+        Assertions.assertTrue(Files.exists(tempOSDir), "Temp directory was not initialised");
+        Assertions.assertTrue(Files.exists(Paths.get(tempOSDir.toAbsolutePath().toString(), "nestedFile.tar")),
+                              "Temp file was not initialised");
 
         // Open existing archive in current window
         clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
@@ -159,6 +187,9 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
 
         // Check the outcomes are as expected
         Assertions.assertTrue(filesToBeDeleted.stream().noneMatch(Files::exists), "Some temp files were not deleted");
+        Assertions.assertFalse(Files.exists(tempOSDir), "Temporary directory in OS ephemeral store was not deleted");
+        Assertions.assertFalse(Files.exists(Paths.get(tempOSDir.toAbsolutePath().toString(), "nestedFile.tar")),
+                               "temp file in OS ephemeral storage was not deleted");
     }
 
     @Test

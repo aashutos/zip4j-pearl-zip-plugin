@@ -28,7 +28,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
-import static com.ntak.pearlzip.ui.util.ArchiveUtil.createBackupArchive;
+import static com.ntak.pearlzip.ui.util.ArchiveUtil.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.changeButtonPicText;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -211,10 +211,8 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                                                                                                                    .size());
 
                                                               if (!successCopy) {
-                                                                  Files.copy(tempArchive,
-                                                                             Paths.get(fxArchiveInfo.getArchivePath()),
-                                                                             REPLACE_EXISTING);
-                                                                  Files.deleteIfExists(tempArchive);
+                                                                  restoreBackupArchive(tempArchive,
+                                                                                       Paths.get(fxArchiveInfo.getArchivePath()));
 
                                                                   // LOG: Issue adding file %s to archive %s
                                                                   LOGGER.error(resolveTextKey(
@@ -227,6 +225,7 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                                                                           fxArchiveInfo.getArchivePath()));
 
                                                               }
+                                                              removeBackupArchive(tempArchive);
                                                           },
                                                      (s) -> {
                                                               // finally: clear Migration Info, Enable move and delete button, update Copy button look

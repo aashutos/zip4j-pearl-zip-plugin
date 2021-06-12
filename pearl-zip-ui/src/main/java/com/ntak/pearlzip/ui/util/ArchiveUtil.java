@@ -31,17 +31,13 @@ import org.apache.logging.log4j.core.LoggerContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
-import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR_PREFIX;
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.*;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.NO_FILES_HISTORY;
@@ -87,6 +83,29 @@ public class ArchiveUtil {
                                      Paths.get(fxArchiveInfo.getArchivePath()).getFileName().toString());
         Files.copy(Path.of(fxArchiveInfo.getArchivePath()), backupArchive);
         return backupArchive;
+    }
+
+    public static boolean restoreBackupArchive(Path backupArchive, Path targetLocation) {
+        try {
+            if (Objects.nonNull(backupArchive) && Objects.nonNull(targetLocation) && Files.exists(backupArchive)) {
+                Files.copy(backupArchive, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                if (!backupArchive.toString().equals(targetLocation)) {
+                    Files.deleteIfExists(backupArchive);
+                }
+                return true;
+            }
+
+            return false;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    public static void removeBackupArchive(Path tempArchive) throws IOException {
+        Files.deleteIfExists(tempArchive);
+        if (tempArchive.getParent().getFileName().toString().matches(REGEX_TIMESTAMP_DIR) && Files.list(tempArchive.getParent()).count() == 0) {
+            Files.deleteIfExists(tempArchive.getParent());
+        }
     }
 
     public static List<FileInfo> handleDirectory(String prefix, Path root, Path directory, int depth, int index) throws IOException {

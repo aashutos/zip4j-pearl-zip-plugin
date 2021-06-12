@@ -36,7 +36,8 @@ import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 /**
  *   Implementation of an Archive Read Service, which utilises the Apache Commons Compress library underneath for
  *   the tar format. PAX headers are supported intrinsically for long file names.
- *  @author Aashutos Kakshepati
+ *
+ *   @author Aashutos Kakshepati
  */
 public class CommonsCompressArchiveReadService implements ArchiveReadService {
 
