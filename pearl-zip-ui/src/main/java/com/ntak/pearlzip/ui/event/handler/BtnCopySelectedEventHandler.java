@@ -7,9 +7,11 @@ import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.FXMigrationInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.util.AlertException;
+import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +39,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *  Event Handler for Copy Migration functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
+public class BtnCopySelectedEventHandler implements CheckEventHandler<ActionEvent> {
 
     private static final Logger LOGGER = LoggerContext.getContext()
                                                       .getLogger(BtnCopySelectedEventHandler.class);
@@ -65,39 +67,9 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
     }
 
     @Override
-    public void handle(ActionEvent event) {
-        FileInfo selectedItem;
-        // If item not selected (and not in paste mode)
-        // or if a compressor zip then exit method
-        // or selected is folder and not in paste mode
-        // or Migration Info of type MOVE
+    public void handleEvent(ActionEvent event) {
+        final FileInfo selectedItem = fileContentsView.getSelectionModel().getSelectedItem();
         final FXMigrationInfo migrationInfo = fxArchiveInfo.getMigrationInfo();
-        if (((selectedItem = fileContentsView.getSelectionModel()
-                                             .getSelectedItem()) == null && !FXMigrationInfo.MigrationType.COPY.equals(
-                migrationInfo.getType()))
-                || ZipState.getCompressorArchives()
-                           .contains(fxArchiveInfo.getArchivePath()
-                                                  .substring(fxArchiveInfo.getArchivePath()
-                                                                          .lastIndexOf(".") + 1))
-                || (!FXMigrationInfo.MigrationType.COPY.equals(migrationInfo.getType()) && selectedItem.isFolder())
-                || FXMigrationInfo.MigrationType.MOVE.equals(migrationInfo.getType())
-                || Objects.isNull(fxArchiveInfo.getWriteService())
-        ) {
-            // TITLE: Warning: Cannot initiate copy
-            // HEADER: Copy is not possible
-            // BODY: Copy could not be initiated for one of the following reasons:
-            // \n\t\u2022 No item has been selected to copy.
-            // \n\t\u2022 The archive is a compressor archive and so copy is unsupported.
-            // \n\t\u2022 Migration is in MOVE mode.
-            // \n\t\u2022 The selected item is a folder.
-            raiseAlert(Alert.AlertType.WARNING,
-                       resolveTextKey(TITLE_CANNOT_INIT_COPY),
-                       resolveTextKey(HEADER_CANNOT_INIT_COPY),
-                       resolveTextKey(BODY_CANNOT_INIT_COPY),
-                       fileContentsView.getScene()
-                                       .getWindow());
-            return;
-        }
 
         // If Migration type is COPY
         // PASTE MODE START
@@ -282,6 +254,49 @@ public class BtnCopySelectedEventHandler implements EventHandler<ActionEvent> {
                 }
                 // COPY MODE END
             }
+        }
+    }
+
+    @Override
+    public void check(ActionEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
+
+        FileInfo selectedItem;
+        // If item not selected (and not in paste mode)
+        // or if a compressor zip then exit method
+        // or selected is folder and not in paste mode
+        // or Migration Info of type MOVE
+        final FXMigrationInfo migrationInfo = fxArchiveInfo.getMigrationInfo();
+        if (((selectedItem = fileContentsView.getSelectionModel()
+                                             .getSelectedItem()) == null && !FXMigrationInfo.MigrationType.COPY.equals(
+                migrationInfo.getType()))
+                || ZipState.getCompressorArchives()
+                           .contains(fxArchiveInfo.getArchivePath()
+                                                  .substring(fxArchiveInfo.getArchivePath()
+                                                                          .lastIndexOf(".") + 1))
+                || (!FXMigrationInfo.MigrationType.COPY.equals(migrationInfo.getType()) && selectedItem.isFolder())
+                || FXMigrationInfo.MigrationType.MOVE.equals(migrationInfo.getType())
+                || Objects.isNull(fxArchiveInfo.getWriteService())
+        ) {
+            // LOG: Move could not be initiated for file %s
+            // TITLE: Warning: Cannot initiate copy
+            // HEADER: Copy is not possible
+            // BODY: Copy could not be initiated for one of the following reasons:
+            // \n\t\u2022 No item has been selected to copy.
+            // \n\t\u2022 The archive is a compressor archive and so copy is unsupported.
+            // \n\t\u2022 Migration is in MOVE mode.
+            // \n\t\u2022 The selected item is a folder.
+            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
+            throw new AlertException(
+                        fxArchiveInfo,
+                        resolveTextKey(LOG_CANNOT_INIT_COPY),
+                        Alert.AlertType.WARNING,
+                        resolveTextKey(TITLE_CANNOT_INIT_COPY),
+                        resolveTextKey(HEADER_CANNOT_INIT_COPY),
+                        resolveTextKey(BODY_CANNOT_INIT_COPY),
+                        null,
+                        fileContentsView.getScene()
+                                        .getWindow());
         }
     }
 }

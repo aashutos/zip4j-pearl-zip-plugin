@@ -57,6 +57,18 @@ public class ZipConstants {
 
     public static final String LOG_LOCKING_IN_PROPERTY = "logging.ntak.pearl-zip.locking-in-property";
 
+    public static final String LOG_ARCHIVE_LOCKED = "logging.ntak.pearl-zip.archive-locked";
+    public static final String TITLE_ARCHIVE_LOCKED = "title.ntak.pearl-zip.archive-locked";
+    public static final String HEADER_ARCHIVE_LOCKED = "header.ntak.pearl-zip.archive-locked";
+    public static final String BODY_ARCHIVE_LOCKED = "body.ntak.pearl-zip.archive-locked";
+
+    public static final String LOG_ARCHIVE_DOES_NOT_EXIST = "logging.ntak.pearl-zip.archive-does-not-exist";
+    public static final String TITLE_ARCHIVE_DOES_NOT_EXIST = "title.ntak.pearl-zip.archive-does-not-exist";
+    public static final String HEADER_ARCHIVE_DOES_NOT_EXIST = "header.ntak.pearl-zip.archive-does-not-exist";
+    public static final String BODY_ARCHIVE_DOES_NOT_EXIST = "body.ntak.pearl-zip.archive-does-not-exist";
+
+    public static final String LOG_GENERAL_EVENT_HANDLER_EXCEPTION = "logging.ntak.pearl-zip.general-event-handler-exception";
+
     // Paste exception
     public static final String LOG_PASTE_EXCEPTION = "logging.ntak.pearl-zip.paste-exception";
     public static final String TITLE_PASTE_EXCEPTION = "title.ntak.pearl-zip.paste-exception";
@@ -146,11 +158,13 @@ public class ZipConstants {
     public static final String BODY_TEST_ARCHIVE_FAILURE = "body.ntak.pearl-zip.test-archive-failure";
 
     // Cannot init copy
+    public static final String LOG_CANNOT_INIT_COPY = "logging.ntak.pearl-zip.cannot-init-copy";
     public static final String TITLE_CANNOT_INIT_COPY = "title.ntak.pearl-zip.cannot-init-copy";
     public static final String HEADER_CANNOT_INIT_COPY = "header.ntak.pearl-zip.cannot-init-copy";
     public static final String BODY_CANNOT_INIT_COPY = "body.ntak.pearl-zip.cannot-init-copy";
 
     // Cannot init copy
+    public static final String LOG_CANNOT_INIT_MOVE = "logging.ntak.pearl-zip.cannot-init-move";
     public static final String TITLE_CANNOT_INIT_MOVE = "title.ntak.pearl-zip.cannot-init-move";
     public static final String HEADER_CANNOT_INIT_MOVE = "header.ntak.pearl-zip.cannot-init-move";
     public static final String BODY_CANNOT_INIT_MOVE = "body.ntak.pearl-zip.cannot-init-move";

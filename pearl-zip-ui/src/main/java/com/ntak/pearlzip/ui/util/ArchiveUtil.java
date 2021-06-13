@@ -52,6 +52,43 @@ public class ArchiveUtil {
 
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(ArchiveUtil.class);
 
+    public static void checkArchiveExists(FXArchiveInfo archiveInfo) throws AlertException {
+        // File locked...
+        final Path archivePath = Path.of(archiveInfo.getArchivePath());
+        if (!Files.exists(archivePath) && !Files.notExists(archivePath)) {
+            // LOG: Archive %s is locked and cannot be accessed.
+            // TITLE: ERROR: Archive Locked
+            // HEADER: Cannot process archive
+            // BODY: Archive %s is locked by another process. PearlZip will now close the instance.
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_LOCKED, archivePath.toAbsolutePath().toString()));
+            throw new AlertException(archiveInfo,
+                                     resolveTextKey(LOG_ARCHIVE_LOCKED, archivePath.toAbsolutePath().toString()),
+                                     Alert.AlertType.ERROR,
+                                     resolveTextKey(TITLE_ARCHIVE_LOCKED),
+                                     resolveTextKey(HEADER_ARCHIVE_LOCKED),
+                                     resolveTextKey(BODY_ARCHIVE_LOCKED, archivePath.toAbsolutePath()),
+                                     null,
+                                     archiveInfo.getController().get().getFileContentsView().getScene().getWindow());
+        }
+
+        // File does not exist...
+        if (!Files.exists(archivePath)) {
+            // LOG: Archive %s does not exist.
+            // TITLE: ERROR: Archive not present
+            // HEADER: Cannot process archive
+            // BODY: Archive %s does not exist. PearlZip will now close the instance.
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_DOES_NOT_EXIST, archivePath.toAbsolutePath().toString()));
+            throw new AlertException(archiveInfo,
+                                     resolveTextKey(LOG_ARCHIVE_DOES_NOT_EXIST, archivePath.toAbsolutePath().toString()),
+                                     Alert.AlertType.ERROR,
+                                     resolveTextKey(TITLE_ARCHIVE_DOES_NOT_EXIST),
+                                     resolveTextKey(HEADER_ARCHIVE_DOES_NOT_EXIST),
+                                     resolveTextKey(BODY_ARCHIVE_DOES_NOT_EXIST, archivePath.toAbsolutePath()),
+                                     null,
+                                     archiveInfo.getController().get().getFileContentsView().getScene().getWindow());
+        }
+    }
+
     public static void extractToDirectory(long sessionId, FXArchiveInfo fxArchiveInfo, File dir) {
         ArchiveReadService archiveReadService = fxArchiveInfo.getReadService();
 

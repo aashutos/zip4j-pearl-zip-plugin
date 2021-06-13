@@ -7,10 +7,11 @@ import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.util.AlertException;
 import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
@@ -30,13 +31,12 @@ import java.util.Objects;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
-import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
  *  Event Handler for Add File functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
+public class BtnAddFileEventHandler implements CheckEventHandler<ActionEvent> {
     private final TableView<FileInfo> fileContentsView;
     private final FXArchiveInfo fxArchiveInfo;
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnAddFileEventHandler.class);
@@ -47,26 +47,7 @@ public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
     }
 
     @Override
-    public void handle(ActionEvent event) {
-        if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).isEmpty()) {
-            // LOG: Warning: Add functionality not supported for archive %s
-            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
-            // TITLE: Warning: Add functionality not supported
-            // HEADER: No Write provider for archive format
-            // BODY: Cannot add file to archive as functionality is not supported for file: %s
-            raiseAlert(Alert.AlertType.WARNING,
-                       resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
-                       resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
-                       resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
-                                      Paths.get(fxArchiveInfo.getArchivePath())
-                                          .getFileName()
-                                          .toString()),
-                       fileContentsView.getScene().getWindow()
-            );
-            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
-            return;
-        }
-
+    public void handleEvent(ActionEvent event) {
         FileChooser addFileView = new FileChooser();
         // Title: Add file to archive %s...
         addFileView.setTitle(resolveTextKey(TITLE_ADD_TO_ARCHIVE_PATTERN, fxArchiveInfo.getArchivePath()));
@@ -130,5 +111,32 @@ public class BtnAddFileEventHandler implements EventHandler<ActionEvent> {
                                               },
                                          (s)-> JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)
         );
+    }
+
+    @Override
+    public void check(ActionEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
+
+        if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath()).isEmpty()) {
+            // LOG: Warning: Add functionality not supported for archive %s
+            // TITLE: Warning: Add functionality not supported
+            // HEADER: No Write provider for archive format
+            // BODY: Cannot add file to archive as functionality is not supported for file: %s
+            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(),
+                                    fxArchiveInfo.getPrefix());
+            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
+            throw new AlertException(fxArchiveInfo,
+                                     resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()),
+                                     Alert.AlertType.WARNING,
+                                     resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
+                                     Paths.get(fxArchiveInfo.getArchivePath())
+                                           .getFileName()
+                                           .toString()),
+                                     null,
+                       fileContentsView.getScene().getWindow()
+            );
+        }
     }
 }

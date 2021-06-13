@@ -9,7 +9,7 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 import org.junit.runner.RunWith;
 
 /***
- *   @author akakshepati
+ *   @author Aashutos Kakshepati
  */
 @RunWith(JUnitPlatform.class)
 @SelectPackages("com.ntak.pearlzip")

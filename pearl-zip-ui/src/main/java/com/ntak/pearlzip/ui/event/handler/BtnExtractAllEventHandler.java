@@ -5,9 +5,11 @@ package com.ntak.pearlzip.ui.event.handler;
 
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.util.AlertException;
+import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.TableView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -25,7 +27,7 @@ import static com.ntak.pearlzip.ui.util.ArchiveUtil.extractToDirectory;
  *  Event Handler for Extract All functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnExtractAllEventHandler implements EventHandler<ActionEvent> {
+public class BtnExtractAllEventHandler implements CheckEventHandler<ActionEvent> {
     private final TableView<FileInfo> fileContentsView;
     private final FXArchiveInfo fxArchiveInfo;
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnExtractFileEventHandler.class);
@@ -35,7 +37,7 @@ public class BtnExtractAllEventHandler implements EventHandler<ActionEvent> {
         this.fxArchiveInfo = fxArchiveInfo;
     }
     @Override
-    public void handle(ActionEvent event) {
+    public void handleEvent(ActionEvent event) {
         if (Objects.nonNull(fxArchiveInfo.getReadService())) {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             // TITLE: Select target directory location for extraction...
@@ -53,4 +55,8 @@ public class BtnExtractAllEventHandler implements EventHandler<ActionEvent> {
         }
     }
 
+    @Override
+    public void check(ActionEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
+    }
 }
