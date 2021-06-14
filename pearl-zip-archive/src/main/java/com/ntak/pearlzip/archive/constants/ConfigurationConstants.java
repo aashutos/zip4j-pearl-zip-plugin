@@ -25,5 +25,5 @@ public class ConfigurationConstants {
 
 
     public static final String TMP_DIR_PREFIX = System.getProperty(CNS_TMP_DIR_PREFIX,"pz");
-    public static final String REGEX_TIMESTAMP_DIR = "pz\\d{13}";
+    public static final String REGEX_TIMESTAMP_DIR = "pz\\d+";
 }

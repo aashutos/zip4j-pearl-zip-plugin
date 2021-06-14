@@ -10,11 +10,15 @@ import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.pub.FrmMainController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -24,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -32,9 +37,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR_PREFIX;
 import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -49,6 +56,9 @@ public class ArchiveUtilTest {
     private static Path tempDirectory;
     private static Menu menuRecent;
     private static CountDownLatch latch = new CountDownLatch(1);
+    private static FrmMainController mockMainController;
+    private static TableView<FileInfo> tableView;
+    private static Scene scene;
 
     /*
         Test cases:
@@ -66,14 +76,30 @@ public class ArchiveUtilTest {
         + Render menu items for recent files as expected
         + Render menu items - exclude non-existent entries. Therefore entries <= NO_FILES_HISTORY
 
-        + create new Archive successfully when conditions are right to do so
+        + Create new Archive successfully when conditions are right to do so
+
+        + Restore back up archive
+        + Remove back up archive
+        + Check archive exists - success
+        + Check archive exists - failure
     */
 
     @BeforeAll
     public static void setUpOnce() throws NoSuchAlgorithmException, IOException, InterruptedException {
         try {
+            AtomicReference<Stage> stage = new AtomicReference<>();
             System.setProperty(CNS_RES_BUNDLE, "pearlzip-ui");
-            Platform.startup(() -> latch.countDown());
+            Platform.startup(() -> {
+                try {
+                    tableView = new TableView<>();
+                    scene = new Scene(tableView);
+                    stage.set(new Stage());
+                    stage.get()
+                         .setScene(scene);
+                } finally {
+                    latch.countDown();
+                }
+            });
         } catch (Exception e) {
             latch.countDown();
         } finally {
@@ -87,6 +113,8 @@ public class ArchiveUtilTest {
 
             mockArchiveInfo = Mockito.mock(FXArchiveInfo.class);
             mockArchiveReadService = Mockito.mock(ArchiveReadService.class);
+            mockMainController = Mockito.mock(FrmMainController.class);
+
             when(mockArchiveReadService.supportedReadFormats()).thenReturn(List.of("zip"));
 
             mockArchiveWriteService = Mockito.mock(ArchiveWriteService.class);
@@ -109,6 +137,8 @@ public class ArchiveUtilTest {
                                  0, "", false, false, Collections.emptyMap())
             )));
             when(mockArchiveInfo.getReadService()).thenReturn(mockArchiveReadService);
+            when(mockArchiveInfo.getController()).thenReturn(Optional.of(mockMainController));
+            when(mockMainController.getFileContentsView()).thenReturn(tableView);
 
             ZipState.addArchiveProvider(mockArchiveWriteService);
             ZipState.addArchiveProvider(mockArchiveReadService);
@@ -351,5 +381,82 @@ public class ArchiveUtilTest {
 
         ArchiveUtil.newArchive(1L, archiveInfo, archive.toFile());
         verify(mockArchiveWriteService, times(1)).createArchive(anyLong(), any(ArchiveInfo.class));
+    }
+
+    @Test
+    @DisplayName("Test: Restore a back up of an archive successfully")
+    public void testRestoreBackUpArchive_Success() throws IOException {
+        Path targetLocation = Files.createTempFile("test", ".zip");
+        Path refArchive = Paths.get("src", "test", "resources", "test.zip");
+        Path backupArchive = Files.createTempFile("testBackup", ".zip");
+        Files.copy(refArchive, backupArchive, StandardCopyOption.REPLACE_EXISTING);
+
+        Assertions.assertTrue(Files.exists(targetLocation), "Target archive does not exist");
+        Assertions.assertTrue(Files.exists(backupArchive), "Back up does not exist");
+
+        // Check initial hashes...
+        String backupHashString;
+        try (
+                InputStream archiveStream = Files.newInputStream(targetLocation);
+                InputStream backupStream = Files.newInputStream(backupArchive)
+        ) {
+            long archiveHash = ByteBuffer.wrap(digest.digest(archiveStream.readAllBytes())).getLong();
+            long backupHash = ByteBuffer.wrap(digest.digest(backupStream.readAllBytes())).getLong();
+            String archiveHashString = Long.toHexString(archiveHash).toUpperCase();
+            backupHashString = Long.toHexString(backupHash).toUpperCase();
+            Assertions.assertNotEquals(archiveHashString, backupHashString, "Hashes should be different for back up " +
+                    "and restore archives");
+        }
+
+        // Restore back up...
+        ArchiveUtil.restoreBackupArchive(backupArchive, targetLocation);
+
+        // Recalculate hash of file...
+        try (InputStream archiveStream = Files.newInputStream(targetLocation)) {
+            long archiveHashAfter = ByteBuffer.wrap(digest.digest(archiveStream.readAllBytes()))
+                                              .getLong();
+            String archiveHashStringAfter = Long.toHexString(archiveHashAfter)
+                                                .toUpperCase();
+            Assertions.assertEquals(archiveHashStringAfter, backupHashString,
+                                    String.format(
+                                            """
+                                                  The archive and back up SHA-256 hashes were not identical. Details:
+                                                  + Archive SHA-256 = 0x%s
+                                                  + Back up SHA=256 = 0x%s
+                                            """,
+                                            archiveHashStringAfter, backupHashString)
+            );
+        }
+
+        Assertions.assertTrue(Files.notExists(backupArchive), "Back up file should have been deleted.");
+    }
+
+    @Test
+    @DisplayName("Test: Check an archive exists")
+    public void testCheckArchiveExists_Success() throws AlertException {
+        when(mockArchiveInfo.getArchivePath()).thenReturn(Paths.get("src", "test", "resources", "test.zip")
+                                                               .toString());
+        ArchiveUtil.checkArchiveExists(mockArchiveInfo);
+    }
+
+    @Test
+    @DisplayName("Test: Check a non-existent archive")
+    public void testCheckArchiveExists_Fail() {
+        when(mockArchiveInfo.getArchivePath()).thenReturn(Paths.get("src", "test", "resources", "test-non-existent.zip")
+                                                               .toString());
+        Assertions.assertThrows(AlertException.class, ()->ArchiveUtil.checkArchiveExists(mockArchiveInfo));
+    }
+
+    @Test
+    @DisplayName("Test: Remove a temporary archive and parent timestamp folder")
+    public void testRemoveTempArchiveAndParentTempFolder_Fail() throws IOException {
+        Path tempDir = Files.createTempDirectory(TMP_DIR_PREFIX);
+        Path tempArchive = Paths.get(tempDir.toAbsolutePath().toString(), "temp-archive.zip");
+        Files.createFile(tempArchive);
+
+        ArchiveUtil.removeBackupArchive(tempArchive);
+
+        Assertions.assertTrue(Files.notExists(tempArchive), "Temporary archive unexpectedly exists");
+        Assertions.assertTrue(Files.notExists(tempDir), "Temporary directory unexpectedly exists");
     }
 }
