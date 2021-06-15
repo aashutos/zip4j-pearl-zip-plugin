@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /***
- *   @author akakshepati
+ *   @author Aashutos Kakshepati
  */
 @RunWith(JUnitPlatform.class)
 @SelectPackages("com.ntak.pearlzip")

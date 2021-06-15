@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_INFO_ASSERT_PATH;
@@ -33,6 +34,7 @@ public class FXArchiveInfo {
     private final AtomicInteger depth = new AtomicInteger(0);
     private final FXMigrationInfo migrationInfo = new FXMigrationInfo();
     private FrmMainController controller;
+    private final AtomicBoolean closeBypass = new AtomicBoolean(false);
 
     private String prefix = "";
     private ObservableList<FileInfo> files;
@@ -109,5 +111,9 @@ public class FXArchiveInfo {
 
     public Optional<FrmMainController> getController() {
         return Optional.ofNullable(controller);
+    }
+
+    public AtomicBoolean getCloseBypass() {
+        return closeBypass;
     }
 }

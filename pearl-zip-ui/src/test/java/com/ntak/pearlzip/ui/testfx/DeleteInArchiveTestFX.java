@@ -8,17 +8,22 @@ import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.pearlzip.ui.util.PearlZipFXUtil;
 import com.ntak.testfx.FormUtil;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.UITestFXSuite.genSourceDataSet;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.SSV;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class DeleteInArchiveTestFX extends AbstractPearlZipTestFX {
 
@@ -37,6 +42,7 @@ public class DeleteInArchiveTestFX extends AbstractPearlZipTestFX {
      *  + Delete file successfully in non-compressor archive
      *  + Delete failed in compressor archive
      *  + Delete folder successfully in non-compressor archive
+     *  + Delete from a non-existent archive
      */
 
     @BeforeEach
@@ -317,5 +323,36 @@ public class DeleteInArchiveTestFX extends AbstractPearlZipTestFX {
                                             .noneMatch(f->f.endsWith("AUTO_DELETED.txt")),
                               "File was not deleted"
         );
+    }
+
+    @Test
+    @DisplayName("Test: Delete file within a non-existent archive will yield the appropriate alert")
+    public void testFX_deleteFileNonExistentArchive_Alert() throws IOException {
+        final Path srcPath = Paths.get("src", "test", "resources", "test.zip")
+                                  .toAbsolutePath();
+        final Path archivePath = Paths.get(Files.createTempDirectory("pz").toAbsolutePath().toString(), "test.zip")
+                                      .toAbsolutePath();
+        Files.copy(srcPath, archivePath);
+
+        simOpenArchive(this, archivePath, true, false);
+        sleep(50, TimeUnit.MILLISECONDS);
+        Assertions.assertTrue(lookupArchiveInfo(archivePath.getFileName().toString()).isPresent(), "Expected archive was not present");
+
+        // Select file to extract...
+        TableView<FileInfo> fileContentsView = lookup("#fileContentsView").queryAs(TableView.class);
+        sleep(100, MILLISECONDS);
+        FormUtil.selectTableViewEntry(this, fileContentsView, FileInfo::getFileName,
+                                      "first-file").get();
+
+        // Delete archive...
+        Files.deleteIfExists(archivePath);
+
+        // Try to delete...
+        clickOn("#btnDelete", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        // Assert alert expectations
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
     }
 }

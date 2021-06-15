@@ -7,10 +7,11 @@ import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.util.AlertException;
 import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.DirectoryChooser;
@@ -34,7 +35,7 @@ import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
  *  Event Handler for Add Directory functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
+public class BtnAddDirEventHandler implements CheckEventHandler<ActionEvent> {
 
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnAddDirEventHandler.class);
 
@@ -47,59 +48,43 @@ public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleEvent(ActionEvent event) {
         ArchiveWriteService archiveWriteService;
         try {
-        if (Objects.nonNull(archiveWriteService = fxArchiveInfo.getWriteService())) {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            // TITLE: Select source directory location for augmentation...
-            directoryChooser.setTitle(resolveTextKey(TITLE_SOURCE_DIR_LOCATION));
-            final File dir = directoryChooser.showDialog(new Stage());
+            if (Objects.nonNull(archiveWriteService = fxArchiveInfo.getWriteService())) {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                // TITLE: Select source directory location for augmentation...
+                directoryChooser.setTitle(resolveTextKey(TITLE_SOURCE_DIR_LOCATION));
+                final File dir = directoryChooser.showDialog(new Stage());
 
-            if (Objects.isNull(dir)) {
-                return;
+                if (Objects.isNull(dir)) {
+                    return;
+                }
+
+                final Path dirPath = dir.toPath();
+
+                int depth = fxArchiveInfo.getDepth().get();
+                int index = fxArchiveInfo.getFiles().size();
+                String prefix = fxArchiveInfo.getPrefix();
+
+                long sessionId = System.currentTimeMillis();
+                JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
+                                                 ()-> {
+                        List<FileInfo> files = ArchiveUtil.handleDirectory(prefix, dirPath.getParent(), dirPath, depth+1, index);
+                        files.add(new FileInfo((index+1), depth,
+                                                dirPath.getFileName().toString(),
+                                                -1, 0,
+                                                0, null,
+                                                null, null,
+                                                "", "", 0, "",
+                                                true, false,
+                                                Collections.singletonMap(KEY_FILE_PATH, dirPath.toString())));
+                        archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
+                                                    files.toArray(new FileInfo[0]));
+                    },
+                                                 (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)
+                );
             }
-
-            final Path dirPath = dir.toPath();
-
-            int depth = fxArchiveInfo.getDepth().get();
-            int index = fxArchiveInfo.getFiles().size();
-            String prefix = fxArchiveInfo.getPrefix();
-
-            long sessionId = System.currentTimeMillis();
-            JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
-                                             ()-> {
-                    List<FileInfo> files = ArchiveUtil.handleDirectory(prefix, dirPath.getParent(), dirPath, depth+1, index);
-                    files.add(new FileInfo((index+1), depth,
-                                            dirPath.getFileName().toString(),
-                                            -1, 0,
-                                            0, null,
-                                            null, null,
-                                            "", "", 0, "",
-                                            true, false,
-                                            Collections.singletonMap(KEY_FILE_PATH, dirPath.toString())));
-                    archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
-                                                files.toArray(new FileInfo[0]));
-                },
-                                             (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)
-            );
-        } else {
-            // LOG: Warning: Add functionality not supported for archive %s
-            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
-            // TITLE: Warning: Add functionality not supported
-            // HEADER: No Write provider for archive format
-            // BODY: Cannot add file to archive as functionality is not supported for file: %s
-            raiseAlert(Alert.AlertType.WARNING,
-                       resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
-                       resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
-                       resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
-                                      Paths.get(fxArchiveInfo.getArchivePath())
-                                           .getFileName()
-                                           .toString()),
-                       fileContentsView.getScene().getWindow()
-            );
-            JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
-        }
         } catch (Exception e) {
             // LOG: Issue creating stage.\nException type: %s\nMessage:%s\nStack trace:\n%s
             LOGGER.warn(resolveTextKey(LOG_ISSUE_CREATING_STAGE, e.getClass().getCanonicalName(),
@@ -113,6 +98,37 @@ public class BtnAddDirEventHandler implements EventHandler<ActionEvent> {
                        resolveTextKey(HEADER_ISSUE_CREATING_STAGE),
                        resolveTextKey(BODY_ISSUE_CREATING_STAGE, this.getClass().getName()), e,
                        fileContentsView.getScene().getWindow());
+        }
+    }
+
+    @Override
+    public void check(ActionEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
+
+        if (Objects.isNull(fxArchiveInfo.getWriteService())) {
+            // LOG: Warning: Add functionality not supported for archive %s
+            // TITLE: Warning: Add functionality not supported
+            // HEADER: No Write provider for archive format
+            // BODY: Cannot add file to archive as functionality is not supported for file: %s
+            LOGGER.warn(resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
+            JFXUtil.refreshFileView(fileContentsView,
+                                    fxArchiveInfo,
+                                    fxArchiveInfo.getDepth()
+                                                 .get(),
+                                    fxArchiveInfo.getPrefix());
+            throw new AlertException(fxArchiveInfo,
+                                     resolveTextKey(LOG_ADD_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()),
+                                     Alert.AlertType.WARNING,
+                                     resolveTextKey(TITLE_ADD_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(HEADER_ADD_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(BODY_ADD_FUNC_NOT_SUPPORTED,
+                                     Paths.get(fxArchiveInfo.getArchivePath())
+                                          .getFileName()
+                                          .toString()),
+                                     null,
+                                     fileContentsView.getScene()
+                                                     .getWindow()
+            );
         }
     }
 

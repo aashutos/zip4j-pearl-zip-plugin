@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.UITestFXSuite.genSourceDataSet;
@@ -41,6 +42,7 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
     *  + Copy folder fail
     *  + Table context menu paste
     *  + Copy into empty folder
+    *  + Copy from within a non-existent archive
     */
 
     @BeforeEach
@@ -450,5 +452,39 @@ public class CopyInArchiveTestFX extends AbstractPearlZipTestFX {
                                 info.getFiles().stream().filter(f->f.getFileName().equals(Paths.get("empty-dir",
                                                                                                     "COPY_UP.txt").toString())).count(),
                                 "File was not copied");
+    }
+
+    @Test
+    @DisplayName("Test: Copy file within a non-existent archive will yield the appropriate alert")
+    public void testFX_copyFileNonExistentArchive_Alert() throws IOException {
+        final Path srcPath = Paths.get("src", "test", "resources", "test.zip")
+                                  .toAbsolutePath();
+        final Path archivePath = Paths.get(Files.createTempDirectory("pz").toAbsolutePath().toString(), "test.zip")
+                                      .toAbsolutePath();
+        Files.copy(srcPath, archivePath);
+
+        simOpenArchive(this, archivePath, true, false);
+        sleep(50, TimeUnit.MILLISECONDS);
+        Assertions.assertTrue(lookupArchiveInfo(archivePath.getFileName().toString()).isPresent(), "Expected archive was not present");
+
+        // Select file to copy...
+        TableView<FileInfo> fileContentsView = lookup("#fileContentsView").queryAs(TableView.class);
+        sleep(100, MILLISECONDS);
+        FormUtil.selectTableViewEntry(this, fileContentsView, FileInfo::getFileName,
+                                      "first-file").get();
+
+        // Delete archive...
+        Files.deleteIfExists(archivePath);
+
+        // Try to extract...
+        clickOn("#btnCopy", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        clickOn("#mnuCopySelected", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        // Assert alert expectations
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
     }
 }

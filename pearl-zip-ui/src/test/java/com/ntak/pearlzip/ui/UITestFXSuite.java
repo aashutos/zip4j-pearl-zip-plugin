@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /***
- *   @author akakshepati
+ *   @author Aashutos Kakshepati
  */
 @RunWith(JUnitPlatform.class)
 @SelectPackages("com.ntak.pearlzip.ui.testfx")

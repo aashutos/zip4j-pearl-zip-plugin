@@ -10,8 +10,10 @@ import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.testfx.FormUtil;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Tag("fx-test")
 public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
@@ -40,6 +43,8 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
      * + Add long name file to tar archive
      * + Table context menu Add File
      * + Table context menu Add Directory
+     * + Add file to a no longer existing archive
+     * + Add folder to a no longer existing archive
      */
 
     @BeforeEach
@@ -271,5 +276,45 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         final long targetHash = CompressUtil.crcHashFile(targetFile.toFile());
 
         Assertions.assertEquals(sourceHash, targetHash, "File hashes were not identical");
+    }
+
+    @Test
+    @DisplayName("Test: Add file to a non-existent archive will raise the appropriate exception alert")
+    public void testFX_AddFileNonExistentArchive_Fail() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        Files.deleteIfExists(archive);
+
+        clickOn("#btnAdd", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        clickOn("#mnuAddFile", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
+    }
+
+    @Test
+    @DisplayName("Test: Add folder to a non-existent archive will raise the appropriate exception alert")
+    public void testFX_AddFolderNonExistentArchive_Fail() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        Files.deleteIfExists(archive);
+
+        clickOn("#btnAdd", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        clickOn("#mnuAddDir", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
     }
 }

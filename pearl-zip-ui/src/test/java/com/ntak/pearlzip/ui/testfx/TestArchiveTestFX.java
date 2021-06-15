@@ -11,11 +11,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.simOpenArchive;
-import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.simTestArchive;
+import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class TestArchiveTestFX extends AbstractPearlZipTestFX {
@@ -292,4 +292,23 @@ public class TestArchiveTestFX extends AbstractPearlZipTestFX {
                               "The archive was valid unexpectedly");
         sleep(50, MILLISECONDS);
     }
+
+    @Test
+    @DisplayName("Test: test invalid xz archive returns success alert")
+    public void testFX_testNonExistentArchive_Alert() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        Files.deleteIfExists(archive);
+
+        // Test archive
+        simTestArchive(this);
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
+    }
+
+
 }

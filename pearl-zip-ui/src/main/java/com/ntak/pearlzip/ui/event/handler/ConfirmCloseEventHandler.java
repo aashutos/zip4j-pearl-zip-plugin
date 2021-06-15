@@ -52,8 +52,10 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
     @Override
     public void handle(WindowEvent event) {
         try {
+            final Path archivePath = Paths.get(fxArchiveInfo.getArchivePath());
             if (fxArchiveInfo.getArchivePath()
-                             .startsWith(STORE_TEMP.toString())) {
+                             .startsWith(STORE_TEMP.toString()) && !fxArchiveInfo.getCloseBypass().get() && Files.exists(
+                    archivePath)) {
                 // If a nested file from a parent archive an option is given to update it
                 final String archiveFilePath = fxArchiveInfo.getArchivePath();
                 final String parentPath = fxArchiveInfo.getParentPath();
@@ -84,7 +86,7 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                             if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getParentPath().substring(fxArchiveInfo.getParentPath().lastIndexOf(".")+1))) {
                                 long sessionId = System.currentTimeMillis();
                                 Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(), String.format("pz%d", sessionId),
-                                                                   Paths.get(fxArchiveInfo.getArchivePath()).getFileName().toString());
+                                                                   archivePath.getFileName().toString());
                                 JFXUtil.executeBackgroundProcess(sessionId, stage,
                                                                  () -> archiveWriteService.createArchive(sessionId,
                                                                                                          parentTempArchive.toString(),
@@ -121,7 +123,7 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                 // HEADER: Do you wish to save the open archive %s
                 // BODY: Please specify if you wish to save the archive %s. If you do not wish to save the archive, it
                 // will be removed from temporary storage.
-                final String archiveFileName = Paths.get(fxArchiveInfo.getArchivePath())
+                final String archiveFileName = archivePath
                                       .getFileName()
                                       .toString();
                 Optional<ButtonType> response = raiseAlert(Alert.AlertType.CONFIRMATION,
@@ -133,14 +135,13 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                                                            null,
                                                            stage,
                                                            ButtonType.YES, ButtonType.NO);
-                Path tempArchive = Paths.get(fxArchiveInfo.getArchivePath());
                 if (response.isPresent()) {
                     if (response.get()
                                 .equals(ButtonType.YES)) {
                         FileChooser saveDialog = new FileChooser();
                         // TITLE: Save archive to location...
                         saveDialog.setTitle(TITLE_TARGET_ARCHIVE_LOCATION);
-                        String archiveName = tempArchive
+                        String archiveName = archivePath
                                 .getFileName()
                                 .toString();
                         saveDialog.setInitialFileName(archiveName);
@@ -149,13 +150,13 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                         File savedFile = saveDialog.showSaveDialog(new Stage());
 
                         if (Objects.nonNull(savedFile)) {
-                            Files.move(tempArchive, savedFile.toPath(), StandardCopyOption.ATOMIC_MOVE,
+                            Files.move(archivePath, savedFile.toPath(), StandardCopyOption.ATOMIC_MOVE,
                                        StandardCopyOption.REPLACE_EXISTING);
                             addToRecentFile(savedFile);
                         }
                     }
                 }
-                removeBackupArchive(tempArchive);
+                removeBackupArchive(archivePath);
             }
         } catch(IOException e) {
             // Issue with IO Process when saving down archive %s

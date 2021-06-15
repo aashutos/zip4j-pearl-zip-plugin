@@ -5,14 +5,14 @@ package com.ntak.pearlzip.ui.event.handler;
 
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
+import com.ntak.pearlzip.ui.util.AlertException;
+import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
 
 import java.nio.file.Paths;
 
@@ -24,8 +24,7 @@ import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
  *  Event Handler for Test Archive functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnTestEventHandler implements EventHandler<MouseEvent> {
-    private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnTestEventHandler.class);
+public class BtnTestEventHandler implements CheckEventHandler<MouseEvent> {
     private final Stage stage;
     private final FXArchiveInfo fxArchiveInfo;
 
@@ -35,7 +34,7 @@ public class BtnTestEventHandler implements EventHandler<MouseEvent> {
     }
 
     @Override
-    public void handle(MouseEvent event) {
+    public void handleEvent(MouseEvent event) {
         ArchiveReadService readService = fxArchiveInfo.getReadService();
         long sessionId = System.currentTimeMillis();
 
@@ -78,5 +77,10 @@ public class BtnTestEventHandler implements EventHandler<MouseEvent> {
                                          },
                                          (s)->{}
         );
+    }
+
+    @Override
+    public void check(MouseEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
     }
 }

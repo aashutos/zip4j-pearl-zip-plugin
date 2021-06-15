@@ -11,9 +11,11 @@ import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.FXMigrationInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
+import com.ntak.pearlzip.ui.util.AlertException;
+import com.ntak.pearlzip.ui.util.ArchiveUtil;
+import com.ntak.pearlzip.ui.util.CheckEventHandler;
 import com.ntak.pearlzip.ui.util.JFXUtil;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
@@ -40,7 +42,7 @@ import static javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS;
  *  Event Handler for Delete functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
+public class BtnDeleteEventHandler implements CheckEventHandler<MouseEvent> {
     private final TableView<FileInfo> fileContentsView;
     private final FXArchiveInfo fxArchiveInfo;
     private static final Logger LOGGER = LoggerContext.getContext()
@@ -52,28 +54,8 @@ public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
     }
 
     @Override
-    public void handle(MouseEvent event) {
+    public void handleEvent(MouseEvent event) {
         try {
-            if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath())
-                        .isEmpty()) {
-                // LOG: Delete functionality not supported for archive %s
-                LOGGER.warn(resolveTextKey(LOG_DEL_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
-                // TITLE: Warning: Delete functionality not supported
-                // HEADER: No Write provider for archive format
-                // BODY: Cannot delete file to archive as functionality is not supported for file: %s
-                raiseAlert(Alert.AlertType.WARNING,
-                           resolveTextKey(TITLE_DEL_FUNC_NOT_SUPPORTED),
-                           resolveTextKey(HEADER_DEL_FUNC_NOT_SUPPORTED),
-                           resolveTextKey(BODY_DEL_FUNC_NOT_SUPPORTED,
-                                          Paths.get(fxArchiveInfo.getArchivePath())
-                                               .getFileName()
-                                               .toString()),
-                           fileContentsView.getScene()
-                                           .getWindow()
-                );
-                return;
-            }
-
             ArchiveWriteService writeService = fxArchiveInfo.getWriteService();
             FileInfo fileToDelete = fileContentsView.getSelectionModel()
                                                     .getSelectedItem();
@@ -133,6 +115,32 @@ public class BtnDeleteEventHandler implements EventHandler<MouseEvent> {
                        resolveTextKey(HEADER_ISSUE_CREATING_STAGE),
                        resolveTextKey(BODY_ISSUE_CREATING_STAGE, this.getClass().getName()), e,
                        fileContentsView.getScene().getWindow());
+        }
+    }
+
+    @Override
+    public void check(MouseEvent event) throws AlertException {
+        ArchiveUtil.checkArchiveExists(fxArchiveInfo);
+
+        if (ZipState.getWriteArchiveServiceForFile(fxArchiveInfo.getArchivePath())
+                    .isEmpty()) {
+            // LOG: Delete functionality not supported for archive %s
+            LOGGER.warn(resolveTextKey(LOG_DEL_FUNC_NOT_SUPPORTED, fxArchiveInfo.getArchivePath()));
+
+            // TITLE: Warning: Delete functionality not supported
+            // HEADER: No Write provider for archive format
+            // BODY: Cannot delete file to archive as functionality is not supported for file: %s
+            throw new AlertException(fxArchiveInfo,
+                                     resolveTextKey(LOG_DEL_FUNC_NOT_SUPPORTED,
+                                          fxArchiveInfo.getArchivePath()),
+                                     Alert.AlertType.WARNING,
+                                     resolveTextKey(TITLE_DEL_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(HEADER_DEL_FUNC_NOT_SUPPORTED),
+                                     resolveTextKey(BODY_DEL_FUNC_NOT_SUPPORTED,
+                                         Paths.get(fxArchiveInfo.getArchivePath())
+                                              .getFileName()
+                                              .toString()),
+                                     null, fileContentsView.getScene().getWindow());
         }
     }
 }

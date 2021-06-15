@@ -8,7 +8,9 @@ import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.pearlzip.ui.util.PearlZipFXUtil;
 import com.ntak.testfx.FormUtil;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 import static com.ntak.pearlzip.ui.UITestSuite.clearDirectory;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.lookupArchiveInfo;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.simOpenArchive;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ExtractFromArchiveTestFX extends AbstractPearlZipTestFX {
 
@@ -32,6 +35,8 @@ public class ExtractFromArchiveTestFX extends AbstractPearlZipTestFX {
      *  Test cases:
      *  + Extract single file
      *  + Extract all files
+     *  + Extract single file - non existent archive
+     *  + Extract all files - non existent archive
      */
 
     @AfterEach
@@ -217,6 +222,39 @@ public class ExtractFromArchiveTestFX extends AbstractPearlZipTestFX {
 
         // Check extraction was successful...
         Assertions.assertTrue(Files.exists(targetFilePath), "File was not extracted");
+    }
+
+    @Test
+    @DisplayName("Test: Extract single file from a non existent archive. Yield expected alert.")
+    public void testFX_extractSingleFileNonExistentArchive_Alert() throws IOException {
+        final Path srcPath = Paths.get("src", "test", "resources", "test.zip")
+                                  .toAbsolutePath();
+        final Path archivePath = Paths.get(Files.createTempDirectory("pz").toAbsolutePath().toString(), "test.zip")
+                                      .toAbsolutePath();
+        Files.copy(srcPath, archivePath);
+
+        simOpenArchive(this, archivePath, true, false);
+        sleep(50, TimeUnit.MILLISECONDS);
+        Assertions.assertTrue(lookupArchiveInfo(archivePath.getFileName().toString()).isPresent(), "Expected archive was not present");
+
+        // Select file to extract...
+        TableView<FileInfo> fileContentsView = lookup("#fileContentsView").queryAs(TableView.class);
+        FormUtil.selectTableViewEntry(this, fileContentsView, FileInfo::getFileName,
+                                      "first-file").get();
+
+        // Delete archive...
+        Files.deleteIfExists(archivePath);
+
+        // Try to extract...
+        clickOn("#btnExtract", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        clickOn("#mnuExtractSelectedFile", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        // Assert alert expectations
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -410,5 +448,30 @@ public class ExtractFromArchiveTestFX extends AbstractPearlZipTestFX {
         for (Path path : paths) {
             Assertions.assertTrue(Files.exists(path), String.format("Path %s does not exist", path));
         }
+    }
+
+    @Test
+    @DisplayName("Test: Extract all files from a non existent archive. Yield expected alert.")
+    public void testFX_extractAllFilesNonExistentArchive_Alert() throws IOException {
+        final Path srcPath = Paths.get("src", "test", "resources", "test.zip")
+                                      .toAbsolutePath();
+        final Path archivePath = Paths.get(Files.createTempDirectory("pz").toAbsolutePath().toString(), "test.zip")
+                                      .toAbsolutePath();
+        Files.copy(srcPath, archivePath);
+
+        simOpenArchive(this, archivePath, true, false);
+        sleep(50, TimeUnit.MILLISECONDS);
+        Assertions.assertTrue(lookupArchiveInfo(archivePath.getFileName().toString()).isPresent(), "Expected archive was not present");
+
+        Files.deleteIfExists(archivePath);
+
+        clickOn("#btnExtract", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        clickOn("#mnuExtractAll", MouseButton.PRIMARY);
+        sleep(50, MILLISECONDS);
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
     }
 }
