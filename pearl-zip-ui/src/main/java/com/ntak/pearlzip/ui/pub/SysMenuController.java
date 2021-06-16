@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
@@ -62,46 +61,39 @@ public class SysMenuController {
         mnuNew.setOnAction((e)->new BtnNewEventHandler().handle(null));
         mnuOpen.setOnAction((e)-> {
             Stage stage = getActiveStage().orElse(new Stage());
-            if (Objects.nonNull(stage)) {
-                new BtnOpenEventHandler(stage).handle(null);
-            } else {
-                new BtnOpenEventHandler(new Stage()).handle(null);
-            }
+            new BtnOpenEventHandler(stage).handle(null);
         });
         mnuSaveAs.setOnAction((e)-> {
             Stage stage = getActiveStage().orElse(new Stage());
-            if (Objects.nonNull(stage)) {
-                FXArchiveInfo fxArchiveInfo = (FXArchiveInfo) stage.getUserData();
+            FXArchiveInfo fxArchiveInfo = (FXArchiveInfo) stage.getUserData();
 
-                FileChooser saveDialog = new FileChooser();
-                // TITLE: Save archive to location...
-                saveDialog.setTitle(TITLE_TARGET_ARCHIVE_LOCATION);
-                saveDialog.setTitle(resolveTextKey(TITLE_SAVE_ARCHIVE_PATTERN));
-                saveDialog.setInitialFileName(Paths.get(fxArchiveInfo.getArchivePath()).getFileName().toString());
-                File newArchive = saveDialog.showSaveDialog(stage);
+            FileChooser saveDialog = new FileChooser();
+            // TITLE: Save archive to location...
+            saveDialog.setTitle(TITLE_TARGET_ARCHIVE_LOCATION);
+            saveDialog.setTitle(resolveTextKey(TITLE_SAVE_ARCHIVE_PATTERN));
+            saveDialog.setInitialFileName(Paths.get(fxArchiveInfo.getArchivePath()).getFileName().toString());
+            File newArchive = saveDialog.showSaveDialog(stage);
 
-                if (newArchive != null) {
-                    try {
-                        Files.copy(Paths.get(fxArchiveInfo.getArchivePath()), newArchive.toPath(), REPLACE_EXISTING);
-                        final String absolutePath = newArchive.getAbsolutePath();
-                        FXArchiveInfo newArchiveInfo = new FXArchiveInfo(absolutePath,
-                                                                         ZipState.getReadArchiveServiceForFile(absolutePath).get(),
-                                                                         ZipState.getWriteArchiveServiceForFile(absolutePath).orElse(null)
-                        );
-                        launchMainStage(newArchiveInfo);
-                        addToRecentFile(newArchive);
+            if (newArchive != null) {
+                try {
+                    Files.copy(Paths.get(fxArchiveInfo.getArchivePath()), newArchive.toPath(), REPLACE_EXISTING);
+                    final String absolutePath = newArchive.getAbsolutePath();
+                    FXArchiveInfo newArchiveInfo = new FXArchiveInfo(absolutePath,
+                                                                     ZipState.getReadArchiveServiceForFile(absolutePath).get(),
+                                                                     ZipState.getWriteArchiveServiceForFile(absolutePath).orElse(null)
+                    );
+                    launchMainStage(newArchiveInfo);
+                    addToRecentFile(newArchive);
 
-                        stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+                    fxArchiveInfo.getCloseBypass().set(true);
+                    stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 
-                    } catch (IOException ioe) {}
-                }
+                } catch (IOException ioe) {}
             }
         });
         mnuClose.setOnAction((e)-> {
             Stage stage = getActiveStage().orElse(new Stage());
-            if (Objects.nonNull(stage)) {
-                stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-            }
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
 
         ArchiveUtil.refreshRecentFileMenu(mnuOpenRecent);
