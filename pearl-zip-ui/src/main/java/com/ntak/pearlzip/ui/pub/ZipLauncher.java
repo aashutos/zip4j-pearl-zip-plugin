@@ -5,7 +5,6 @@ package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
-import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.license.pub.LicenseService;
@@ -13,10 +12,7 @@ import com.ntak.pearlzip.license.pub.PearlZipLicenseService;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
-import com.ntak.pearlzip.ui.util.MetricProfile;
-import com.ntak.pearlzip.ui.util.MetricProfileFactory;
-import com.ntak.pearlzip.ui.util.MetricThreadFactory;
-import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
+import com.ntak.pearlzip.ui.util.*;
 import de.jangassen.MenuToolkit;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,6 +27,8 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.awt.*;
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.*;
@@ -199,6 +197,11 @@ public class ZipLauncher extends Application {
                                       .orElse(STORE_ROOT.toString()));
             Path externalBootstrapFile = Paths.get(STORE_ROOT.toString(), "application.properties");
 
+            String defaultModulePath = Path.of(STORE_ROOT.toAbsolutePath().toString(), "providers").toString();
+            ZipConstants.RUNTIME_MODULE_PATH =
+                    Paths.get(System.getProperty(CNS_NTAK_PEARL_ZIP_MODULE_PATH, defaultModulePath)).toAbsolutePath();
+
+
             // Overwrite with external properties file
             // Reserved properties are kept as per internal key definition
             Map<String,String> reservedKeyMap = new HashMap<>();
@@ -275,18 +278,19 @@ public class ZipLauncher extends Application {
             licenseService.retrieveDeclaredLicenses()
                           .forEach(ZipState::addLicenseDeclaration);
 
-            // Load Archive Services
-            ServiceLoader<ArchiveReadService> serviceReadLoader = ServiceLoader.load(ArchiveReadService.class);
-            serviceReadLoader.stream()
-                             .map(ServiceLoader.Provider::get)
-                             .filter(ArchiveService::isEnabled)
-                             .forEach(ZipState::addArchiveProvider);
+            ////////////////////////////////////////////
+            ///// Runtime Module Load /////////////////
+            //////////////////////////////////////////
 
-            ServiceLoader<ArchiveWriteService> serviceWriteLoader = ServiceLoader.load(ArchiveWriteService.class);
-            serviceWriteLoader.stream()
-                              .map(ServiceLoader.Provider::get)
-                              .filter(ArchiveService::isEnabled)
-                              .forEach(ZipState::addArchiveProvider);
+            URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{RUNTIME_MODULE_PATH.toUri().toURL()});
+
+            if (Files.isDirectory(RUNTIME_MODULE_PATH)) {
+                // LOG: Loading modules from path: %s
+                ROOT_LOGGER.info(resolveTextKey(LOG_LOADING_MODULE, RUNTIME_MODULE_PATH.toAbsolutePath().toString()));
+                ModuleUtil.loadModulesDynamic(RUNTIME_MODULE_PATH, urlClassLoader);
+            } else {
+                ModuleUtil.loadModulesStatic();
+            }
 
             // Initialising Thread Pool
             String klassName;
@@ -319,4 +323,5 @@ public class ZipLauncher extends Application {
             ROOT_LOGGER.error(LoggingUtil.getStackTraceFromException(e));
         }
     }
+
 }
