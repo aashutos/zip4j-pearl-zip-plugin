@@ -27,8 +27,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.awt.*;
 import java.io.*;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.*;
@@ -282,12 +280,10 @@ public class ZipLauncher extends Application {
             ///// Runtime Module Load /////////////////
             //////////////////////////////////////////
 
-            URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{RUNTIME_MODULE_PATH.toUri().toURL()});
-
             if (Files.isDirectory(RUNTIME_MODULE_PATH)) {
                 // LOG: Loading modules from path: %s
                 ROOT_LOGGER.info(resolveTextKey(LOG_LOADING_MODULE, RUNTIME_MODULE_PATH.toAbsolutePath().toString()));
-                ModuleUtil.loadModulesDynamic(RUNTIME_MODULE_PATH, urlClassLoader);
+                ModuleUtil.loadModulesDynamic(RUNTIME_MODULE_PATH);
             } else {
                 ModuleUtil.loadModulesStatic();
             }
