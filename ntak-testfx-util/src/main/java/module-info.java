@@ -7,4 +7,6 @@ module ntak.testfx.util {
     requires javafx.graphics;
     requires org.testfx;
     requires javafx.controls;
+    requires com.ntak.pearlzip.archive;
+    requires org.mockito;
 }
