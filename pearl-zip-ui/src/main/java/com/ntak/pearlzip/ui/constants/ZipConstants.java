@@ -28,6 +28,7 @@ public class ZipConstants {
     public static final String CNS_NTAK_PEARL_ZIP_WEBLINK = "configuration.ntak.pearl-zip.weblink";
     public static final String CNS_NTAK_PEARL_ZIP_LICENSE_LOCATION = "configuration.ntak.pearl-zip.license-location";
     public static final String CNS_NTAK_PEARL_ZIP_LICENSE_OVERRIDE_LOCATION = "configuration.ntak.pearl-zip.license-override-location";
+    public static final String CNS_NTAK_PEARL_ZIP_MODULE_PATH = "configuration.ntak.pearl-zip.module-path";
     public static final String CNS_PROVIDER_PRIORITY_ROOT_KEY = "configuration.ntak.pearl-zip.provider.priority.%s";
     public static final String CNS_STORE_ROOT = "configuration.ntak.pearl-zip.store.temp";
     public static final String CNS_WINDOW_HEIGHT = "configuration.ntak.pearl-zip.window-height";
@@ -56,6 +57,10 @@ public class ZipConstants {
     public static final String LOG_CREATE_ARCHIVE = "logging.ntak.pearl-zip.log-create-archive";
 
     public static final String LOG_LOCKING_IN_PROPERTY = "logging.ntak.pearl-zip.locking-in-property";
+
+    public static final String LOG_LOADING_MODULE = "logging.ntak.pearl-zip.loading-module";
+    public static final String LOG_READ_SERVICES_IDENTIFIED = "logging.ntak.pearl-zip.read-services-identified";
+    public static final String LOG_WRITE_SERVICES_IDENTIFIED = "logging.ntak.pearl-zip.write-services-identified";
 
     public static final String LOG_ARCHIVE_LOCKED = "logging.ntak.pearl-zip.archive-locked";
     public static final String TITLE_ARCHIVE_LOCKED = "title.ntak.pearl-zip.archive-locked";
@@ -242,4 +247,5 @@ public class ZipConstants {
     public static ProgressMessageTraceLogger MESSAGE_TRACE_LOGGER;
     public static MenuToolkit MENU_TOOLKIT;
     public static final Logger ROOT_LOGGER = LoggerContext.getContext().getRootLogger();
+    public static Path RUNTIME_MODULE_PATH;
 }
