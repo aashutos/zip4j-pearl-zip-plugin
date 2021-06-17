@@ -3,6 +3,7 @@
  */
 package com.ntak.pearlzip.ui.pub;
 
+import com.ntak.pearlzip.archive.constants.LoggingConstants;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.event.handler.*;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
@@ -106,7 +107,7 @@ public class ContextMenuController {
         mnuOpen.setOnAction((e)->{
             if (Objects.isNull(fileInfo) || fileInfo.isFolder()) {
                 // LOG: No file has been selected from archive %s
-                ROOT_LOGGER.warn(resolveTextKey(LOG_NO_FILE_SELECTED, archiveInfo.getArchivePath()));
+                LoggingConstants.ROOT_LOGGER.warn(resolveTextKey(LOG_NO_FILE_SELECTED, archiveInfo.getArchivePath()));
                 // TITLE: Information: No file selected
                 // HEADER: A file has not been selected
                 // BODY: Please select a file.

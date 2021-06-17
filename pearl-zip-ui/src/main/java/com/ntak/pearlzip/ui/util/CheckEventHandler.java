@@ -9,10 +9,10 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.ROOT_LOGGER;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_GENERAL_EVENT_HANDLER_EXCEPTION;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.ROOT_LOGGER;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**

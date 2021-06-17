@@ -3,6 +3,7 @@
  */
 package com.ntak.pearlzip.ui.util;
 
+import com.ntak.pearlzip.archive.constants.LoggingConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
@@ -18,7 +19,8 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_READ_SERVICES_IDENTIFIED;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_WRITE_SERVICES_IDENTIFIED;
 
 /**
  *  Utility methods within this class are utilised by PearlZip to load Archive Service implementations.
@@ -32,13 +34,13 @@ public class ModuleUtil {
         ServiceLoader<ArchiveReadService> serviceReadLoader = ServiceLoader.load(ArchiveReadService.class);
 
         // LOG: ArchiveReadService implementation identified: %s
-        ROOT_LOGGER.info(resolveTextKey(LOG_READ_SERVICES_IDENTIFIED,
-                                        serviceReadLoader.stream()
+        LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_READ_SERVICES_IDENTIFIED,
+                                                         serviceReadLoader.stream()
                                                          .collect(Collectors.toList())));
 
         // LOG: ArchiveWriteService implementation identified: %s
-        ROOT_LOGGER.info(resolveTextKey(LOG_WRITE_SERVICES_IDENTIFIED,
-                                        serviceWriteLoader.stream()
+        LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_WRITE_SERVICES_IDENTIFIED,
+                                                         serviceWriteLoader.stream()
                                                           .collect(Collectors.toList())));
 
         // Load Archive Services
@@ -82,13 +84,13 @@ public class ModuleUtil {
                                                                                      ArchiveReadService.class);
 
             // LOG: ArchiveReadService implementation identified: %s
-            ROOT_LOGGER.info(resolveTextKey(LOG_READ_SERVICES_IDENTIFIED,
-                                            serviceReadLoader.stream()
+            LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_READ_SERVICES_IDENTIFIED,
+                                                             serviceReadLoader.stream()
                                                              .collect(Collectors.toList())));
 
             // LOG: ArchiveWriteService implementation identified: %s
-            ROOT_LOGGER.info(resolveTextKey(LOG_WRITE_SERVICES_IDENTIFIED,
-                                            serviceWriteLoader.stream()
+            LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_WRITE_SERVICES_IDENTIFIED,
+                                                             serviceWriteLoader.stream()
                                                               .collect(Collectors.toList())));
 
             // Load Archive Services

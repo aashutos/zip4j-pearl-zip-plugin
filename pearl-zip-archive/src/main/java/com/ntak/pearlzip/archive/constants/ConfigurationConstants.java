@@ -16,6 +16,7 @@ public class ConfigurationConstants {
     public static final String CNS_RES_BUNDLE = "configuration.ntak.pearl-zip.resource-bundle";
     public static final String CNS_CUSTOM_RES_BUNDLE = "configuration.ntak.pearl-zip.custom-resource-bundle";
     public static final String CNS_TMP_DIR_PREFIX = "configuration.ntak.tmp-dir-prefix";
+    public static final String CNS_COM_BUS_FACTORY = "configuration.ntak.com-bus-factory";
 
     public static final String KEY_SESSION_ID = "session-id";
     public static final String KEY_FILE_PATH = "file-path";

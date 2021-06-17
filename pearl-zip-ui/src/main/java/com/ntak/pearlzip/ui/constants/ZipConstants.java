@@ -6,8 +6,6 @@ package com.ntak.pearlzip.ui.constants;
 import com.ntak.pearlzip.ui.pub.ZipLauncher;
 import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
 import de.jangassen.MenuToolkit;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
 
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -246,6 +244,5 @@ public class ZipConstants {
     public static ThreadGroup THREAD_GROUP;
     public static ProgressMessageTraceLogger MESSAGE_TRACE_LOGGER;
     public static MenuToolkit MENU_TOOLKIT;
-    public static final Logger ROOT_LOGGER = LoggerContext.getContext().getRootLogger();
     public static Path RUNTIME_MODULE_PATH;
 }

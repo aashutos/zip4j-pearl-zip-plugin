@@ -3,20 +3,43 @@
  */
 package com.ntak.pearlzip.archive.pub;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.Set;
 
-import static com.ntak.pearlzip.archive.constants.ArchiveConstants.EVENTBUS_EXECUTOR_SERVICE;
+import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_COM_BUS_FACTORY;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_SERVICE_COM_BUS_INIT_ERROR;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.ROOT_LOGGER;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 
 /**
  *  Interface defining common functionality associated with an archive extracting/compression implementation.
  *  @author Aashutos Kakshepati
  */
 public interface ArchiveService {
-    EventBus DEFAULT_BUS = EventBus.builder()
-                                   .executorService(EVENTBUS_EXECUTOR_SERVICE)
-                                   .build();
+
+    CommunicationBus DEFAULT_BUS = initializeBus();
+
+    static CommunicationBus initializeBus() {
+        try {
+            CommunicationBusFactory factory = (CommunicationBusFactory) Class.forName(
+                                                System.getProperty(CNS_COM_BUS_FACTORY,
+                                                                  "com.ntak.pearlzip.ui.util.EventBusFactory")
+            )
+            .getDeclaredConstructor()
+            .newInstance();
+
+            return factory.initializeCommunicationBus();
+        } catch (Exception e) {
+            // LOG: Exception raised on initialisation of Communication Bus. A critical issue has occurred, Pearl Zip
+            // will now close.\n
+            // Exception Type: %s\n
+            // Exception message: %s\n
+            // Stack trace:\n%s
+            ROOT_LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_COM_BUS_INIT_ERROR,
+                                             e.getClass().getCanonicalName(), e.getMessage(), e.getStackTrace()));
+            throw new ExceptionInInitializerError(resolveTextKey(LOG_ARCHIVE_SERVICE_COM_BUS_INIT_ERROR,
+                                                                 e.getClass().getCanonicalName(), e.getMessage(), e.getStackTrace()));
+        }
+    }
 
     default boolean isEnabled() {
         return Boolean.parseBoolean(System.getProperty(
