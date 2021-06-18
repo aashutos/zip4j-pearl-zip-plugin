@@ -3,6 +3,9 @@
  */
 package com.ntak.pearlzip.archive.constants;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -12,6 +15,8 @@ import java.util.ResourceBundle;
  */
 public class LoggingConstants {
 
+    public static final Logger ROOT_LOGGER = LoggerContext.getContext().getRootLogger();
+
     public static final String LOG_ARCHIVE_SERVICE_FORMAT = "logging.ntak.pearl-zip.archive-service.format";
     public static final String LOG_ARCHIVE_SERVICE_NUMBER_ITEMS = "logging.ntak.pearl-zip.archive-service.no-items";
     public static final String LOG_ARCHIVE_READ_ZIP_PROPERTY = "logging.ntak.pearl-zip.archive-service.read-zip-property";
@@ -20,6 +25,8 @@ public class LoggingConstants {
     public static final String LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION = "logging.ntak.pearl-zip.archive-service.listing.exception";
     public static final String LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION = "logging.ntak.pearl-zip.archive-service.create.exception";
     public static final String LOG_ARCHIVE_SERVICE_ADD_EXCEPTION = "logging.ntak.pearl-zip.archive-service.add.exception";
+    public static final String LOG_ARCHIVE_SERVICE_COM_BUS_INIT_ERROR = "logging.ntak.pearl-zip.archive-service.com-bus-init-error";
+
     public static final String LOG_TRANSFORM_EXCEPTION = "logging.ntak.pearl-zip.transform.exception";
     public static final String LOG_SKIP_SYMLINK = "logging.ntak.pearl-zip.skip-symlink";
 

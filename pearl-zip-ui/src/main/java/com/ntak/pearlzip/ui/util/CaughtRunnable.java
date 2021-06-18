@@ -3,10 +3,10 @@
  */
 package com.ntak.pearlzip.ui.util;
 
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.ROOT_LOGGER;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_THREAD_EXECUTION_ISSUE;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.ROOT_LOGGER;
 
 /**
  * An interface which is a Runnable that automatically handles all Exceptions by rerouting it to the

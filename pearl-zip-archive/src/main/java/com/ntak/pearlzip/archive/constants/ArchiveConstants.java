@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  */
 public class ArchiveConstants {
     public static final ThreadGroup EVENTBUS_THREAD_GROUP = new ThreadGroup("EVENTBUS-THREAD-GROUP");
-    public static final ExecutorService EVENTBUS_EXECUTOR_SERVICE =
+    public static final ExecutorService COM_BUS_EXECUTOR_SERVICE =
             Executors.newScheduledThreadPool(2*Runtime.getRuntime().availableProcessors(),
                                              (r)->new Thread(EVENTBUS_THREAD_GROUP,r));
 }

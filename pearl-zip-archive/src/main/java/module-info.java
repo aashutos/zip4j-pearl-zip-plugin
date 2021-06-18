@@ -6,16 +6,15 @@
  *  as a provider.
  */
 module com.ntak.pearlzip.archive {
-    exports com.ntak.pearlzip.archive.util;
-    exports com.ntak.pearlzip.archive.constants;
-    exports com.ntak.pearlzip.archive.pub;
 
     ///////////////////
     ///// Exports /////
     ///////////////////
 
     // Public package exported
-
+    exports com.ntak.pearlzip.archive.util;
+    exports com.ntak.pearlzip.archive.constants;
+    exports com.ntak.pearlzip.archive.pub;
 
     ////////////////////
     ///// Requires /////
@@ -24,6 +23,4 @@ module com.ntak.pearlzip.archive {
     // Logging dependencies
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
-
-    requires eventbus;
 }

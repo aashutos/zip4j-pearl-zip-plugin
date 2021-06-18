@@ -4,6 +4,7 @@
 package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
+import com.ntak.pearlzip.archive.constants.LoggingConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
@@ -34,7 +35,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
-import static com.ntak.pearlzip.archive.constants.ArchiveConstants.EVENTBUS_EXECUTOR_SERVICE;
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.COM_BUS_EXECUTOR_SERVICE;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.genLocale;
@@ -56,7 +57,7 @@ public class ZipLauncher extends Application {
             Desktop.getDesktop().setOpenFileHandler((e)->{
                 e.getFiles()
                  .stream()
-                 .peek(ROOT_LOGGER::info)
+                 .peek(LoggingConstants.ROOT_LOGGER::info)
                  .map(f -> f.toPath()
                             .toAbsolutePath()
                             .toString())
@@ -158,7 +159,7 @@ public class ZipLauncher extends Application {
             addToRecentFile(new File(archivePath));
         } else if (APP.getParameters().getRaw().size() > 0 && APP.getParameters().getRaw().get(0).startsWith("-psn_")) {
             // LOG: OS Trigger detected...
-            ROOT_LOGGER.info(resolveTextKey(LOG_OS_TRIGGER_DETECTED));
+            LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_OS_TRIGGER_DETECTED));
             return;
         } else {
             archivePath = Paths.get(STORE_TEMP.toString(),
@@ -175,13 +176,13 @@ public class ZipLauncher extends Application {
 
     @Override
     public void stop() {
-        EVENTBUS_EXECUTOR_SERVICE.shutdown();
+        COM_BUS_EXECUTOR_SERVICE.shutdown();
         PRIMARY_EXECUTOR_SERVICE.shutdown();
     }
 
     public static void main(String[] args) {
         try {
-            ROOT_LOGGER.debug(Arrays.toString(args));
+            LoggingConstants.ROOT_LOGGER.debug(Arrays.toString(args));
 
             // Load bootstrap properties
             Properties props = new Properties();
@@ -211,7 +212,7 @@ public class ZipLauncher extends Application {
                     Path reservedKeys = Paths.get(ZipLauncher.class.getClassLoader()
                                                                .getResource("reserved-keys")
                                                                .getPath());
-                    ROOT_LOGGER.info(reservedKeys);
+                    LoggingConstants.ROOT_LOGGER.info(reservedKeys);
 
                     // standard/jar resource case
                     if (Objects.nonNull(reservedKeys)) {
@@ -228,7 +229,7 @@ public class ZipLauncher extends Application {
                     Files.lines(tmpRK)
                      .filter(k -> Objects.nonNull(k) && Objects.nonNull(props.getProperty(k)))
                      // LOG: Locking in key: %s with value: %s
-                     .peek(k -> ROOT_LOGGER.info(resolveTextKey(LOG_LOCKING_IN_PROPERTY, k, props.getProperty(k))))
+                     .peek(k -> LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_LOCKING_IN_PROPERTY, k, props.getProperty(k))))
                      .forEach(k -> reservedKeyMap.put(k, props.getProperty(k)));
             }
 
@@ -239,7 +240,7 @@ public class ZipLauncher extends Application {
             props.putAll(System.getProperties());
             props.putAll(reservedKeyMap);
             System.setProperties(props);
-            ROOT_LOGGER.info(props);
+            LoggingConstants.ROOT_LOGGER.info(props);
 
             ////////////////////////////////////////////
             ///// Log4j Setup /////////////////////////
@@ -282,7 +283,7 @@ public class ZipLauncher extends Application {
 
             if (Files.isDirectory(RUNTIME_MODULE_PATH)) {
                 // LOG: Loading modules from path: %s
-                ROOT_LOGGER.info(resolveTextKey(LOG_LOADING_MODULE, RUNTIME_MODULE_PATH.toAbsolutePath().toString()));
+                LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_LOADING_MODULE, RUNTIME_MODULE_PATH.toAbsolutePath().toString()));
                 ModuleUtil.loadModulesDynamic(RUNTIME_MODULE_PATH);
             } else {
                 ModuleUtil.loadModulesStatic();
@@ -315,8 +316,8 @@ public class ZipLauncher extends Application {
 
             launch(args);
         } catch(Exception e) {
-            ROOT_LOGGER.error(e.getMessage());
-            ROOT_LOGGER.error(LoggingUtil.getStackTraceFromException(e));
+            LoggingConstants.ROOT_LOGGER.error(e.getMessage());
+            LoggingConstants.ROOT_LOGGER.error(LoggingUtil.getStackTraceFromException(e));
         }
     }
 

@@ -31,14 +31,6 @@
         </license>
     </licenses>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.greenrobot</groupId>
-            <artifactId>eventbus</artifactId>
-            <version>${eventbus.version}</version>
-        </dependency>
-    </dependencies>
-
     <profiles>
         <profile>
             <id>increment-version</id>

@@ -39,6 +39,12 @@
             <artifactId>pearl-zip-lang-pack-${lang}-${country}</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>ntak-testfx-util</artifactId>
+            <version>${parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
