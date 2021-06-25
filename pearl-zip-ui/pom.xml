@@ -19,7 +19,6 @@
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <javafx.version>15.0.1</javafx.version>
         <pearl-zip.version>${project.parent.version}</pearl-zip.version>
     </properties>
 

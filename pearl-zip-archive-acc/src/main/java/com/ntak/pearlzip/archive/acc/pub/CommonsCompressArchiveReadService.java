@@ -4,8 +4,7 @@
 package com.ntak.pearlzip.archive.acc.pub;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
-import com.ntak.pearlzip.archive.pub.ArchiveReadService;
-import com.ntak.pearlzip.archive.pub.FileInfo;
+import com.ntak.pearlzip.archive.pub.*;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.acc.util.CommonsCompressUtil.getArchiveFormat;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTAK_PEARL_ZIP_ICON_FOLDER;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 
@@ -44,7 +44,8 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(CommonsCompressArchiveReadService.class);
 
     @Override
-    public List<FileInfo> listFiles(long sessionId, String archivePath) {
+    public List<FileInfo> listFiles(long sessionId, ArchiveInfo archiveInfo) {
+        String archivePath = archiveInfo.getArchivePath();
         List<FileInfo> files = new LinkedList<>();
         final String extension = getArchiveFormat(archivePath);
         try(final InputStream iStream = Files.newInputStream(Path.of(archivePath));
@@ -109,7 +110,14 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
     }
 
     @Override
-    public boolean extractFile(long sessionId, Path targetLocation, String archivePath, FileInfo file) {
+    public List<FileInfo> listFiles(long sessionId, String archivePath) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        return listFiles(sessionId, archiveInfo);
+    }
+
+    @Override
+    public boolean extractFile(long sessionId, Path targetLocation, ArchiveInfo archiveInfo, FileInfo file) {
+        final String archivePath = archiveInfo.getArchivePath();
         final String extension = getArchiveFormat(archivePath);
         try(final InputStream iStream = Files.newInputStream(Path.of(archivePath));
             final ArchiveInputStream aiStream =
@@ -132,6 +140,12 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
     }
 
     @Override
+    public boolean extractFile(long sessionId, Path targetLocation, String archivePath, FileInfo file) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        return extractFile(sessionId, targetLocation, archiveInfo, file);
+    }
+
+    @Override
     public boolean testArchive(long sessionId, String archivePath) {
         final String extension = getArchiveFormat(archivePath);
         try(final InputStream iStream = Files.newInputStream(Path.of(archivePath));
@@ -150,6 +164,8 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
             }
         } catch(IOException | ArchiveException e) {
             return false;
+        } finally {
+            ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED, 1, 1));
         }
 
         return true;
