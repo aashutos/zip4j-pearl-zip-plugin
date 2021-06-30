@@ -116,7 +116,7 @@ public class BtnMoveSelectedEventHandler implements CheckEventHandler<ActionEven
 
                                                               boolean success =
                                                                       archiveReadService.extractFile(sessionId,
-                                                                                                     tempFile, fxArchiveInfo.getArchivePath(),
+                                                                                                     tempFile, fxArchiveInfo.getArchiveInfo(),
                                                                                                                migrationInfo.getFile());
 
                                                               if (!success) {
@@ -150,9 +150,9 @@ public class BtnMoveSelectedEventHandler implements CheckEventHandler<ActionEven
                                                                                          fxArchiveInfo.getDepth(), fxArchiveInfo.getPrefix()));
 
                                                               success = archiveWriteService.addFile(sessionId,
-                                                                                                    fxArchiveInfo.getArchivePath(), newFile);
+                                                                                                    fxArchiveInfo.getArchiveInfo(), newFile);
                                                               success &= archiveWriteService.deleteFile(sessionId,
-                                                                                                        fxArchiveInfo.getArchivePath(), fxArchiveInfo.getMigrationInfo()
+                                                                                                        fxArchiveInfo.getArchiveInfo(), fxArchiveInfo.getMigrationInfo()
                                                                                                                                                      .getFile());
 
                                                               if (!success) {

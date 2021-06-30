@@ -100,7 +100,7 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                                  ZipState.getReadArchiveServiceForFile(fxArchiveInfo.getArchivePath())
                                                                          .get();
                                                          archiveService.extractFile(sessionId, nestedArchive,
-                                                                                    fxArchiveInfo.getArchivePath(),
+                                                                                    fxArchiveInfo.getArchiveInfo(),
                                                                                     clickedRow
                                                          );
 

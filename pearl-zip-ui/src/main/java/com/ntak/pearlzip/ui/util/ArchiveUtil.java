@@ -108,7 +108,7 @@ public class ArchiveUtil {
                 files.stream().filter(f -> !f.isFolder()).forEach(f -> archiveReadService.extractFile(sessionId,
                                                 Paths.get(dir.getAbsolutePath(),
                                                          Paths.get(f.getFileName()).toString()),
-                                                fxArchiveInfo.getArchivePath(),
+                                                fxArchiveInfo.getArchiveInfo(),
                                                 f)
                 );
             }
@@ -254,9 +254,11 @@ public class ArchiveUtil {
         final ArchiveWriteService writeService = ZipState.getWriteArchiveServiceForFile(archive.getName())
                                                          .get();
         writeService.createArchive(sessionId, archiveInfo);
-        FXArchiveInfo fxArchiveInfo = new FXArchiveInfo(archive.getAbsolutePath(),
+        FXArchiveInfo fxArchiveInfo = new FXArchiveInfo(null,
+                                                        archive.getAbsolutePath(),
                                                         ZipState.getReadArchiveServiceForFile(archive.getName()).get(),
-                                                        writeService);
+                                                        writeService,
+                                                        archiveInfo);
         Platform.runLater(() -> launchMainStage(fxArchiveInfo));
         addToRecentFile(archive);
     }
@@ -268,7 +270,7 @@ public class ArchiveUtil {
                                                                ZipState.getReadArchiveServiceForFile(file.getName()).get(),
                                                                ZipState.getWriteArchiveServiceForFile(file.getName()).orElse(null)
             );
-
+            // TODO: Custom open dialog and wait on completion
             Platform.runLater(() -> launchMainStage(newFxArchiveInfo));
             addToRecentFile(file);
 

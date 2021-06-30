@@ -9,8 +9,13 @@ import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.archive.pub.ProgressMessage;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
+import javafx.util.Pair;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -28,6 +33,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FIL
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static net.lingala.zip4j.model.enums.CompressionMethod.DEFLATE;
 
 /**
  *  Implementation of the Archive Service for writing zip archives using the Zip4j library underneath.
@@ -142,8 +148,6 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
 
     private void addFilesInPlace(long sessionId, ZipFile archive, ArchiveInfo archiveInfo, List<FileInfo> files) throws ZipException {
         for (FileInfo file : files) {
-            System.out.println(file.getAdditionalInfoMap());
-
             // LOG: Adding file %s...
             DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
                                                  resolveTextKey(LOG_ARCHIVE_Z4J_ADDING_FILE, file.getFileName())
@@ -185,6 +189,18 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                                                  resolveTextKey(LOG_ARCHIVE_Z4J_DELETING_FILE, file.getFileName()), 1, 1));
 
             if (file.isFolder()) {
+                final List<FileHeader> fileHeaders = new ArrayList(archive.getFileHeaders());
+                Collections.sort(fileHeaders,
+                                 (a,b) -> (b.getFileName().length() - b.getFileName().replaceAll("/", "").length()) - (a.getFileName().length() - a.getFileName().replaceAll("/", "").length()));
+                for (FileHeader h : fileHeaders) {
+                    if (h != null && h.getFileName()
+                                      .startsWith(file.getFileName())) {
+                        try {
+                            archive.removeFile(h.getFileName());
+                        } catch(ZipException e) {
+                        }
+                    }
+                }
                 archive.removeFile(String.format(PATTERN_FOLDER, file.getFileName()));
             } else {
                 archive.removeFile(file.getFileName());
@@ -215,7 +231,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
         archiveInfo.setArchiveFormat("zip");
         archiveInfo.setCompressionLevel(9);
         archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, false);
-        archiveInfo.addProperty(KEY_COMPRESSION_METHOD, "DEFLATE");
+        archiveInfo.addProperty(KEY_COMPRESSION_METHOD, DEFLATE);
 
         return archiveInfo;
     }
@@ -223,6 +239,23 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
     @Override
     public Optional<ResourceBundle> getResourceBundle() {
         return Optional.of(RES_BUNDLE);
+    }
+
+    @Override
+    public Optional<Pair<String,Node>> getCreateArchiveOptionsPane() {
+        AnchorPane root;
+        final String title_zip4j_options = "Zip4j Options";
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                .getResource("frmZip4jNewOptions.fxml"));
+            loader.setResources(RES_BUNDLE);
+            loader.setController(new FrmZip4jNewOptionsController());
+            root = loader.load();
+        } catch (Exception e) {
+            return Optional.of(new Pair(title_zip4j_options, new AnchorPane()));
+        }
+        return Optional.of(new Pair(title_zip4j_options, root));
     }
 
     @Override

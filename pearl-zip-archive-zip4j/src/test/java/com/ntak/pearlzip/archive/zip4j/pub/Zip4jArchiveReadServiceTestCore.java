@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static net.lingala.zip4j.model.enums.AesKeyStrength.KEY_STRENGTH_256;
+import static net.lingala.zip4j.model.enums.EncryptionMethod.AES;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,7 +74,7 @@ public abstract class Zip4jArchiveReadServiceTestCore {
     @Test
     @DisplayName("Test: List files from an unencrypted archive")
     public void testListFiles_UnencryptedArchive_Success() {
-        List<String> expectations = Arrays.asList("level2/","level2/level2-file","level2/UP-MOVE");
+        List<String> expectations = Arrays.asList("level2","level2/level2-file","level2/UP-MOVE");
         long sessionId = System.currentTimeMillis();
         List<FileInfo> files = service.listFiles(sessionId, unencryptedArchive.toAbsolutePath().toString());
         Assertions.assertEquals(3, files.size(), "The expected number of files was not read");
@@ -84,14 +86,14 @@ public abstract class Zip4jArchiveReadServiceTestCore {
     @Test
     @DisplayName("Test: List files from an encrypted archive")
     public void testListFiles_EncryptedArchive_Success() {
-        List<String> expectations = Arrays.asList("level2/","level2/level2-file","level2/UP-MOVE");
+        List<String> expectations = Arrays.asList("level2","level2/level2-file","level2/UP-MOVE");
         long sessionId = System.currentTimeMillis();
         ArchiveInfo archiveInfo = new ArchiveInfo();
         archiveInfo.setArchivePath(encryptedArchive.toAbsolutePath().toString());
         archiveInfo.setArchiveFormat("zip");
         archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
-        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, "AES");
-        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, "KEY_STRENGTH_256");
+        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, AES);
+        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, KEY_STRENGTH_256);
         archiveInfo.addProperty(KEY_ENCRYPTION_PW, new String("Pa$$w0rD").toCharArray());
 
         List<FileInfo> files = service.listFiles(sessionId, archiveInfo);
@@ -123,8 +125,8 @@ public abstract class Zip4jArchiveReadServiceTestCore {
         archiveInfo.setArchivePath(encryptedArchive.toAbsolutePath().toString());
         archiveInfo.setArchiveFormat("zip");
         archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
-        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, "AES");
-        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, "KEY_STRENGTH_256");
+        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, AES);
+        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, KEY_STRENGTH_256);
         archiveInfo.addProperty(KEY_ENCRYPTION_PW, new String("Pa$$w0rD").toCharArray());
 
         Assertions.assertTrue(service.extractFile(sessionId, destination, archiveInfo, fileInfo),

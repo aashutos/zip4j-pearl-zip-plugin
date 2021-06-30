@@ -79,7 +79,7 @@ public class BtnAddDirEventHandler implements CheckEventHandler<ActionEvent> {
                                                 "", "", 0, "",
                                                 true, false,
                                                 Collections.singletonMap(KEY_FILE_PATH, dirPath.toString())));
-                        archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
+                        archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchiveInfo(),
                                                     files.toArray(new FileInfo[0]));
                     },
                                                  (s)->JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, depth, prefix)

@@ -14,11 +14,14 @@ import java.util.Optional;
  *  @author Aashutos Kakshepati
  */
 public interface ArchiveReadService extends ArchiveService {
+    default ArchiveInfo generateArchiveMetaData(String archivePath) {
+        return ArchiveService.generateDefaultArchiveInfo(archivePath);
+    }
     List<FileInfo> listFiles(long sessionId, String archivePath);
     List<FileInfo> listFiles(long sessionId, ArchiveInfo archivePath);
     boolean extractFile(long sessionId, Path targetLocation, String archivePath, FileInfo file);
     boolean extractFile(long sessionId, Path targetLocation, ArchiveInfo archivePath, FileInfo file);
     boolean testArchive(long sessionId, String archivePath);
-    default Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) { return Optional.empty(); };
+    default Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) { return Optional.empty(); }
     List<String> supportedReadFormats();
 }

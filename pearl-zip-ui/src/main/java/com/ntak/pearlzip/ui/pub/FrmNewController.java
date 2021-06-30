@@ -4,16 +4,27 @@
 package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
+import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.ui.event.handler.BtnCreateEventHandler;
 import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Pair;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.ntak.pearlzip.ui.constants.ResourceConstants.PATTERN_FXID_NEW_OPTIONS;
 
 /**
  *  Controller for the New Archive dialog.
@@ -29,16 +40,38 @@ public class FrmNewController {
     @FXML
     private ComboBox<String> comboArchiveFormat;
     @FXML
-    private ComboBox<Integer> comboCmpLevel;
+    private TabPane tabsNew;
+
+    private final Map<String,List<Tab>> CUSTOM_TAB_MAP = new ConcurrentHashMap<>();
+    private final ArchiveInfo archiveInfo = new ArchiveInfo();
 
     @FXML
     public void initialize() {
         comboArchiveFormat.setItems(FXCollections.observableArrayList(ZipState.supportedWriteArchives()));
         comboArchiveFormat.getSelectionModel().selectFirst();
-        // TODO: Functionality to be added later
-        comboCmpLevel.setItems(FXCollections.observableArrayList(9));
-        comboCmpLevel.getSelectionModel().selectFirst();
-        comboCmpLevel.setDisable(true);
+
+        for (ArchiveWriteService service : ZipState.getWriteProviders()) {
+            if ((service.getCreateArchiveOptionsPane()).isPresent()) {
+                Pair<String,Node> tab = service.getCreateArchiveOptionsPane()
+                                               .get();
+
+                Tab customTab = new Tab();
+                customTab.setText(tab.getKey());
+                customTab.setId(String.format(PATTERN_FXID_NEW_OPTIONS,
+                                              service.getClass()
+                                                     .getCanonicalName()));
+                customTab.setContent(tab.getValue());
+                tab.getValue().setUserData(archiveInfo);
+                tabsNew.getTabs()
+                       .add(customTab);
+
+                for (String format : service.supportedWriteFormats()) {
+                    List<Tab> tabs = CUSTOM_TAB_MAP.getOrDefault(format, new LinkedList());
+                    tabs.add(customTab);
+                    CUSTOM_TAB_MAP.put(format, tabs);
+                }
+            }
+        }
     }
 
     public void initData(Stage stage, AtomicBoolean isRendered) {
@@ -50,12 +83,27 @@ public class FrmNewController {
             }
         });
 
-        ArchiveInfo archiveInfo = new ArchiveInfo();
         archiveInfo.setArchiveFormat(comboArchiveFormat.getSelectionModel().getSelectedItem());
-        archiveInfo.setCompressionLevel(comboCmpLevel.getSelectionModel().getSelectedItem());
-        comboArchiveFormat.setOnAction((a) -> archiveInfo.setArchiveFormat(comboArchiveFormat.getSelectionModel().getSelectedItem()));
-        comboCmpLevel.setOnAction((a) -> archiveInfo.setCompressionLevel(comboCmpLevel.getSelectionModel().getSelectedItem()));
+        comboArchiveFormat.setOnAction((a) -> {
+                                           archiveInfo.setArchiveFormat(comboArchiveFormat.getSelectionModel()
+                                                                                          .getSelectedItem());
+                                           setTabVisibilityByFormat(comboArchiveFormat.getSelectionModel()
+                                                                                      .getSelectedItem());
+                                       }
+        );
 
         btnCreate.setOnMouseClicked(new BtnCreateEventHandler(stage, isRendered, archiveInfo));
+    }
+
+    private void setTabVisibilityByFormat(String format) {
+        synchronized(tabsNew) {
+            List<Tab> tabsToEnable = CUSTOM_TAB_MAP.get(format);
+            tabsNew.getTabs()
+                   .remove(1,
+                           tabsNew.getTabs()
+                                  .size());
+            tabsNew.getTabs()
+                   .addAll(tabsToEnable);
+        }
     }
 }

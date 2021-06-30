@@ -43,4 +43,6 @@ public class Zip4jConstants {
     public static final String LOG_ARCHIVE_Z4J_ISSUE_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.issue-deleting-file";
     public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
     public static final String LOG_ARCHIVE_Z4J_ISSUE_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.issue-adding-file";
+    public static final String LOG_ARCHIVE_Z4J_ISSUE_GENERATING_METADATA =
+            "logging.ntak.pearl-zip.zip4j.issue-generating-metadata";
 }

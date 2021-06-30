@@ -64,7 +64,9 @@ public class JFXUtilTest {
             mockReadService = Mockito.mock(ArchiveReadService.class);
             mockWriteService = Mockito.mock(ArchiveWriteService.class);
 
-            when(mockReadService.listFiles(anyLong(), eq(archive.toAbsolutePath().toString()))).thenReturn(List.of(
+            archiveInfo = new FXArchiveInfo(archive.toAbsolutePath().toString(), mockReadService, mockWriteService);
+
+            when(mockReadService.listFiles(anyLong(), eq(archiveInfo.getArchiveInfo()))).thenReturn(List.of(
                     new FileInfo(0, 0, "folder", 0, 0, 0,
                                  LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), "user", "group",
                                  0, "", true, false, Collections.emptyMap()),
@@ -93,8 +95,6 @@ public class JFXUtilTest {
                                  LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), "user", "group",
                                  0, "", true, false, Collections.emptyMap())
             ));
-
-            archiveInfo = new FXArchiveInfo(archive.toAbsolutePath().toString(), mockReadService, mockWriteService);
         }
     }
 

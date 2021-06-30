@@ -172,12 +172,13 @@ public class ArchiveUtilTest {
     @Test
     @DisplayName("Test: Extract to directory with valid directory will execute")
     public void testExtractToDirectory_ValidDirectory_Success() {
+        when(mockArchiveInfo.getArchiveInfo()).thenReturn(new ArchiveInfo());
         ArchiveUtil.extractToDirectory(2L, mockArchiveInfo, tempDirectory.toFile());
         verify(mockArchiveInfo, times(1)).getFiles();
         verify(mockArchiveReadService,
                times((int)mockArchiveInfo.getFiles().stream().filter(f->!f.isFolder()).count())).extractFile(anyLong(),
                                                                                                           any(Path.class),
-                                                                                                             anyString(),
+                                                                                                             any(ArchiveInfo.class),
                                                                                                              any(FileInfo.class));
     }
 

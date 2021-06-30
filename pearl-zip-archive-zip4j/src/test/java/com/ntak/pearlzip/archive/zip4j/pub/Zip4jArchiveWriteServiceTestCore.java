@@ -18,6 +18,8 @@ import java.util.Collections;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static net.lingala.zip4j.model.enums.AesKeyStrength.KEY_STRENGTH_256;
+import static net.lingala.zip4j.model.enums.EncryptionMethod.AES;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class Zip4jArchiveWriteServiceTestCore {
@@ -98,8 +100,8 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
         ArchiveInfo archiveInfo = new ArchiveInfo();
         archiveInfo.setArchiveFormat("zip");
         archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
-        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, "AES");
-        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, "KEY_STRENGTH_256");
+        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, AES);
+        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, KEY_STRENGTH_256);
         archiveInfo.addProperty(KEY_ENCRYPTION_PW, new String("SomePa$$W0rD").toCharArray());
         final Path archive = Paths.get(tempDirectory.toAbsolutePath()
                                                     .toString(), "tempEncryptedArchive.zip");
@@ -126,8 +128,8 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
         ArchiveInfo archiveInfo = new ArchiveInfo();
         archiveInfo.setArchiveFormat("zip");
         archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
-        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, "AES");
-        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, "KEY_STRENGTH_256");
+        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, AES);
+        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, KEY_STRENGTH_256);
         archiveInfo.addProperty(KEY_ENCRYPTION_PW, new String("SomePa$$W0rD").toCharArray());
         final Path archive = Paths.get(tempDirectory.toAbsolutePath()
                                                     .toString(), "tempEncryptedArchive.zip");

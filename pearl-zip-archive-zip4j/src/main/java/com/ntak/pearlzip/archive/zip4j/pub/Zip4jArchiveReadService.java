@@ -12,6 +12,9 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.AesKeyStrength;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
@@ -33,6 +36,52 @@ import static com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil.initializeZipParame
 public class Zip4jArchiveReadService implements ArchiveReadService  {
     private static final Logger LOGGER = LoggerContext.getContext()
                                                       .getLogger(Zip4jArchiveReadService.class);
+
+    @Override
+    public ArchiveInfo generateArchiveMetaData(String archivePath) {
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+        // Assumption 1: Uniform setup of each Zip entry in the archive. Same encryption and same compression format
+        // throughout etc.
+        // Assumption 2: All files to be added will be performed on a uniform basis and will not be different
+        // entry-to-entry
+        // TODO: Will need to modify this to store metadata for individual file entries. Adding files to zip archive
+        //  would involve custom settings for Compression, Encryption. It maybe safe to assume a uniform password
+        //  across encrypted entries. Extraction will be affected by this also. List and Test involve header usage
+        //  and should be ok.
+        try {
+            ZipFile archive = new ZipFile(archivePath);
+            archiveInfo.setArchivePath(archivePath);
+            archiveInfo.setArchiveFormat("zip");
+            List<FileHeader> headers = archive.getFileHeaders();
+
+            // Encryption checks...
+            if (headers.stream().filter(f->f.isEncrypted() && f.getEncryptionMethod().equals(EncryptionMethod.AES)).count() > 0) {
+                archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
+                archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, EncryptionMethod.AES);
+                archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, AesKeyStrength.KEY_STRENGTH_256);
+            } else if (headers.stream().filter(f->f.isEncrypted() && f.getEncryptionMethod().equals(EncryptionMethod.ZIP_STANDARD_VARIANT_STRONG)).count() > 0) {
+                archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
+                archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, EncryptionMethod.ZIP_STANDARD_VARIANT_STRONG);
+            }
+
+            archiveInfo.addProperty(KEY_COMPRESSION_METHOD, CompressionMethod.DEFLATE);
+            if (headers.stream().anyMatch(f->f.getCompressionMethod().equals(CompressionMethod.STORE))
+                && headers.stream().noneMatch(f->f.getCompressionMethod().equals(CompressionMethod.DEFLATE))
+            ) {
+                archiveInfo.addProperty(KEY_COMPRESSION_METHOD, CompressionMethod.STORE);
+            }
+
+            // TODO: Compression level may be set at Option level (Maybe Options can specify default values to set on
+            //  dialog on a file basis at a later stage)
+            archiveInfo.setCompressionLevel(9);
+        } catch (ZipException e) {
+            // LOG: Issue generating metadata for archive %s
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_GENERATING_METADATA, archivePath));
+            archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        }
+
+        return archiveInfo;
+    }
 
     @Override
     public List<FileInfo> listFiles(long sessionId, String archivePath) {
@@ -67,9 +116,13 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
                 Path parent = Paths.get(file.getFileName());
                 for (int j = 1; j <= level; j++) {
                     parent = parent.getParent();
+                    final Path finParent = parent;
+                    setFiles.stream().filter(f->f.getFileName().equals(String.format(PATTERN_FOLDER,
+                                                                                     finParent.toString()))).findFirst().ifPresent(f->setFiles.remove(f));
+
                     final FileInfo fileInfo = new FileInfo(setFiles.size(),
                                                            level - j,
-                                                           String.format(PATTERN_FOLDER, parent.toString()),
+                                                           parent.toString(),
                                                            -1,
                                                            0,
                                                            0,
