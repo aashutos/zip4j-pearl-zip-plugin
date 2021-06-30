@@ -86,12 +86,14 @@ public class ModuleUtil {
             // LOG: ArchiveReadService implementation identified: %s
             LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_READ_SERVICES_IDENTIFIED,
                                                              serviceReadLoader.stream()
-                                                             .collect(Collectors.toList())));
+                                                                              .map(s->s.get().getClass().getCanonicalName())
+                                                                              .collect(Collectors.toList())));
 
             // LOG: ArchiveWriteService implementation identified: %s
             LoggingConstants.ROOT_LOGGER.info(resolveTextKey(LOG_WRITE_SERVICES_IDENTIFIED,
                                                              serviceWriteLoader.stream()
-                                                              .collect(Collectors.toList())));
+                                                                               .map(s->s.get().getClass().getCanonicalName())
+                                                                               .collect(Collectors.toList())));
 
             // Load Archive Services
             serviceReadLoader.stream()

@@ -125,7 +125,7 @@ public class BtnCopySelectedEventHandler implements CheckEventHandler<ActionEven
                     Files.copy(Paths.get(fxArchiveInfo.getArchivePath()), tempArchive, REPLACE_EXISTING);
 
                     boolean success = archiveReadService.extractFile(sessionId, tempFile,
-                                                                     fxArchiveInfo.getArchivePath(),
+                                                                     fxArchiveInfo.getArchiveInfo(),
                                                                      migrationInfo.getFile());
 
                     if (!success) {
@@ -176,7 +176,7 @@ public class BtnCopySelectedEventHandler implements CheckEventHandler<ActionEven
                                                                       fxArchiveInfo.getPrefix()));
 
                                                               archiveWriteService.addFile(sessionId,
-                                                                                          fxArchiveInfo.getArchivePath(),
+                                                                                          fxArchiveInfo.getArchiveInfo(),
                                                                                           newFile);
                                                               fxArchiveInfo.refresh();
                                                               boolean successCopy = (prevCount + 1 == fxArchiveInfo.getFiles()

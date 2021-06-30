@@ -51,4 +51,5 @@ public class LoggingConstants {
     // QUEUE KEYS
     public static final String PROGRESS = "PROGRESS";
     public static final String COMPLETED = "COMPLETED";
+    public static final String ERROR = "ERROR";
 }

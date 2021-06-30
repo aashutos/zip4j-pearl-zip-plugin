@@ -3,6 +3,11 @@
  */
 package com.ntak.pearlzip.archive.pub;
 
+import javafx.scene.Node;
+import javafx.util.Pair;
+
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_COM_BUS_FACTORY;
@@ -41,6 +46,16 @@ public interface ArchiveService {
         }
     }
 
+    static ArchiveInfo generateDefaultArchiveInfo(String archivePath) {
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+
+        archiveInfo.setArchivePath(archivePath);
+        archiveInfo.setArchiveFormat(archivePath.substring(archivePath.lastIndexOf(".") + 1));
+        archiveInfo.setCompressionLevel(9);
+
+        return archiveInfo;
+    }
+
     default boolean isEnabled() {
         return Boolean.parseBoolean(System.getProperty(
                 String.format("configuration.ntak.pearl-zip.provider.priority.enabled.%s",
@@ -53,4 +68,8 @@ public interface ArchiveService {
     default Set<String> getCompressorArchives() {
         return Set.of("gz", "xz", "bz2", "lz", "lz4", "lzma", "z", "sz");
     }
+
+    default Optional<Pair<String,Node>> getOptionsPane() { return Optional.empty(); }
+
+    default Optional<ResourceBundle> getResourceBundle() { return Optional.empty(); }
 }

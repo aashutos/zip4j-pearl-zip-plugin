@@ -3,6 +3,7 @@
  */
 package com.ntak.pearlzip.ui.model;
 
+import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
@@ -35,6 +36,7 @@ public class FXArchiveInfo {
     private final FXMigrationInfo migrationInfo = new FXMigrationInfo();
     private FrmMainController controller;
     private final AtomicBoolean closeBypass = new AtomicBoolean(false);
+    private final ArchiveInfo archiveInfo;
 
     private String prefix = "";
     private ObservableList<FileInfo> files;
@@ -42,8 +44,14 @@ public class FXArchiveInfo {
     public FXArchiveInfo(String archivePath, ArchiveReadService readService, ArchiveWriteService writeService) {
         this(null, archivePath, readService, writeService);
     }
+
     public FXArchiveInfo(String parentPath, String archivePath, ArchiveReadService readService,
             ArchiveWriteService writeService) {
+        this(parentPath, archivePath, readService, writeService, readService.generateArchiveMetaData(archivePath));
+    }
+
+    public FXArchiveInfo(String parentPath, String archivePath, ArchiveReadService readService,
+            ArchiveWriteService writeService, ArchiveInfo archiveInfo) {
         // LOG: Archive path should be valid
         assert Files.exists(Paths.get(archivePath)) : resolveTextKey(LOG_ARCHIVE_INFO_ASSERT_PATH);
         // LOG: Read service should not be null
@@ -53,6 +61,7 @@ public class FXArchiveInfo {
         this.archivePath = archivePath;
         this.readService = readService;
         this.writeService = writeService;
+        this.archiveInfo = archiveInfo;
 
         setFiles(FXCollections.observableArrayList(
                 new ArrayList<>(readService.listFiles(System.currentTimeMillis(), archivePath))));
@@ -70,11 +79,11 @@ public class FXArchiveInfo {
         this.prefix = prefix;
     }
 
-    public ObservableList<FileInfo> getFiles() {
+    public synchronized ObservableList<FileInfo> getFiles() {
         return files;
     }
 
-    public void setFiles(ObservableList<FileInfo> files) {
+    public synchronized void setFiles(ObservableList<FileInfo> files) {
         this.files = files;
     }
 
@@ -98,9 +107,9 @@ public class FXArchiveInfo {
         return migrationInfo;
     }
 
-    public void refresh() {
+    public synchronized void refresh() {
         files.clear();
-        files.addAll(readService.listFiles(System.currentTimeMillis(), archivePath));
+        files.addAll(readService.listFiles(System.currentTimeMillis(), archiveInfo));
         setPrefix("");
         depth.set(0);
     }
@@ -115,5 +124,9 @@ public class FXArchiveInfo {
 
     public AtomicBoolean getCloseBypass() {
         return closeBypass;
+    }
+
+    public ArchiveInfo getArchiveInfo() {
+        return archiveInfo;
     }
 }

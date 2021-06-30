@@ -23,7 +23,7 @@ import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTA
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 
 /**
- *   Converter for 7-Zip Java Binding archive entries (ISimpleInArchiveItem) to normalised FileInfo objects.
+ *  Converter for 7-Zip Java Binding archive entries (ISimpleInArchiveItem) to normalised FileInfo objects.
  *  @author Aashutos Kakshepati
  */
 public class SimpleSevenZipEntryTransform implements TransformEntry<ISimpleInArchiveItem> {

@@ -58,10 +58,7 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
     public void createArchive(long sessionId, String archivePath, FileInfo... files) {
         // Set default compression options
         try {
-            ArchiveInfo archiveInfo = new ArchiveInfo();
-            archiveInfo.setArchivePath(archivePath);
-            archiveInfo.setArchiveFormat(archivePath.substring(archivePath.lastIndexOf(".") + 1));
-            archiveInfo.setCompressionLevel(9);
+            ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
             createArchive(sessionId, archiveInfo, files);
         } catch (IndexOutOfBoundsException e) {
             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED,COMPLETED,1,1));
@@ -302,7 +299,15 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
 
     @Override
     public boolean addFile(long sessionId, String archivePath, FileInfo... files) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+
+        return addFile(sessionId, archiveInfo, files);
+    }
+
+    @Override
+    public boolean addFile(long sessionId, ArchiveInfo archiveInfo, FileInfo... files) {
         try {
+            String archivePath = archiveInfo.getArchivePath();
             Path tempDir = Files.createTempDirectory(TMP_DIR_PREFIX);
             Path tmpArchive = Paths.get(tempDir.toString(), Paths.get(archivePath).getFileName().toString());
             Files.createFile(tmpArchive);
@@ -342,7 +347,7 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
         } catch (IOException e) {
             // IO Issue occurred on trying to initiate the archive process.\nStack trace:\n%s
             LOGGER.error(resolveTextKey(LOG_ACC_INIT_I0_ISSUE,
-                                        archivePath,
+                                        archiveInfo.getArchivePath(),
                                         e.getClass().getCanonicalName(),
                                         LoggingUtil.getStackTraceFromException(e)));
         }
@@ -352,6 +357,13 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
 
     @Override
     public boolean deleteFile(long sessionId, String archivePath, FileInfo file) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        return deleteFile(sessionId, archiveInfo, file);
+    }
+
+    @Override
+    public boolean deleteFile(long sessionId, ArchiveInfo archiveInfo, FileInfo file) {
+        String archivePath = archiveInfo.getArchivePath();
         final ChangeSet changeSet = new ChangeSet();
         if (file.isFolder()) {
             changeSet.deleteDir(file.getFileName());

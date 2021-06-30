@@ -158,7 +158,7 @@ public abstract class SevenZipArchiveServiceTestCore {
         long sessionId = System.currentTimeMillis();
         List<FileInfo> files = service.listFiles(sessionId, "non-existent-file.zip");
         Assertions.assertNotNull(files, "Null was unexpectedly returned");
-        Assertions.assertEquals(0, files.size(), "Files were unexpedtedly returned");
+        Assertions.assertEquals(0, files.size(), "Files were unexpectedly returned");
     }
 
     ///// EXTRACT FILES /////
@@ -166,7 +166,6 @@ public abstract class SevenZipArchiveServiceTestCore {
     @Test
     @DisplayName("Test: Attempt to extract non-existentfiles for a valid 7Zip file is unsuccessful")
     public void testExtractFiles_InvalidSelectedFile_Skips() throws IOException {
-        long timestamp = System.currentTimeMillis();
         FileInfo fi = new FileInfo(0, 0, "non-existent-file", 0, 0, 0, null, null, null, "", "", 0, "", false, false,
                                    Collections.emptyMap());
         long sessionId = System.currentTimeMillis();
@@ -327,7 +326,7 @@ public abstract class SevenZipArchiveServiceTestCore {
     public void testFiles_InvalidArchive_False() {
         long sessionId = System.currentTimeMillis();
         assertFalse(service.testArchive(sessionId, SevenZipArchiveServiceTestCore.class.getClassLoader().getResource(
-                "broken.tar.xz").getFile()), "Archive not valid");
+                "broken.tar.xz").getFile()), "Archive valid unexpectedly");
     }
 
     ///// UTILITY METHODS /////

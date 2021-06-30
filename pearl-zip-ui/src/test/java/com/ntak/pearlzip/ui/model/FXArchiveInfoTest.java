@@ -82,7 +82,7 @@ public class FXArchiveInfoTest {
 
         // Refresh called with mocked update to the archive
         // Mock update read service output
-        when(readService.listFiles(anyLong(), eq(archive.toAbsolutePath().toString()))).thenReturn(List.of(
+        when(readService.listFiles(anyLong(), eq(fxArchiveInfo.getArchiveInfo()))).thenReturn(List.of(
                 new FileInfo(0, 0, "folder", 0, 0, 0,
                              LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), "user", "group",
                              0, "", true, false, Collections.emptyMap()),

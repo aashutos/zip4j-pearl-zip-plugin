@@ -131,7 +131,7 @@ public class FileContentsDragDropRowEventHandler implements CheckEventHandler<Dr
                           });
                         latch.await();
 
-                        archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchivePath(),
+                        archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchiveInfo(),
                                                       files.toArray(new FileInfo[0]));
                       },
                       Throwable::printStackTrace,

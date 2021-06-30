@@ -113,7 +113,9 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
 
                                 return;
                             }
-                            // TODO: o/w - add file to existing archive? Need to pass nesting information down
+                            // TODO: o/w - add file to existing archive? Need to pass nesting information down.
+                            //  Parent ArchiveInfo/ Zip Entry Meta may need to be retrieved for encrypted
+                            //  archives etc.
                         }
                     }
                 }

@@ -103,7 +103,7 @@ public class BtnCreateEventHandler implements EventHandler<MouseEvent> {
                            resolveTextKey(BODY_ISSUE_CREATING_STAGE, this.getClass().getName()), e,
                            stage);
             } finally {
-                stage.toBack();
+                stage.toFront();
             }
         }
     }

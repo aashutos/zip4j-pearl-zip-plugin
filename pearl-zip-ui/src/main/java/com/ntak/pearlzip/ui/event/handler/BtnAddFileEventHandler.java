@@ -100,12 +100,12 @@ public class BtnAddFileEventHandler implements CheckEventHandler<ActionEvent> {
                                                                                                 rawFile.getAbsoluteFile()
                                                                                                        .getPath()));
                                                       service.addFile(sessionId,
-                                                                      fxArchiveInfo.getArchivePath(),
+                                                                      fxArchiveInfo.getArchiveInfo(),
                                                                       fileToAdd);
                                                   } else { // Mac App is a directory
                                                       List<FileInfo> files = ArchiveUtil.handleDirectory(prefix,
                                                                                                          rawFile.toPath().getParent(), rawFile.toPath(), depth+1, index);
-                                                      service.addFile(sessionId, fxArchiveInfo.getArchivePath(),
+                                                      service.addFile(sessionId, fxArchiveInfo.getArchiveInfo(),
                                                                                   files.toArray(new FileInfo[0]));
                                                   }
                                               },

@@ -43,7 +43,16 @@ public class SevenZipArchiveService implements ArchiveReadService {
                                                       .getLogger(SevenZipArchiveService.class);
     private static final TransformEntry<ISimpleInArchiveItem> transformer = new SimpleSevenZipEntryTransform();
 
+    @Override
     public List<FileInfo> listFiles(long sessionId, String archivePath) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        return listFiles(sessionId, archiveInfo);
+    }
+
+    @Override
+    public List<FileInfo> listFiles(long sessionId, ArchiveInfo archiveInfo) {
+        String archivePath = archiveInfo.getArchivePath();
+
         if (archivePath.matches(".*(.gz|.xz|.bz2)$")) {
             return List.of(new FileInfo(0, 0,
                                         Paths.get(archivePath.substring(0, archivePath.lastIndexOf("."))).getFileName().toString(), -1,
@@ -139,6 +148,13 @@ public class SevenZipArchiveService implements ArchiveReadService {
 
     @Override
     public boolean extractFile(long sessionId, Path targetLocation, String archivePath, FileInfo file) {
+        ArchiveInfo archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
+        return extractFile(sessionId, targetLocation, archiveInfo, file);
+    }
+
+        @Override
+    public boolean extractFile(long sessionId, Path targetLocation, ArchiveInfo archiveInfo, FileInfo file) {
+        String archivePath = archiveInfo.getArchivePath();
         try (final RandomAccessFile randomAccessFile = new RandomAccessFile(archivePath, "r");
              final IInArchive archive = SevenZip.openInArchive(null,
                                                                new RandomAccessFileInStream(randomAccessFile))) {

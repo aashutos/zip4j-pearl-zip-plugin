@@ -71,7 +71,7 @@ public class BtnExtractFileEventHandler implements CheckEventHandler<ActionEvent
             if (Objects.nonNull(destPath)) {
                 JFXUtil.executeBackgroundProcess(sessionId, (Stage) fileContentsView.getScene().getWindow(),
                                                  ()->readService.extractFile(sessionId, destPath.toPath(),
-                                                                             fxArchiveInfo.getArchivePath(), selectedFile),
+                                                                             fxArchiveInfo.getArchiveInfo(), selectedFile),
                                                  (s)->{}
                 );
             }

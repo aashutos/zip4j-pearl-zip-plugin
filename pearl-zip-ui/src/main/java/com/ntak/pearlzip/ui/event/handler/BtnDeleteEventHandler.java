@@ -72,7 +72,7 @@ public class BtnDeleteEventHandler implements CheckEventHandler<MouseEvent> {
                         fxArchiveInfo.getMigrationInfo().initMigration(FXMigrationInfo.MigrationType.DELETE, fileToDelete);
                         Path tempDir = Files.createTempDirectory(TMP_DIR_PREFIX);
                         tempArchive.set(createBackupArchive(fxArchiveInfo, tempDir));
-                        boolean success = writeService.deleteFile(sessionId, fxArchiveInfo.getArchivePath(),
+                        boolean success = writeService.deleteFile(sessionId, fxArchiveInfo.getArchiveInfo(),
                                                                   fileToDelete);
 
                         // Await deletion confirmation
