@@ -103,6 +103,24 @@ public abstract class Zip4jArchiveReadServiceTestCore {
     }
 
     @Test
+    @DisplayName("Test: List files from an encrypted archive with no password successfully")
+    public void testListFiles_EncryptedArchiveNoPassword_Success() {
+        List<String> expectations = Arrays.asList("level2","level2/level2-file","level2/UP-MOVE");
+        long sessionId = System.currentTimeMillis();
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+        archiveInfo.setArchivePath(encryptedArchive.toAbsolutePath().toString());
+        archiveInfo.setArchiveFormat("zip");
+        archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
+        archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, AES);
+        archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, KEY_STRENGTH_256);
+
+        List<FileInfo> files = service.listFiles(sessionId, archiveInfo);
+        Assertions.assertEquals(expectations.size(), files.size(), "The expected number of files was not read");
+        Assertions.assertTrue(files.stream().map(FileInfo::getFileName).allMatch(expectations::contains),
+                              "All filenames are accounted for in expectations");
+    }
+
+    @Test
     @DisplayName("Test: List files for an invalid archive will return an empty list")
     public void testListFiles_InvalidFile_Empty() {
         long sessionId = System.currentTimeMillis();

@@ -80,8 +80,7 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
                         files.stream()
                              .filter(f -> Paths.get(f.getFileName()).getParent() != null)
                              .map(f-> Paths.get(f.getFileName()).getParent().toString())
-                             .filter(r-> !Strings.isEmpty(r))
-                             .filter(r->files.stream().map(FileInfo::getFileName).noneMatch(f->f.equals(r)))
+                             .filter(r-> !Strings.isEmpty(r) && files.stream().map(FileInfo::getFileName).noneMatch(f->f.equals(r)))
                              .distinct()
                              .collect(Collectors.toList());
 

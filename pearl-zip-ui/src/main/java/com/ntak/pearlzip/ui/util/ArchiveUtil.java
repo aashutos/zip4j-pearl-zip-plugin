@@ -14,6 +14,7 @@ import com.ntak.pearlzip.ui.pub.FrmMainController;
 import com.ntak.pearlzip.ui.pub.FrmProgressController;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -25,6 +26,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.Pair;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
@@ -34,6 +36,7 @@ import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -224,7 +227,7 @@ public class ArchiveUtil {
                     mnuFilePath.setOnAction((e) -> {
                         final Path path = Paths.get(filePath);
                         if (Files.exists(path)) {
-                            openFile(path.toFile());
+                            openFile(path.toFile(), stage);
                         } else {
                             // TITLE: Warning: File does not exist
                             // HEADER: The selected file does not exist
@@ -263,18 +266,61 @@ public class ArchiveUtil {
         addToRecentFile(archive);
     }
 
-    public static void openFile(File file) {
+    public static boolean openFile(File file, Stage stage) {
         try {
             // Initialise Stage
+            final ArchiveReadService readService = ZipState.getReadArchiveServiceForFile(file.getName())
+                                                           .get();
             FXArchiveInfo newFxArchiveInfo = new FXArchiveInfo(file.getAbsolutePath(),
-                                                               ZipState.getReadArchiveServiceForFile(file.getName()).get(),
+                                                               readService,
                                                                ZipState.getWriteArchiveServiceForFile(file.getName()).orElse(null)
             );
-            // TODO: Custom open dialog and wait on completion
+            Optional<Node> optNode;
+            if ((optNode = readService.getOpenArchiveOptionsPane(newFxArchiveInfo.getArchiveInfo())).isPresent()) {
+                Node root = optNode.get();
+
+                CountDownLatch latch = new CountDownLatch(1);
+                Platform.runLater(()->{
+                    Stage preOpenStage = new Stage();
+                    AnchorPane pane = new AnchorPane(root);
+                    Scene scene = new Scene(pane);
+                    preOpenStage.setScene(scene);
+                    preOpenStage.initStyle(StageStyle.UNDECORATED);
+
+                    preOpenStage.toFront();
+                    preOpenStage.setAlwaysOnTop(true);
+                    preOpenStage.showAndWait();
+                    latch.countDown();
+                });
+                latch.await();
+                Pair<AtomicBoolean,String> result = (Pair<AtomicBoolean, String>) root.getUserData();
+
+                if (Objects.nonNull(result) && Objects.nonNull(result.getKey()) && !result.getKey().get()) {
+                    // LOG: Issue occurred when opening archive %s. Issue reason: %s
+                    // TITLE: Invalid Archive Setup
+                    // HEADER: Archive could not be open
+                    // BODY: There were issues opening the archive. Reason given by plugin for issue: %s. Check logs
+                    // for further details.
+                    LOGGER.error(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
+                                                result.getValue()));
+                    Platform.runLater(() -> raiseAlert(Alert.AlertType.WARNING,
+                                                       resolveTextKey(TITLE_INVALID_ARCHIVE_SETUP),
+                                                       resolveTextKey(HEADER_INVALID_ARCHIVE_SETUP),
+                                                       resolveTextKey(BODY_INVALID_ARCHIVE_SETUP,
+                                                                      result.getValue()),
+                                                       stage)
+                    );
+                    throw new IOException(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
+                                                         result.getValue()));
+                }
+            }
+
             Platform.runLater(() -> launchMainStage(newFxArchiveInfo));
             addToRecentFile(file);
 
+            return true;
         } catch (Exception e) {
+            return false;
         }
     }
 

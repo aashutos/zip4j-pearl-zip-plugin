@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
@@ -74,12 +75,12 @@ public class BtnOpenEventHandler implements EventHandler<MouseEvent> {
                                                    // Open in Current Window
                                                    new ButtonType(resolveTextKey(BTN_OPEN_NEW_WINDOW_NO), ButtonBar.ButtonData.NO));
         long sessionId = System.currentTimeMillis();
-        final Stage newStage = new Stage();
-        executeBackgroundProcess(sessionId, newStage,
-                                 ()->ArchiveUtil.openFile(rawFile),
-                                 (s)-> {
+        AtomicBoolean openSuccess = new AtomicBoolean(false);
+        executeBackgroundProcess(sessionId, stage,
+                                 () -> openSuccess.set(ArchiveUtil.openFile(rawFile, stage)),
+                                 (s) -> {
                                              // Default new window
-                                             if (response.isPresent() && response.get()
+                                             if (openSuccess.get() && response.isPresent() && response.get()
                                                                                  .getButtonData()
                                                                                  .equals(ButtonBar.ButtonData.NO)) {
                                                  Platform.runLater(() -> this.stage.fireEvent(new WindowEvent(this.stage,

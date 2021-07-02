@@ -7,7 +7,11 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
+import javafx.concurrent.Worker;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
+import javafx.util.Pair;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
@@ -15,16 +19,20 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
+import net.lingala.zip4j.progress.ProgressMonitor;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTAK_PEARL_ZIP_ICON_FOLDER;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.ERROR;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
 import static com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil.initializeZipParameters;
@@ -110,16 +118,13 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             }
 
             // Handle directory creation
-            HashSet<FileInfo> setFiles = new HashSet<>(files);
+            HashSet<FileInfo> setFiles =
+                    new HashSet<>(files.stream().filter(f -> !f.isFolder()).collect(Collectors.toList()));
             for (FileInfo file : files) {
                 final int level = file.getLevel();
                 Path parent = Paths.get(file.getFileName());
                 for (int j = 1; j <= level; j++) {
                     parent = parent.getParent();
-                    final Path finParent = parent;
-                    setFiles.stream().filter(f->f.getFileName().equals(String.format(PATTERN_FOLDER,
-                                                                                     finParent.toString()))).findFirst().ifPresent(f->setFiles.remove(f));
-
                     final FileInfo fileInfo = new FileInfo(setFiles.size(),
                                                            level - j,
                                                            parent.toString(),
@@ -179,11 +184,14 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             Path parent = path.toAbsolutePath().getParent();
 
             if (Objects.nonNull(header)) {
+                ProgressMonitor monitor = archive.getProgressMonitor();
                 archive.extractFile(header, parent.toString(), Paths.get(fileInfo.getFileName()).getFileName().toString());
-                return true;
+                return monitor.getResult().equals(ProgressMonitor.Result.SUCCESS);
             }
         } catch(ZipException e) {
-            e.printStackTrace();
+            // LOG: Issue extracting from zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE, e.getClass().getCanonicalName(),
+                                       e.getMessage(), getStackTraceFromException(e)));
         }
 
         return false;
@@ -202,6 +210,24 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
     @Override
     public Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) {
+        AnchorPane root = null;
+        try {
+            if (archiveInfo.<Boolean>getProperty(KEY_ENCRYPTION_ENABLE)
+                           .orElse(false)) {
+                FrmZip4jPasswordController controller = new FrmZip4jPasswordController(this, archiveInfo);
+
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                                 .getResource("frmZip4jPassword.fxml"));
+                loader.setResources(RES_BUNDLE);
+                loader.setController(controller);
+                root = loader.load();
+
+                return Optional.of(root);
+            }
+        } catch (Exception e) {
+            return Optional.empty();
+        }
         return Optional.empty();
     }
 
