@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -24,16 +25,22 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.WORKING_SETTINGS;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.REGEX_TIMESTAMP_DIR;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.TMP_DIR_PREFIX;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.PROGRESS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
+import static com.ntak.pearlzip.ui.constants.ResourceConstants.PATTERN_FXID_NEW_OPTIONS;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.*;
 import static javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS;
@@ -46,6 +53,9 @@ public class FrmOptionsController {
     private static final Logger LOGGER = LoggerContext.getContext().getLogger(FrmOptionsController.class);
 
     ///// General /////
+    @FXML
+    private TabPane tabPaneOptions;
+
     @FXML
     private Button btnClearCache;
 
@@ -71,6 +81,8 @@ public class FrmOptionsController {
 
     @FXML
     private Button btnOk;
+    @FXML
+    private Button btnApply;
     @FXML
     private Button btnCancel;
 
@@ -141,17 +153,42 @@ public class FrmOptionsController {
 
             return new SimpleStringProperty("N/A");
         });
-
-        List<Pair<Boolean,ArchiveService>> services = new ArrayList<>();
-        services.addAll(ZipState.getWriteProviders().stream().map(s->new Pair<Boolean,ArchiveService>(true,s)).collect(Collectors.toList()));
-        services.addAll(ZipState.getReadProviders().stream().map(s->new Pair<Boolean,ArchiveService>(false,s)).collect(Collectors.toList()));
-        tblProviders.setItems(FXCollections.observableArrayList(services));
     }
 
     @FXML
     public void initData(Stage stage) {
-        btnOk.setOnAction((e)->stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST)));
-        btnCancel.setOnAction((e)->stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST)));
+        ///// Load settings file /////
+        synchronized(CURRENT_SETTINGS) {
+            try(InputStream settingsIStream = Files.newInputStream(SETTINGS_FILE)) {
+                CURRENT_SETTINGS.load(settingsIStream);
+                WORKING_SETTINGS.clear();
+                WORKING_SETTINGS.putAll(CURRENT_SETTINGS);
+            } catch(IOException e) {
+            }
+        }
+
+        ///// Initialize plugin options /////
+        List<Pair<Boolean,ArchiveService>> services = new ArrayList<>();
+        services.addAll(ZipState.getWriteProviders().stream().map(s->new Pair<Boolean,ArchiveService>(true, s)).collect(Collectors.toList()));
+        services.addAll(ZipState.getReadProviders().stream().map(s->new Pair<Boolean,ArchiveService>(false,s)).collect(Collectors.toList()));
+        tblProviders.setItems(FXCollections.observableArrayList(services));
+
+        for (ArchiveService service : services.stream().map(Pair::getValue).collect(Collectors.toList())) {
+            if ((service.getOptionsPane()).isPresent()) {
+                Pair<String,Node> tab = service.getOptionsPane()
+                                               .get();
+
+                Tab customTab = new Tab();
+                customTab.setText(tab.getKey());
+                customTab.setId(String.format(PATTERN_FXID_NEW_OPTIONS,
+                                              service.getClass()
+                                                     .getCanonicalName()));
+                customTab.setContent(tab.getValue());
+                tabPaneOptions.getTabs()
+                              .add(customTab);
+            }
+        }
+
         btnClearCache.setOnAction((e) -> {
             long sessionId = System.currentTimeMillis();
             // TITLE: Confirmation: Clear Cache
@@ -257,6 +294,31 @@ public class FrmOptionsController {
                                          System.out::println,
                                          (s) -> {});
             }
+        });
+
+        btnApply.setOnMouseClicked(e->{
+            synchronized(CURRENT_SETTINGS) {
+                CURRENT_SETTINGS.clear();
+                CURRENT_SETTINGS.putAll(WORKING_SETTINGS);
+                try (OutputStream settingsOutputStream = Files.newOutputStream(SETTINGS_FILE)) {
+                    CURRENT_SETTINGS.store(settingsOutputStream, String.format("PearlZip Settings File Generated @ %s",
+                                                                               LocalDateTime.now()));
+                } catch (IOException exc) {
+                }
+            }
+        });
+
+        btnOk.setOnMouseClicked(e->{
+            btnApply.getOnMouseClicked().handle(e);
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+
+        btnCancel.setOnMouseClicked(e->{
+            synchronized(CURRENT_SETTINGS) {
+                WORKING_SETTINGS.clear();
+                WORKING_SETTINGS.putAll(CURRENT_SETTINGS);
+            }
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
     }
 }

@@ -35,7 +35,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
-import static com.ntak.pearlzip.archive.constants.ArchiveConstants.COM_BUS_EXECUTOR_SERVICE;
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.*;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_RES_BUNDLE;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.genLocale;
@@ -200,6 +200,19 @@ public class ZipLauncher extends Application {
             ZipConstants.RUNTIME_MODULE_PATH =
                     Paths.get(System.getProperty(CNS_NTAK_PEARL_ZIP_MODULE_PATH, defaultModulePath)).toAbsolutePath();
 
+            ////////////////////////////////////////////
+            ///// Settings File Load ///////////////////
+            ////////////////////////////////////////////
+
+            SETTINGS_FILE = Paths.get(System.getProperty(CNS_SETTINGS_FILE, Paths.get(STORE_ROOT.toString(),
+                                                         "settings.properties").toString()));
+            if (!Files.exists(SETTINGS_FILE)) {
+                Files.createFile(SETTINGS_FILE);
+            }
+            try(InputStream settingsIStream = Files.newInputStream(SETTINGS_FILE)) {
+                CURRENT_SETTINGS.load(settingsIStream);
+                WORKING_SETTINGS.load(settingsIStream);
+            }
 
             // Overwrite with external properties file
             // Reserved properties are kept as per internal key definition

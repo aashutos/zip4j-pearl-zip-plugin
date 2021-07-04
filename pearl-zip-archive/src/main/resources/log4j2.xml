@@ -16,7 +16,7 @@
             <DefaultRolloverStrategy>
                 <Delete basePath="${sys:user.home}/.pz/logs" maxDepth="2">
                     <IfFileName glob="pz*.log.gz" />
-                    <IfLastModified age="7d" />
+                    <IfLastModified age="P7D" />
                 </Delete>
             </DefaultRolloverStrategy>
         </RollingFile>
