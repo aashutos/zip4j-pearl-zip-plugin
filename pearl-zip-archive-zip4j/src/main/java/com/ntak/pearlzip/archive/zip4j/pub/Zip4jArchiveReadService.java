@@ -150,7 +150,6 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             return new ArrayList<>(setFiles);
         } catch (ZipException e) {
-            // TODO: Error Handler in UI
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE,
                                         e.getClass().getCanonicalName(),
                                         e.getMessage(),

@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
  */
 public class Zip4jConstants {
 
+    public static final String CNS_DEFAULT_COMPRESSION_LEVEL = "configuration.zip4j.default-compression-level";
+    public static final String CNS_DEFAULT_COMPRESSION_METHOD = "configuration.zip4j.default-compression-method";
+
     /////////////////////////////
     ///// ArchiveInfo Keys //////
     /////////////////////////////
@@ -48,4 +51,7 @@ public class Zip4jConstants {
             "logging.ntak.pearl-zip.zip4j.issue-generating-metadata";
     public static final String LOG_ARCHIVE_Z4J_PASSWORD_SUCCESS = "logging.ntak.pearl-zip.zip4j.password-success";
     public static final String LOG_ARCHIVE_Z4J_PASSWORD_FAIL = "logging.ntak.pearl-zip.zip4j.password-fail";
+
+    public static final Integer[] COMPRESSION_LEVEL = {1,2,3,4,5,6,7,8,9};
+    public static final String[] COMPRESSION_METHOD = {"STORE", "DEFLATE"};
 }

@@ -29,6 +29,7 @@ public class ZipConstants {
     public static final String CNS_NTAK_PEARL_ZIP_MODULE_PATH = "configuration.ntak.pearl-zip.module-path";
     public static final String CNS_PROVIDER_PRIORITY_ROOT_KEY = "configuration.ntak.pearl-zip.provider.priority.%s";
     public static final String CNS_STORE_ROOT = "configuration.ntak.pearl-zip.store.temp";
+    public static final String CNS_SETTINGS_FILE = "configuration.ntak.pearl-zip.settings-file";
     public static final String CNS_WINDOW_HEIGHT = "configuration.ntak.pearl-zip.window-height";
     public static final String CNS_WINDOW_WIDTH = "configuration.ntak.pearl-zip.window-width";
     public static final String CNS_THREAD_POOL_SIZE = "configuration.ntak.pearl-zip.thread-pool-size";
@@ -245,6 +246,7 @@ public class ZipConstants {
     public static Path STORE_ROOT;
     public static Path STORE_TEMP;
     public static Path RECENT_FILE;
+    public static Path SETTINGS_FILE;
     public static ExecutorService PRIMARY_EXECUTOR_SERVICE;
     public static ThreadGroup THREAD_GROUP;
     public static ProgressMessageTraceLogger MESSAGE_TRACE_LOGGER;

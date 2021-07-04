@@ -259,6 +259,23 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
     }
 
     @Override
+    public Optional<Pair<String, Node>> getOptionsPane() {
+        AnchorPane root;
+        final String title_zip4j_options = "Zip4j Options";
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                             .getResource("frmZip4jOptions.fxml"));
+            loader.setResources(RES_BUNDLE);
+            loader.setController(new FrmZip4jOptionsController());
+            root = loader.load();
+        } catch (Exception e) {
+            return Optional.of(new Pair(title_zip4j_options, new AnchorPane()));
+        }
+        return Optional.of(new Pair(title_zip4j_options, root));
+    }
+
+    @Override
     public List<String> supportedWriteFormats() {
         return List.of("zip");
     }
