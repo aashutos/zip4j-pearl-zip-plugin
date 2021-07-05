@@ -6,8 +6,10 @@ package com.ntak.pearlzip.archive.constants;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *  Logging keys for Resource Bundles.
@@ -41,6 +43,7 @@ public class LoggingConstants {
     public static final String LBL_PROGRESS_COMPLETION = "label.ntak.pearl-zip.progress.completion";
     public static final String LBL_PROGRESS_LOADING = "label.ntak.pearl-zip.progress.loading";
 
+    public static List<ResourceBundle> PLUGIN_BUNDLES = new CopyOnWriteArrayList<>();
     public static ResourceBundle CUSTOM_BUNDLE =
             ResourceBundle.getBundle(System.getProperty(ConfigurationConstants.CNS_CUSTOM_RES_BUNDLE, "custom"),
                                                                        Locale.getDefault());
