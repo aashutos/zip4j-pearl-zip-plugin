@@ -4,6 +4,7 @@
 package com.ntak.pearlzip.archive.acc.pub;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
+import com.ntak.pearlzip.archive.constants.LoggingConstants;
 import com.ntak.pearlzip.archive.pub.*;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -29,8 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.acc.util.CommonsCompressUtil.getArchiveFormat;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTAK_PEARL_ZIP_ICON_FOLDER;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 
 /**
@@ -102,7 +102,17 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
             }
         } catch(IOException | ArchiveException e) {
             // LOG: %s on listing contents. Message: %s
+            // TITLE: Issue listing entries from archive
+            // HEADER: The archive %s could not be interrogated for contents
+            // BODY: Exception %s was thrown on the attempt to list contents of the archive. Further details can be
+            // found below.
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION, e.getClass().getCanonicalName(), e.getMessage()));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_SERVICE_LISTING_EXCEPTION),
+                                              resolveTextKey(HEADER_ARCHIVE_SERVICE_LISTING_EXCEPTION, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_SERVICE_LISTING_EXCEPTION, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         }
 
         return files;
@@ -134,6 +144,19 @@ public class CommonsCompressArchiveReadService implements ArchiveReadService {
                 }
             }
         } catch(IOException | ArchiveException e) {
+            // LOG: %s on extracting file(s). Message: %s
+            // TITLE: Issue extracting archive
+            // HEADER: The archive %s could not be extracted
+            // BODY: Exception %s was thrown on the attempt to extract from the archive. Further details can be found
+            // below.
+            LOGGER.error(resolveTextKey(LoggingConstants.LOG_ARCHIVE_SERVICE_EXTRACT_EXCEPTION,
+                                        e.getClass().getCanonicalName(), e.getMessage()));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_SERVICE_EXTRACT_EXCEPTION),
+                                              resolveTextKey(HEADER_ARCHIVE_SERVICE_EXTRACT_EXCEPTION, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_SERVICE_EXTRACT_EXCEPTION, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         }
         return false;
     }

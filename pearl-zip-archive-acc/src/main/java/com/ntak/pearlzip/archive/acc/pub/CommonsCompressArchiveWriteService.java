@@ -92,12 +92,23 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
                     executeArchiver(sessionId, archivePath, files);
                 }
             }
+        } catch (Exception e) {
+            // TITLE: Issue creating archive
+            // HEADER: The archive %s could not be created
+            // BODY: Exception %s was thrown on the attempt to create the archive. Further details can be found
+            // below.
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_SERVICE_CREATE_EXCEPTION),
+                                              resolveTextKey(HEADER_ARCHIVE_SERVICE_CREATE_EXCEPTION, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_SERVICE_CREATE_EXCEPTION, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         } finally {
             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED,COMPLETED,1,1));
         }
     }
 
-    private void executeArchiveCompressor(long sessionId, String archivePath, FileInfo... files) {
+    private void executeArchiveCompressor(long sessionId, String archivePath, FileInfo... files) throws Exception {
         String format = getArchiveFormat(archivePath);
         try(OutputStream fo = Files.newOutputStream(Paths.get(archivePath));
             CompressorOutputStream cos = CompressorStreamFactory.findAvailableCompressorOutputStreamProviders()
@@ -110,10 +121,11 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
         } catch(CompressorException | IOException e) {
             // LOG: Issue adding entries to archive or creating archive %s. Message: %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION, archivePath, e.getMessage()));
+            throw e;
         }
     }
 
-    private static void executeFileCompressor(long sessionId, String archivePath, FileInfo... files) {
+    private static void executeFileCompressor(long sessionId, String archivePath, FileInfo... files) throws Exception {
         String format = getArchiveFormat(archivePath);
         Path path = null;
         try (OutputStream fo = Files.newOutputStream(Paths.get(archivePath));
@@ -128,6 +140,7 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
         } catch(CompressorException | IOException | NullPointerException | IllegalArgumentException e) {
             // LOG: Issue adding entries to archive or creating archive %s. Message: %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION, archivePath, e.getMessage()));
+            throw e;
         } finally {
             DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
                                                  resolveTextKey(LBL_PROGRESS_LOADED_ENTRY,
@@ -137,7 +150,7 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
         }
     }
 
-    private void executeArchiver(long sessionId, String archivePath, FileInfo[] files) {
+    private void executeArchiver(long sessionId, String archivePath, FileInfo[] files) throws Exception {
         final String extension = getArchiveFormat(archivePath);
         try(final OutputStream oStream = Files.newOutputStream(Path.of(archivePath));
             final ArchiveOutputStream aoStream =
@@ -150,6 +163,7 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
         } catch(IOException | ArchiveException e) {
             // LOG: Issue adding entries to archive or creating archive %s. Message: %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_SERVICE_CREATE_EXCEPTION, archivePath, e.getMessage()));
+            throw e;
         }
     }
 
@@ -333,11 +347,24 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
                 }
                 addEntriesToArchiveStream(sessionId, aoStream, files);
             } catch(Exception e) {
-                // Issue occurred on adding file to archive %s.\nException type: %s.\nStack trace:\n%s
+                // LOG: Issue occurred on adding file to archive %s.\nException type: %s.\nStack trace:\n%s
+                // TITLE: Issue adding to archive
+                // HEADER: An entry could not be added to archive %s
+                // BODY: Exception %s was thrown on the attempt to add an entry to archive. Further details can be
+                // found below.
                 LOGGER.error(resolveTextKey(LOG_ACC_ADD_FILE_ISSUE,
                                             archivePath,
                                             e.getClass().getCanonicalName(),
                                             LoggingUtil.getStackTraceFromException(e)));
+
+                LOGGER.error(resolveTextKey(LOG_ACC_ADD_FILE_ISSUE, archiveInfo.getArchivePath(),
+                                            e.getMessage()));
+                DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                                  resolveTextKey(TITLE_ACC_ADD_FILE_ISSUE),
+                                                  resolveTextKey(HEADER_ACC_ADD_FILE_ISSUE, archiveInfo.getArchivePath()),
+                                                  resolveTextKey(BODY_ACC_ADD_FILE_ISSUE, e.getClass().getCanonicalName()),
+                                                  e,
+                                                  archiveInfo));
             }
             Files.delete(Path.of(archivePath));
             Files.move(tmpArchive, Path.of(archivePath));
@@ -419,11 +446,21 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
                     return true;
                 }
             } catch(Exception e) {
-                // Issue occurred on deleting file from archive %s.\nException type: %s.\nStack trace:\n%s
+                // LOG: Issue occurred on deleting file from archive %s.\nException type: %s.\nStack trace:\n%s
+                // TITLE: Issue deleting archive
+                // HEADER: An entry could not be removed from archive %s
+                // BODY: Exception %s was thrown on the attempt to remove an entry from the archive. Further details can be
+                // found below.
                 LOGGER.error(resolveTextKey(LOG_ACC_DELETE_FILE_ISSUE,
                                             archivePath,
                                             e.getClass().getCanonicalName(),
                                             LoggingUtil.getStackTraceFromException(e)));
+                DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                                  resolveTextKey(TITLE_ACC_DELETE_FILE_ISSUE),
+                                                  resolveTextKey(HEADER_ACC_DELETE_FILE_ISSUE, archiveInfo.getArchivePath()),
+                                                  resolveTextKey(BODY_ACC_DELETE_FILE_ISSUE, e.getClass().getCanonicalName()),
+                                                  e,
+                                                  archiveInfo));
             }
         } catch (IOException e) {
             // IO Issue occurred on trying to initiate the archive process.\nStack trace:\n%s
