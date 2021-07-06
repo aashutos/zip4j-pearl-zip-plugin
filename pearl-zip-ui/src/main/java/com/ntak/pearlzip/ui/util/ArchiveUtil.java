@@ -275,6 +275,11 @@ public class ArchiveUtil {
                                                                readService,
                                                                ZipState.getWriteArchiveServiceForFile(file.getName()).orElse(null)
             );
+
+            if (!readService.testArchive(System.currentTimeMillis(), file.getAbsolutePath())) {
+                throw new Exception(resolveTextKey(LOG_ARCHIVE_TEST_FAILED, file.getAbsolutePath()));
+            }
+
             Optional<Node> optNode;
             if ((optNode = readService.getOpenArchiveOptionsPane(newFxArchiveInfo.getArchiveInfo())).isPresent()) {
                 Node root = optNode.get();
@@ -303,13 +308,7 @@ public class ArchiveUtil {
                     // for further details.
                     LOGGER.error(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
                                                 result.getValue()));
-                    Platform.runLater(() -> raiseAlert(Alert.AlertType.WARNING,
-                                                       resolveTextKey(TITLE_INVALID_ARCHIVE_SETUP),
-                                                       resolveTextKey(HEADER_INVALID_ARCHIVE_SETUP),
-                                                       resolveTextKey(BODY_INVALID_ARCHIVE_SETUP,
-                                                                      result.getValue()),
-                                                       stage)
-                    );
+
                     throw new IOException(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
                                                          result.getValue()));
                 }
@@ -320,6 +319,7 @@ public class ArchiveUtil {
 
             return true;
         } catch (Exception e) {
+            LOGGER.error(e.getMessage());
             return false;
         }
     }

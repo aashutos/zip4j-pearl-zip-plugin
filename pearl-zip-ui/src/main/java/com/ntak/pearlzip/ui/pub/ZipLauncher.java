@@ -6,6 +6,7 @@ package com.ntak.pearlzip.ui.pub;
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.constants.LoggingConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
+import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.license.pub.LicenseService;
@@ -89,7 +90,12 @@ public class ZipLauncher extends Application {
 
         CountDownLatch readyLatch = new CountDownLatch(1);
 
-        ZipConstants.MESSAGE_TRACE_LOGGER = ProgressMessageTraceLogger.getMessageTraceLogger();
+        // Loading additional EventBus consumers
+        MESSAGE_TRACE_LOGGER = ProgressMessageTraceLogger.getMessageTraceLogger();
+        ArchiveService.DEFAULT_BUS.register(MESSAGE_TRACE_LOGGER);
+
+        ERROR_ALERT_CONSUMER = ErrorAlertConsumer.getErrorAlertConsumer();
+        ArchiveService.DEFAULT_BUS.register(ERROR_ALERT_CONSUMER);
 
         ////////////////////////////////////////////
         ///// Create files and dir structure //////

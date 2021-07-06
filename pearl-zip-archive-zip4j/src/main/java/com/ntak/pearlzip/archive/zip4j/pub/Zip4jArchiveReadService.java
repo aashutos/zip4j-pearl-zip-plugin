@@ -7,11 +7,9 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
@@ -26,12 +24,11 @@ import org.apache.logging.log4j.core.LoggerContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTAK_PEARL_ZIP_ICON_FOLDER;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.ERROR;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
@@ -79,9 +76,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
                 archiveInfo.addProperty(KEY_COMPRESSION_METHOD, CompressionMethod.STORE);
             }
 
-            // TODO: Compression level may be set at Option level (Maybe Options can specify default values to set on
-            //  dialog on a file basis at a later stage)
-            archiveInfo.setCompressionLevel(9);
+            archiveInfo.setCompressionLevel(Integer.parseInt(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_COMPRESSION_LEVEL, "9")));
         } catch (ZipException e) {
             // LOG: Issue generating metadata for archive %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_GENERATING_METADATA, archivePath));
@@ -150,15 +145,23 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             return new ArrayList<>(setFiles);
         } catch (ZipException e) {
-            LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE,
+            // LOG: Issue listing entries from zip archive.\nException thrown: %s\nException message: %s\nStack
+            // trace:\n%s
+            // TITLE: Issue listing entries from archive
+            // HEADER: The archive %s could not be interrogated for contents
+            // BODY: Exception %s was thrown on the attempt to list contents of the archive. Further details can be
+            // found below.
+            LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE,
                                         e.getClass().getCanonicalName(),
                                         e.getMessage(),
                                         LoggingUtil.getStackTraceFromException(e)
             ));
-            DEFAULT_BUS.post(new ProgressMessage(sessionId, ERROR, resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE,
-                                                                                  e.getClass().getCanonicalName(),
-                                                                                  e.getMessage(),
-                                                                                  LoggingUtil.getStackTraceFromException(e)), 0, 1));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE),
+                                              resolveTextKey(HEADER_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         }
         return Collections.emptyList();
     }
@@ -189,8 +192,18 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             }
         } catch(ZipException e) {
             // LOG: Issue extracting from zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
+            // TITLE: Issue extracting archive
+            // HEADER: The archive %s could not be extracted
+            // BODY: Exception %s was thrown on the attempt to extract from the archive. Further details can be found
+            // below.
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE, e.getClass().getCanonicalName(),
                                        e.getMessage(), getStackTraceFromException(e)));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE),
+                                              resolveTextKey(HEADER_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         }
 
         return false;

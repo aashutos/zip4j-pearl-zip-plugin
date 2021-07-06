@@ -3,10 +3,7 @@
  */
 package com.ntak.pearlzip.archive.zip4j.pub;
 
-import com.ntak.pearlzip.archive.pub.ArchiveInfo;
-import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
-import com.ntak.pearlzip.archive.pub.FileInfo;
-import com.ntak.pearlzip.archive.pub.ProgressMessage;
+import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil;
 import javafx.fxml.FXMLLoader;
@@ -96,15 +93,21 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
             }
         } catch(IOException e) {
             // LOG: Issue creating zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
+            // TITLE: Issue creating archive
+            // HEADER: The archive %s could not be created
+            // BODY: Exception %s was thrown on the attempt to create the archive. Further details can be found
+            // below.
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE,
                                        e.getClass().getCanonicalName(),
                                        e.getMessage(),
                                        LoggingUtil.getStackTraceFromException(e)
             ));
-            DEFAULT_BUS.post(new ProgressMessage(sessionId, ERROR, resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE,
-                                                                                  e.getClass().getCanonicalName(),
-                                                                                  e.getMessage(),
-                                                                                  LoggingUtil.getStackTraceFromException(e)),0,1));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE),
+                                              resolveTextKey(HEADER_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         } finally {
             DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED,1,1));
         }
@@ -136,10 +139,18 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
             return true;
         } catch(ZipException e) {
             // LOG: Issue adding to zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
+            // TITLE: Issue adding to archive
+            // HEADER: An entry could not be added to archive %s
+            // BODY: Exception %s was thrown on the attempt to add an entry to archive. Further details can be
+            // found below.
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_ADDING_FILE, archiveInfo.getArchivePath(),
                                         e.getMessage()));
-            DEFAULT_BUS.post(new ProgressMessage(sessionId, ERROR, resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_ADDING_FILE, archiveInfo.getArchivePath(),
-                                                                                  e.getMessage()),0,1));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_Z4J_ISSUE_ADDING_FILE),
+                                              resolveTextKey(HEADER_ARCHIVE_Z4J_ISSUE_ADDING_FILE, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_Z4J_ISSUE_ADDING_FILE, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         } finally {
             DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED,1,1));
         }
@@ -209,16 +220,21 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
             return true;
         } catch(ZipException e) {
             // LOG: Issue deleting from zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
+            // TITLE: Issue deleting archive
+            // HEADER: An entry could not be removed from archive %s
+            // BODY: Exception %s was thrown on the attempt to remove an entry from the archive. Further details can be
+            // found below.
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_DELETING_FILE,
                                        e.getClass().getCanonicalName(),
                                        e.getMessage(),
                                        LoggingUtil.getStackTraceFromException(e)
             ));
-            DEFAULT_BUS.post(new ProgressMessage(sessionId, ERROR, resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_DELETING_FILE,
-                                                                                  e.getClass().getCanonicalName(),
-                                                                                  e.getMessage(),
-                                                                                  LoggingUtil.getStackTraceFromException(e)
-            ),0,1));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_Z4J_ISSUE_DELETING_FILE),
+                                              resolveTextKey(HEADER_ARCHIVE_Z4J_ISSUE_DELETING_FILE, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_Z4J_ISSUE_DELETING_FILE, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         } finally {
             DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED,1,1));
         }
