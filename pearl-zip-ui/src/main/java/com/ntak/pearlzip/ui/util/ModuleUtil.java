@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.PLUGIN_BUNDLES;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_READ_SERVICES_IDENTIFIED;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.LOG_WRITE_SERVICES_IDENTIFIED;
@@ -53,6 +54,17 @@ public class ModuleUtil {
                           .map(ServiceLoader.Provider::get)
                           .filter(ArchiveService::isEnabled)
                           .forEach(ZipState::addArchiveProvider);
+
+        // Adding resource bundles
+        serviceReadLoader.stream()
+                         .map(ServiceLoader.Provider::get)
+                         .filter(s -> s.isEnabled() && s.getResourceBundle().isPresent())
+                         .forEach(s -> PLUGIN_BUNDLES.add(s.getResourceBundle().get()));
+
+        serviceWriteLoader.stream()
+                          .map(ServiceLoader.Provider::get)
+                          .filter(s -> s.isEnabled() && s.getResourceBundle().isPresent())
+                          .forEach(s -> PLUGIN_BUNDLES.add(s.getResourceBundle().get()));
     }
 
     /**
@@ -105,6 +117,17 @@ public class ModuleUtil {
                               .map(ServiceLoader.Provider::get)
                               .filter(ArchiveService::isEnabled)
                               .forEach(ZipState::addArchiveProvider);
+
+            // Adding resource bundles
+            serviceReadLoader.stream()
+                             .map(ServiceLoader.Provider::get)
+                             .filter(s -> s.isEnabled() && s.getResourceBundle().isPresent())
+                             .forEach(s -> PLUGIN_BUNDLES.add(s.getResourceBundle().get()));
+
+            serviceWriteLoader.stream()
+                             .map(ServiceLoader.Provider::get)
+                             .filter(s -> s.isEnabled() && s.getResourceBundle().isPresent())
+                             .forEach(s -> PLUGIN_BUNDLES.add(s.getResourceBundle().get()));
         } catch (Exception e) {
             loadModulesStatic();
         }

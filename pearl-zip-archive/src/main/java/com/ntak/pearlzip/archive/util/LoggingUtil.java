@@ -5,13 +5,10 @@ package com.ntak.pearlzip.archive.util;
 
 import com.ntak.pearlzip.archive.constants.ConfigurationConstants;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.CUSTOM_BUNDLE;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 
 /**
  *  Useful utility methods used in generating and sourcing log messages.
@@ -69,18 +66,26 @@ public class LoggingUtil {
      */
     public static String resolveTextKey(String key, Object... parameters) {
         try {
-            String message;
-            if (CUSTOM_BUNDLE.containsKey(key)) {
-                message = CUSTOM_BUNDLE.getString(key);
-            } else if (LOG_BUNDLE.containsKey(key)) {
-                message = LOG_BUNDLE.getString(key);
-            } else {
-                return genDefaultLoggingMessage(key, parameters);
+            String message = null;
+            for (ResourceBundle pluginBundle : PLUGIN_BUNDLES) {
+                if (pluginBundle.containsKey(key)) {
+                    message = pluginBundle.getString(key);
+                }
+            }
+
+            if (Objects.isNull(message)) {
+                if (CUSTOM_BUNDLE.containsKey(key)) {
+                    message = CUSTOM_BUNDLE.getString(key);
+                } else if (LOG_BUNDLE.containsKey(key)) {
+                    message = LOG_BUNDLE.getString(key);
+                } else {
+                    return genDefaultLoggingMessage(key, parameters);
+                }
             }
             return String.format(message, parameters);
         } catch(Exception e) {
+            return genDefaultLoggingMessage(key, parameters);
         }
-        return genDefaultLoggingMessage(key, parameters);
     }
 
     public static String getStackTraceFromException(Throwable e) {

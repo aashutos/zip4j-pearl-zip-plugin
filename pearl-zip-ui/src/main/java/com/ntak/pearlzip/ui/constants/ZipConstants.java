@@ -4,6 +4,7 @@
 package com.ntak.pearlzip.ui.constants;
 
 import com.ntak.pearlzip.ui.pub.ZipLauncher;
+import com.ntak.pearlzip.ui.util.ErrorAlertConsumer;
 import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
 import de.jangassen.MenuToolkit;
 
@@ -72,6 +73,8 @@ public class ZipConstants {
     public static final String BODY_ARCHIVE_DOES_NOT_EXIST = "body.ntak.pearl-zip.archive-does-not-exist";
 
     public static final String LOG_GENERAL_EVENT_HANDLER_EXCEPTION = "logging.ntak.pearl-zip.general-event-handler-exception";
+
+    public static final String LOG_ARCHIVE_TEST_FAILED = "logging.ntak.pearl-zip.archive-test-failed";
 
     // Paste exception
     public static final String LOG_PASTE_EXCEPTION = "logging.ntak.pearl-zip.paste-exception";
@@ -209,9 +212,6 @@ public class ZipConstants {
     public static final String BODY_CLEAR_CACHE = "body.ntak.pearl-zip.clear-cache";
 
     public static final String LOG_INVALID_ARCHIVE_SETUP = "logging.ntak.pearl-zip.invalid-archive-setup";
-    public static final String TITLE_INVALID_ARCHIVE_SETUP = "title.ntak.pearl-zip.invalid-archive-setup";
-    public static final String HEADER_INVALID_ARCHIVE_SETUP = "header.ntak.pearl-zip.invalid-archive-setup";
-    public static final String BODY_INVALID_ARCHIVE_SETUP = "body.ntak.pearl-zip.invalid-archive-setup";
 
     public static final String LOG_ISSUE_SAVE_ARCHIVE = "logging.ntak.pearl-zip.issue-save-archive";
 
@@ -250,6 +250,7 @@ public class ZipConstants {
     public static ExecutorService PRIMARY_EXECUTOR_SERVICE;
     public static ThreadGroup THREAD_GROUP;
     public static ProgressMessageTraceLogger MESSAGE_TRACE_LOGGER;
+    public static ErrorAlertConsumer ERROR_ALERT_CONSUMER;
     public static MenuToolkit MENU_TOOLKIT;
     public static Path RUNTIME_MODULE_PATH;
 }

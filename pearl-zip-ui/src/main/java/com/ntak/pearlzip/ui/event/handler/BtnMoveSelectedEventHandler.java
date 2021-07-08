@@ -251,15 +251,18 @@ public class BtnMoveSelectedEventHandler implements CheckEventHandler<ActionEven
             // \n\t\u2022 The selected item is a folder.
 
             JFXUtil.refreshFileView(fileContentsView, fxArchiveInfo, fxArchiveInfo.getDepth().get(), fxArchiveInfo.getPrefix());
+            String fileName = "-";
+            if (Objects.nonNull(selectedItem)) {
+                fileName = selectedItem.getFileName();
+            }
             throw new AlertException(fxArchiveInfo,
-                       resolveTextKey(LOG_CANNOT_INIT_MOVE, selectedItem.getFileName()),
-                       Alert.AlertType.WARNING,
-                       resolveTextKey(TITLE_CANNOT_INIT_MOVE),
-                       resolveTextKey(HEADER_CANNOT_INIT_MOVE),
-                       resolveTextKey(BODY_CANNOT_INIT_MOVE),
-                       null,
-                       fileContentsView.getScene().getWindow());
-
+                                     resolveTextKey(LOG_CANNOT_INIT_MOVE, fileName),
+                                     Alert.AlertType.WARNING,
+                                     resolveTextKey(TITLE_CANNOT_INIT_MOVE),
+                                     resolveTextKey(HEADER_CANNOT_INIT_MOVE),
+                                     resolveTextKey(BODY_CANNOT_INIT_MOVE),
+                                     null,
+                                     fileContentsView.getScene().getWindow());
         }
     }
 }

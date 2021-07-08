@@ -41,12 +41,34 @@ public class Zip4jConstants {
     public static final Pattern SSV = Pattern.compile(Pattern.quote("/"));
 
     // Logging keys...
+    public static final String LOG_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE = "logging.ntak.pearl-zip.zip4j.issue-listing-archive";
+    public static final String TITLE_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE = "title.ntak.pearl-zip.zip4j.issue-listing-archive";
+    public static final String HEADER_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE = "header.ntak.pearl-zip.zip4j.issue-listing-archive";
+    public static final String BODY_ARCHIVE_Z4J_ISSUE_LISTING_ARCHIVE = "body.ntak.pearl-zip.zip4j.issue-listing-archive";
+
     public static final String LOG_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE = "logging.ntak.pearl-zip.zip4j.issue-creating-archive";
-    public static final String LOG_ARCHIVE_Z4J_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.deleting-file";
+    public static final String TITLE_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE = "title.ntak.pearl-zip.zip4j.issue-creating-archive";
+    public static final String HEADER_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE = "header.ntak.pearl-zip.zip4j.issue-creating-archive";
+    public static final String BODY_ARCHIVE_Z4J_ISSUE_CREATING_ARCHIVE = "body.ntak.pearl-zip.zip4j.issue-creating-archive";
+
     public static final String LOG_ARCHIVE_Z4J_ISSUE_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.issue-deleting-file";
-    public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
+    public static final String TITLE_ARCHIVE_Z4J_ISSUE_DELETING_FILE = "title.ntak.pearl-zip.zip4j.issue-deleting-file";
+    public static final String HEADER_ARCHIVE_Z4J_ISSUE_DELETING_FILE = "header.ntak.pearl-zip.zip4j.issue-deleting-file";
+    public static final String BODY_ARCHIVE_Z4J_ISSUE_DELETING_FILE = "body.ntak.pearl-zip.zip4j.issue-deleting-file";
+
     public static final String LOG_ARCHIVE_Z4J_ISSUE_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.issue-adding-file";
+    public static final String TITLE_ARCHIVE_Z4J_ISSUE_ADDING_FILE = "title.ntak.pearl-zip.zip4j.issue-adding-file";
+    public static final String HEADER_ARCHIVE_Z4J_ISSUE_ADDING_FILE = "header.ntak.pearl-zip.zip4j.issue-adding-file";
+    public static final String BODY_ARCHIVE_Z4J_ISSUE_ADDING_FILE = "body.ntak.pearl-zip.zip4j.issue-adding-file";
+
     public static final String LOG_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "logging.ntak.pearl-zip.zip4j.issue-extracting-file";
+    public static final String TITLE_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "title.ntak.pearl-zip.zip4j.issue-extracting-file";
+    public static final String HEADER_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "header.ntak.pearl-zip.zip4j.issue-extracting-file";
+    public static final String BODY_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "body.ntak.pearl-zip.zip4j.issue-extracting-file";
+
+    public static final String LOG_ARCHIVE_Z4J_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.deleting-file";
+    public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
+
     public static final String LOG_ARCHIVE_Z4J_ISSUE_GENERATING_METADATA =
             "logging.ntak.pearl-zip.zip4j.issue-generating-metadata";
     public static final String LOG_ARCHIVE_Z4J_PASSWORD_SUCCESS = "logging.ntak.pearl-zip.zip4j.password-success";

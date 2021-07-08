@@ -32,6 +32,7 @@ import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +43,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
+import static com.ntak.pearlzip.archive.constants.ArchiveConstants.WORKING_SETTINGS;
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.DSV;
@@ -423,6 +426,15 @@ public class PearlZipFXUtil {
         ZipConstants.RECENT_FILE = Paths.get(System.getProperty("user.home"), ".pz", "rf");
         String appName = System.getProperty(CNS_NTAK_PEARL_ZIP_APP_NAME, "PearlZip");
         String version = System.getProperty(CNS_NTAK_PEARL_ZIP_VERSION, "0.0.0.0");
+
+        SETTINGS_FILE = Paths.get(System.getProperty("user.home"), ".pz", "settings.properties");
+        if (!Files.exists(SETTINGS_FILE)) {
+            Files.createFile(SETTINGS_FILE);
+        }
+        try(InputStream settingsIStream = Files.newInputStream(SETTINGS_FILE)) {
+            CURRENT_SETTINGS.load(settingsIStream);
+            WORKING_SETTINGS.load(settingsIStream);
+        }
 
         initialiseMenu();
 

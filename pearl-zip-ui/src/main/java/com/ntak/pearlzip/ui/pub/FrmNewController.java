@@ -18,11 +18,10 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.constants.ResourceConstants.PATTERN_FXID_NEW_OPTIONS;
 
@@ -66,7 +65,7 @@ public class FrmNewController {
                        .add(customTab);
 
                 for (String format : service.supportedWriteFormats()) {
-                    List<Tab> tabs = CUSTOM_TAB_MAP.getOrDefault(format, new LinkedList());
+                    List<Tab> tabs = CUSTOM_TAB_MAP.getOrDefault(format, new LinkedList<>());
                     tabs.add(customTab);
                     CUSTOM_TAB_MAP.put(format, tabs);
                 }
@@ -97,11 +96,15 @@ public class FrmNewController {
 
     private void setTabVisibilityByFormat(String format) {
         synchronized(tabsNew) {
-            List<Tab> tabsToEnable = CUSTOM_TAB_MAP.get(format);
+            List<Tab> tabsToEnable = CUSTOM_TAB_MAP.getOrDefault(format, Collections.emptyList())
+                                                   .stream()
+                                                   .filter(Objects::nonNull)
+                                                   .collect(Collectors.toList());
             tabsNew.getTabs()
                    .remove(1,
                            tabsNew.getTabs()
                                   .size());
+
             tabsNew.getTabs()
                    .addAll(tabsToEnable);
         }

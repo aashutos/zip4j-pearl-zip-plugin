@@ -137,8 +137,18 @@ public class SevenZipArchiveService implements ArchiveReadService {
             return new ArrayList<>(setFiles);
         } catch(IOException e) {
             // LOG: %s on listing contents. Message: %s
+            // TITLE: Issue listing entries from archive
+            // HEADER: The archive %s could not be interrogated for contents
+            // BODY: Exception %s was thrown on the attempt to list contents of the archive. Further details can be
+            // found below.
             LOGGER.error(resolveTextKey(LoggingConstants.LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION, e.getClass().getCanonicalName(),
                                         e.getMessage()));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_SERVICE_LISTING_EXCEPTION),
+                                              resolveTextKey(HEADER_ARCHIVE_SERVICE_LISTING_EXCEPTION, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_SERVICE_LISTING_EXCEPTION, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         } finally {
             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED, 1, 1));
         }
@@ -207,8 +217,19 @@ public class SevenZipArchiveService implements ArchiveReadService {
                 }
             }
         } catch(IOException e) {
-            // LOG: %s on listing contents. Message: %s
-            LOGGER.error(resolveTextKey(LoggingConstants.LOG_ARCHIVE_SERVICE_LISTING_EXCEPTION, e.getClass().getCanonicalName(), e.getMessage()));
+            // LOG: %s on extracting file(s). Message: %s
+            // TITLE: Issue extracting archive
+            // HEADER: The archive %s could not be extracted
+            // BODY: Exception %s was thrown on the attempt to extract from the archive. Further details can be found
+            // below.
+            LOGGER.error(resolveTextKey(LoggingConstants.LOG_ARCHIVE_SERVICE_EXTRACT_EXCEPTION,
+                                        e.getClass().getCanonicalName(), e.getMessage()));
+            DEFAULT_BUS.post(new ErrorMessage(sessionId,
+                                              resolveTextKey(TITLE_ARCHIVE_SERVICE_EXTRACT_EXCEPTION),
+                                              resolveTextKey(HEADER_ARCHIVE_SERVICE_EXTRACT_EXCEPTION, archiveInfo.getArchivePath()),
+                                              resolveTextKey(BODY_ARCHIVE_SERVICE_EXTRACT_EXCEPTION, e.getClass().getCanonicalName()),
+                                              e,
+                                              archiveInfo));
         }
 
         return false;
@@ -233,8 +254,7 @@ public class SevenZipArchiveService implements ArchiveReadService {
             }
 
             final ISimpleInArchive archiveSIf = archive.getSimpleInterface();
-            int items = archiveSIf
-                               .getNumberOfItems();
+            int items = archiveSIf.getNumberOfItems();
             LOGGER.info(resolveTextKey(LOG_ARCHIVE_SERVICE_NUMBER_ITEMS, archiveSIf
                                                                                 .getNumberOfItems()));
             for (int i = 0; i < items; i++) {

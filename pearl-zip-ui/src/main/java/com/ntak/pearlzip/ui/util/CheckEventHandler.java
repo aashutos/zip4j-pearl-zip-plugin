@@ -9,6 +9,8 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.util.Objects;
+
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.ROOT_LOGGER;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
@@ -51,11 +53,12 @@ public interface CheckEventHandler<T extends Event> extends EventHandler<T> {
                      .orElse(null);
 
                 // Closing archive if error raised...
-                if (ae.getType().equals(Alert.AlertType.ERROR)) {
+                if (Objects.nonNull(archiveWindow) && ae.getType().equals(Alert.AlertType.ERROR)) {
                     ae.getArchiveInfo().getCloseBypass().set(true);
                     archiveWindow.fireEvent(new WindowEvent(archiveWindow, WindowEvent.WINDOW_CLOSE_REQUEST));
-                    return;
                 }
+
+                return;
             }
 
             handleEvent(event);
