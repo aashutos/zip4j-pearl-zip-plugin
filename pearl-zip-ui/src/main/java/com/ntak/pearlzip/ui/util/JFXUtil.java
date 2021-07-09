@@ -8,13 +8,17 @@ import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.archive.pub.ProgressMessage;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import javafx.collections.FXCollections;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -70,7 +74,11 @@ public class JFXUtil {
             alert.getDialogPane().setExpandableContent(vbox);
         }
         ((Stage)alert.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
-        return alert.showAndWait();
+        try {
+            return alert.showAndWait();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public static void changeButtonPicText(ButtonBase button, String imgResource, String labelText) {
@@ -163,5 +171,16 @@ public class JFXUtil {
         });
 
         launchProgress(sessionId, parent, latch, callback);
+    }
+
+    public static void loadPreOpenDialog(Stage stage, Node root) {
+        AnchorPane pane = new AnchorPane(root);
+        Scene scene = new Scene(pane);
+        stage.setScene(scene);
+        stage.initStyle(StageStyle.UNDECORATED);
+
+        stage.toFront();
+        stage.setAlwaysOnTop(true);
+        stage.showAndWait();
     }
 }

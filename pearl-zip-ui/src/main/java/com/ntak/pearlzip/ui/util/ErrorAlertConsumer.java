@@ -31,7 +31,7 @@ public class ErrorAlertConsumer {
                            .filter(s -> s.getTitle().contains(errorMessage.getArchiveInfo().getArchivePath()))
                            .findFirst()
                            .orElse(null);
-            System.out.println(rootStage);
+
             Platform.runLater(() -> {
                 raiseAlert(
                         Alert.AlertType.ERROR,
