@@ -449,7 +449,7 @@ public class MoveInArchiveTestFX extends AbstractPearlZipTestFX {
         clickOn(fileContentsView, MouseButton.SECONDARY);
         sleep(5, MILLISECONDS);
         clickOn("#mnuDrop");
-        sleep(5, MILLISECONDS);
+        sleep(300, MILLISECONDS);
 
         FXArchiveInfo info = lookupArchiveInfo(archiveName).get();
         Assertions.assertEquals(1,

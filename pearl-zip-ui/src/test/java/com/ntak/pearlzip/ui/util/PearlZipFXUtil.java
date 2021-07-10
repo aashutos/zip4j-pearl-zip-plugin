@@ -11,8 +11,8 @@ import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
 import com.ntak.pearlzip.ui.pub.FrmAboutController;
 import com.ntak.pearlzip.ui.pub.FrmMainController;
+import com.ntak.pearlzip.ui.pub.MacZipLauncher;
 import com.ntak.pearlzip.ui.pub.SysMenuController;
-import com.ntak.pearlzip.ui.pub.ZipLauncher;
 import com.ntak.testfx.ExpectationFileVisitor;
 import com.ntak.testfx.FormUtil;
 import com.ntak.testfx.NativeFileChooserUtil;
@@ -449,9 +449,11 @@ public class PearlZipFXUtil {
 
         // Load main form
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(ZipLauncher.class.getResource("/frmMain.fxml"));
+        loader.setLocation(MacZipLauncher.class.getResource("/frmMain.fxml"));
         loader.setResources(LOG_BUNDLE);
         Parent root = loader.load();
+        if (!stage.getStyle().equals(StageStyle.DECORATED))
+            stage.initStyle(StageStyle.DECORATED);
         stage.setScene(new Scene(root));
         FrmMainController controller = loader.getController();
 
@@ -476,7 +478,7 @@ public class PearlZipFXUtil {
 
         // Setting about form...
         FXMLLoader aboutLoader = new FXMLLoader();
-        aboutLoader.setLocation(ZipLauncher.class.getClassLoader().getResource("frmAbout.fxml"));
+        aboutLoader.setLocation(MacZipLauncher.class.getClassLoader().getResource("frmAbout.fxml"));
         aboutLoader.setResources(LOG_BUNDLE);
         VBox abtRoot = aboutLoader.load();
         FrmAboutController abtController = aboutLoader.getController();
@@ -491,7 +493,7 @@ public class PearlZipFXUtil {
 
         // Add some more Menus...
         FXMLLoader menuLoader = new FXMLLoader();
-        menuLoader.setLocation(ZipLauncher.class.getClassLoader().getResource("sysmenu.fxml"));
+        menuLoader.setLocation(MacZipLauncher.class.getClassLoader().getResource("sysmenu.fxml"));
         menuLoader.setResources(LOG_BUNDLE);
         MenuBar additionalMenu = menuLoader.load();
         SysMenuController menuController = menuLoader.getController();
