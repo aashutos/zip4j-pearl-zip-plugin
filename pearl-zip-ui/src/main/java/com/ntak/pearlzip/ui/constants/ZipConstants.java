@@ -58,6 +58,11 @@ public class ZipConstants {
 
     public static final String LOG_LOCKING_IN_PROPERTY = "logging.ntak.pearl-zip.locking-in-property";
 
+    public static final String LOG_SKIP_ADD_SELF = "logging.ntak.pearl-zip.skip-add-self";
+    public static final String TITLE_SKIP_ADD_SELF = "title.ntak.pearl-zip.skip-add-self";
+    public static final String HEADER_SKIP_ADD_SELF = "header.ntak.pearl-zip.skip-add-self";
+    public static final String BODY_SKIP_ADD_SELF = "body.ntak.pearl-zip.skip-add-self";
+
     public static final String LOG_LOADING_MODULE = "logging.ntak.pearl-zip.loading-module";
     public static final String LOG_READ_SERVICES_IDENTIFIED = "logging.ntak.pearl-zip.read-services-identified";
     public static final String LOG_WRITE_SERVICES_IDENTIFIED = "logging.ntak.pearl-zip.write-services-identified";
