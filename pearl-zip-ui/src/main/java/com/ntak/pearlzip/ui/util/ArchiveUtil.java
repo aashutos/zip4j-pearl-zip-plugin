@@ -287,14 +287,7 @@ public class ArchiveUtil {
                 CountDownLatch latch = new CountDownLatch(1);
                 Platform.runLater(()->{
                     Stage preOpenStage = new Stage();
-                    AnchorPane pane = new AnchorPane(root);
-                    Scene scene = new Scene(pane);
-                    preOpenStage.setScene(scene);
-                    preOpenStage.initStyle(StageStyle.UNDECORATED);
-
-                    preOpenStage.toFront();
-                    preOpenStage.setAlwaysOnTop(true);
-                    preOpenStage.showAndWait();
+                    JFXUtil.loadPreOpenDialog(preOpenStage, root);
                     latch.countDown();
                 });
                 latch.await();

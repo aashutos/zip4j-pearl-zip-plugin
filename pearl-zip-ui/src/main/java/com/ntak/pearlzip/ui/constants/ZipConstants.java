@@ -3,7 +3,7 @@
  */
 package com.ntak.pearlzip.ui.constants;
 
-import com.ntak.pearlzip.ui.pub.ZipLauncher;
+import com.ntak.pearlzip.ui.pub.MacZipLauncher;
 import com.ntak.pearlzip.ui.util.ErrorAlertConsumer;
 import com.ntak.pearlzip.ui.util.ProgressMessageTraceLogger;
 import de.jangassen.MenuToolkit;
@@ -241,7 +241,7 @@ public class ZipConstants {
     public static final String LBL_CLEAR_UP_RECENTS = "label.ntak.pearl-zip.clear-up-recents";
     public static final FileSystem JRT_FILE_SYSTEM = FileSystems.getFileSystem(URI.create("jrt:/"));
 
-    public static ZipLauncher APP;
+    public static MacZipLauncher APP;
     public static Path LOCAL_TEMP;
     public static Path STORE_ROOT;
     public static Path STORE_TEMP;
