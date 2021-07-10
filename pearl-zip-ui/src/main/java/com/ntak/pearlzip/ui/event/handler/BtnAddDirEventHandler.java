@@ -79,6 +79,12 @@ public class BtnAddDirEventHandler implements CheckEventHandler<ActionEvent> {
                                                 "", "", 0, "",
                                                 true, false,
                                                 Collections.singletonMap(KEY_FILE_PATH, dirPath.toString())));
+
+                        if (files.removeIf(f -> f.getAdditionalInfoMap().getOrDefault(KEY_FILE_PATH,"").equals(fxArchiveInfo.getArchivePath()))) {
+                            // LOG: Skipping the addition of this archive within itself...
+                            LOGGER.warn(resolveTextKey(LOG_SKIP_ADD_SELF));
+                        }
+
                         archiveWriteService.addFile(sessionId, fxArchiveInfo.getArchiveInfo(),
                                                     files.toArray(new FileInfo[0]));
                     },

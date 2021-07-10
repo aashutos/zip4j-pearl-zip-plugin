@@ -31,6 +31,7 @@ import java.util.Objects;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
  *  Event Handler for Add File functionality.
@@ -54,6 +55,21 @@ public class BtnAddFileEventHandler implements CheckEventHandler<ActionEvent> {
         File rawFile = addFileView.showOpenDialog(new Stage());
 
         if (Objects.isNull(rawFile)) {
+            return;
+        }
+
+        if (rawFile.getAbsolutePath().equals(fxArchiveInfo.getArchivePath())) {
+            // LOG: Skipping the addition of this archive within itself...
+            // TITLE: Skipping addition of archive in itself
+            // HEADER: File %s will not be added
+            // BODY: Ignoring the addition of file %s into the archive %s
+            LOGGER.warn(resolveTextKey(LOG_SKIP_ADD_SELF));
+            raiseAlert(Alert.AlertType.WARNING,
+                       resolveTextKey(TITLE_SKIP_ADD_SELF),
+                       resolveTextKey(HEADER_SKIP_ADD_SELF, fxArchiveInfo.getArchivePath()),
+                       resolveTextKey(BODY_SKIP_ADD_SELF, rawFile.getAbsolutePath(), fxArchiveInfo.getArchivePath()),
+                       fileContentsView.getScene().getWindow()
+            );
             return;
         }
 
