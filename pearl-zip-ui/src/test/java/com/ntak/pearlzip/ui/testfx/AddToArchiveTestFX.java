@@ -8,6 +8,7 @@ import com.ntak.pearlzip.archive.util.CompressUtil;
 import com.ntak.pearlzip.ui.UITestFXSuite;
 import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
+import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.testfx.FormUtil;
 import javafx.scene.control.DialogPane;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
@@ -45,6 +47,8 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
      * + Table context menu Add Directory
      * + Add file to a no longer existing archive
      * + Add folder to a no longer existing archive
+     * + Add self to archive raises warning
+     * + Add directory with self to archive. Ignores self on addition
      */
 
     @BeforeEach
@@ -316,5 +320,37 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
 
         DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
         Assertions.assertTrue(dialogPane.getContentText().matches("Archive .* does not exist. PearlZip will now close the instance."), "The text in warning dialog was not matched as expected");
+    }
+
+    @Test
+    @DisplayName("Test: Add self to archive raises warning")
+    public void testFX_AddSelfToArchive_Warn() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        simAddFile(this, archive);
+        sleep(100, MILLISECONDS);
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        Assertions.assertTrue(dialogPane.getContentText().matches("Ignoring the addition of file .* into the archive .*"),
+                              "The text in warning dialog was not matched as expected");
+    }
+
+    @Test
+    @DisplayName("Test: Add directory with self to archive. Ignores self on addition")
+    public void testFX_AddDirectoryWithSelf_Ignore() throws IOException {
+        final String archiveFormat = "zip";
+        final String archiveName = String.format("test%s.%s", archiveFormat, archiveFormat);
+
+        final Path archive = Paths.get(System.getProperty("user.home"), ".pz", "temp", archiveName);
+        simNewArchive(this, archive);
+        simAddFolder(this, archive.getParent());
+        sleep(100, MILLISECONDS);
+
+        Optional<FXArchiveInfo> optArchiveInfo = lookupArchiveInfo(archiveName);
+        Assertions.assertTrue(optArchiveInfo.isPresent(), "Archive window not open");
+        Assertions.assertTrue(optArchiveInfo.get().getFiles().stream().noneMatch(f->f.getFileName().endsWith(archiveName)), "Archive was added unexpectedly");
     }
 }
