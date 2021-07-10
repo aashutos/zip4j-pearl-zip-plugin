@@ -86,7 +86,8 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                             if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getParentPath().substring(fxArchiveInfo.getParentPath().lastIndexOf(".")+1))) {
                                 long sessionId = System.currentTimeMillis();
                                 Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(), String.format("pz%d", sessionId),
-                                                                   archivePath.getFileName().toString());
+                                                                   parentPath);
+                                Files.createDirectories(parentTempArchive.getParent());
                                 JFXUtil.executeBackgroundProcess(sessionId, stage,
                                                                  () -> archiveWriteService.createArchive(sessionId,
                                                                                                          parentTempArchive.toString(),

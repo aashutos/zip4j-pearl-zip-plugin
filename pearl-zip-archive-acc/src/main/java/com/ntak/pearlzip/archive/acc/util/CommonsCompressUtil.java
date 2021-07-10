@@ -3,7 +3,10 @@
  */
 package com.ntak.pearlzip.archive.acc.util;
 
+import static com.ntak.pearlzip.archive.acc.constants.CommonsCompressLoggingConstants.BZ2;
+import static com.ntak.pearlzip.archive.acc.constants.CommonsCompressLoggingConstants.TGZ;
 import static org.apache.commons.compress.compressors.CompressorStreamFactory.BZIP2;
+import static org.apache.commons.compress.compressors.CompressorStreamFactory.GZIP;
 
 /**
  *  Utility methods used by the Apache Commons Compress implementation of the Archive Service interfaces.
@@ -15,7 +18,8 @@ public class CommonsCompressUtil {
                                     .toUpperCase();
 
         return switch(format) {
-            case "BZ2" -> BZIP2.toUpperCase();
+            case BZ2 -> BZIP2.toUpperCase();
+            case TGZ -> GZIP.toUpperCase();
             default -> format;
         };
     }

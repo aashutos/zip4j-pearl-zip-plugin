@@ -475,6 +475,6 @@ public class CommonsCompressArchiveWriteService implements ArchiveWriteService {
 
     @Override
     public List<String> supportedWriteFormats() {
-        return Arrays.asList("zip", "jar", "gz", "xz", "bz2", "tar");
+        return Arrays.asList("zip", "jar", "gz", "xz", "bz2", "tar", "tgz");
     }
 }
