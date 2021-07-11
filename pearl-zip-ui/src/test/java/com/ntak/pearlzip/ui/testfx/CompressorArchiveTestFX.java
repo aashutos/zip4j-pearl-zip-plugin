@@ -101,6 +101,48 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
     }
 
     @Test
+    @DisplayName("Test: Nest tarball into the Gzip compressor archive (shortname) and verify contents is as expected")
+    public void testFX_OpenGzipArchiveAndUpdateNestedTarballShortName_Success() throws IOException {
+        // Create archive
+        String archiveFormat = "tgz";
+        final String archiveName = String.format("test.%s", archiveFormat);
+        Path srcArchivePath = Paths.get("src","test","resources", archiveName).toAbsolutePath();
+        Path archivePath = Paths.get(tempDirRoot.toAbsolutePath().toString(), archiveName).toAbsolutePath();
+        Files.copy(srcArchivePath, archivePath);
+        final String nestedArchiveName = String.format("%s.tar", archiveName.substring(0,
+                                                               archiveName.lastIndexOf(".")));
+        PearlZipFXUtil.simOpenArchive(this, archivePath, true, false);
+
+        // Open nested tar archive
+        TableRow row = PearlZipFXUtil.simTraversalArchive(this, archiveName, "#fileContentsView", (r)->{},
+                                                          nestedArchiveName).get();
+        sleep(250, MILLISECONDS);
+        doubleClickOn(row);
+
+        FXArchiveInfo archiveInfo = PearlZipFXUtil.lookupArchiveInfo(nestedArchiveName).get();
+
+        // Add file and folder to archive
+        PearlZipFXUtil.simAddFile(this, file);
+        sleep(50, MILLISECONDS);
+
+        // Exit tarball instance and save archive into compressor
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        sleep(50, MILLISECONDS);
+        DialogPane dialogPane = lookup(".dialog-pane").query();
+        Assertions.assertTrue(dialogPane.getContentText().startsWith(
+                "Please specify if you wish to persist the changes of the nested archive"));
+        clickOn(dialogPane.lookupButton(ButtonType.YES));
+        sleep(250, MILLISECONDS);
+
+        // Open nested tarball archive and verify existence of files/folders
+        doubleClickOn(row);
+        Assertions.assertEquals(5, archiveInfo.getFiles().size(),
+                                "The nested archive has not stored the expected files");
+        Assertions.assertTrue(archiveInfo.getFiles().stream().anyMatch(f->f.getLevel() == 0 && f.getFileName().equals(file.getFileName().toString()) && !f.isFolder()), "Expected top-level file was not found");
+        sleep(50, MILLISECONDS);
+    }
+
+    @Test
     @DisplayName("Test: Nest tarball into the Bzip compressor archive and verify contents is as expected")
     public void testFX_CreateBzipArchiveAndUpdateNestedTarball_Success() throws IOException {
         // Create archive

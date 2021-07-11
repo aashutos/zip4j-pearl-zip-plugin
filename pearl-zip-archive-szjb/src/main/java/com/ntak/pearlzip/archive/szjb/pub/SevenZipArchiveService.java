@@ -53,6 +53,20 @@ public class SevenZipArchiveService implements ArchiveReadService {
     public List<FileInfo> listFiles(long sessionId, ArchiveInfo archiveInfo) {
         String archivePath = archiveInfo.getArchivePath();
 
+        if (archivePath.matches(".*(.tgz)$")) {
+            return List.of(new FileInfo(0, 0,
+                                        Paths.get(String.format("%s.tar",
+                                                  archivePath.substring(0, archivePath.lastIndexOf("."))))
+                                                             .getFileName()
+                                                             .toString(),
+                                        -1,
+                                        0, 0,
+                                        null, null,
+                                        null, null, null, 0,
+                                        null, false, false,
+                                        Collections.singletonMap("nested-archive","true")));
+        }
+
         if (archivePath.matches(".*(.gz|.xz|.bz2)$")) {
             return List.of(new FileInfo(0, 0,
                                         Paths.get(archivePath.substring(0, archivePath.lastIndexOf("."))).getFileName().toString(), -1,
@@ -172,7 +186,7 @@ public class SevenZipArchiveService implements ArchiveReadService {
             List<ISimpleInArchiveItem> rawArchiveItems = List.of(archive.getSimpleInterface().getArchiveItems());
 
             // Nested archive file handling
-            if (archivePath.matches(".*(.gz|.xz|.bz2)$")) {
+            if (archivePath.matches(".*(.gz|.xz|.bz2|.tgz)$")) {
                 optItem = Optional.of(rawArchiveItems.get(0));
             } else {
                 optItem = rawArchiveItems.stream()
@@ -311,6 +325,11 @@ public class SevenZipArchiveService implements ArchiveReadService {
 
     @Override
     public List<String> supportedReadFormats() {
-        return Arrays.asList("tar","zip","gz","bz2","xz","7z", "jar", "rar", "iso", "cab");
+        return Arrays.asList("tar","zip","gz","bz2","xz","7z", "jar", "rar", "iso", "cab", "tgz");
+    }
+
+    @Override
+    public Set<String> getCompressorArchives() {
+        return Set.of("gz", "xz", "bz2", "tgz");
     }
 }

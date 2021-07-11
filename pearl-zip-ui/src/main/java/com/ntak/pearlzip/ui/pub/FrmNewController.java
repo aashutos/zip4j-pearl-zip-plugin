@@ -4,6 +4,7 @@
 package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
+import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.ui.event.handler.BtnCreateEventHandler;
 import com.ntak.pearlzip.ui.model.ZipState;
@@ -46,7 +47,13 @@ public class FrmNewController {
 
     @FXML
     public void initialize() {
-        comboArchiveFormat.setItems(FXCollections.observableArrayList(ZipState.supportedWriteArchives()));
+        Set<String> supportedWriteFormats = new HashSet<>(ZipState.supportedWriteArchives());
+
+        for (ArchiveService service : ZipState.getWriteProviders()) {
+            supportedWriteFormats.removeAll(service.getAliasFormats());
+        }
+
+        comboArchiveFormat.setItems(FXCollections.observableArrayList(supportedWriteFormats));
         comboArchiveFormat.getSelectionModel().selectFirst();
 
         for (ArchiveWriteService service : ZipState.getWriteProviders()) {

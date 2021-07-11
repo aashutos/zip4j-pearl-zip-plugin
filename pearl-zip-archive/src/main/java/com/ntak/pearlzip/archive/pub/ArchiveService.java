@@ -69,6 +69,16 @@ public interface ArchiveService {
         return Set.of("gz", "xz", "bz2", "lz", "lz4", "lzma", "z", "sz");
     }
 
+    /**
+     *   Declares a set of file extensions, which are alias of core formats. This list of formats will not be used in
+     *   the creation of archives. It is anticipated that this field will contain shortened convenience extensions in
+     *   which long explicit extensions would be preferable (e.g. tar.gz would be preferred to tgz). The shortened
+     *   format can still be read and modified subject to the underlying {@link ArchiveService} implementation.
+     *
+     *   @return Set&lt;String&gt; - Set of alias file extensions
+     */
+    default Set<String> getAliasFormats() { return Set.of("tgz"); }
+
     default Optional<Pair<String,Node>> getOptionsPane() { return Optional.empty(); }
 
     default Optional<ResourceBundle> getResourceBundle() { return Optional.empty(); }
