@@ -47,7 +47,7 @@ public class FrmMainController {
     private TableColumn<FileInfo, FileInfo> comments;
 
     @FXML
-    private Button btnNew;
+    private MenuButton btnNew;
     @FXML
     private Button btnOpen;
     @FXML
@@ -146,7 +146,9 @@ public class FrmMainController {
                 ROW_TRIGGER.set(false);
             });
 
-            btnNew.setOnMouseClicked(new BtnNewEventHandler());
+            btnNew.getItems().stream().filter(m -> m.getId().equals("mnuNewArchive")).forEach(m -> m.setOnAction((e)->new BtnNewEventHandler().handle(null)));
+            btnNew.getItems().stream().filter(m -> m.getId().equals("mnuNewSingleFileCompressor")).forEach(m -> m.setOnAction((e)->new BtnNewSingleFileEventHandler().handle(null)));
+
             btnOpen.setOnMouseClicked(new BtnOpenEventHandler(stage));
 
             btnAdd.getItems().stream().filter(m -> m.getId().equals("mnuAddFile")).forEach(m -> m.setOnAction(new BtnAddFileEventHandler(
@@ -185,7 +187,7 @@ public class FrmMainController {
         }
     }
 
-    public Button getBtnNew() {
+    public MenuButton getBtnNew() {
         return btnNew;
     }
 

@@ -29,6 +29,11 @@ public class LoggingConstants {
     public static final String HEADER_ARCHIVE_SERVICE_CREATE_EXCEPTION = "header.ntak.pearl-zip.archive-service.create.exception";
     public static final String BODY_ARCHIVE_SERVICE_CREATE_EXCEPTION = "body.ntak.pearl-zip.archive-service.create.exception";
 
+    public static final String LOG_ARCHIVE_SERVICE_CREATE_ISSUE = "logging.ntak.pearl-zip.archive-service.create.exception";
+    public static final String TITLE_ARCHIVE_SERVICE_CREATE_ISSUE = "title.ntak.pearl-zip.archive-service.create.exception";
+    public static final String HEADER_ARCHIVE_SERVICE_CREATE_ISSUE = "header.ntak.pearl-zip.archive-service.create.exception";
+    public static final String BODY_ARCHIVE_SERVICE_CREATE_ISSUE = "body.ntak.pearl-zip.archive-service.create.exception";
+
     public static final String LOG_ARCHIVE_SERVICE_ADD_EXCEPTION = "logging.ntak.pearl-zip.archive-service.add.exception";
     public static final String LOG_ARCHIVE_SERVICE_COM_BUS_INIT_ERROR = "logging.ntak.pearl-zip.archive-service.com-bus-init-error";
 

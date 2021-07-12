@@ -4,7 +4,7 @@
 package com.ntak.pearlzip.ui.event.handler;
 
 import com.ntak.pearlzip.archive.util.LoggingUtil;
-import com.ntak.pearlzip.ui.pub.FrmNewController;
+import com.ntak.pearlzip.ui.pub.FrmNewSingleFileController;
 import com.ntak.pearlzip.ui.pub.ZipLauncher;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -24,12 +24,12 @@ import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
- *  Event Handler for Display New Dialog functionality.
+ *  Event Handler for Display New Single File Compressor Dialog functionality.
  *  @author Aashutos Kakshepati
 */
-public class BtnNewEventHandler implements EventHandler<MouseEvent> {
+public class BtnNewSingleFileEventHandler implements EventHandler<MouseEvent> {
 
-    private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnNewEventHandler.class);
+    private static final Logger LOGGER = LoggerContext.getContext().getLogger(BtnNewSingleFileEventHandler.class);
     private static AtomicBoolean isRendered = new AtomicBoolean(false);
 
     @Override
@@ -48,7 +48,7 @@ public class BtnNewEventHandler implements EventHandler<MouseEvent> {
                 loader.setLocation(ZipLauncher.class.getClassLoader()
                                                     .getResource("frmNew.fxml"));
                 loader.setResources(LOG_BUNDLE);
-                FrmNewController controller = new FrmNewController();
+                final FrmNewSingleFileController controller = new FrmNewSingleFileController();
                 loader.setController(controller);
                 root = loader.load();
 

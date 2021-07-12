@@ -9,170 +9,175 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ntak.pearlzip.ui.pub.FrmMainController">
+<VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ntak.pearlzip.ui.pub.FrmMainController">
     <minHeight>480</minHeight>
     <minWidth>816</minWidth>
     <alignment>TOP_CENTER</alignment>
-    <children>
-      <ToolBar prefHeight="64.0" prefWidth="816.0">
+    <ToolBar prefHeight="64.0" prefWidth="816.0">
         <minWidth>816</minWidth>
         <maxHeight>64</maxHeight>
         <translateX>-5</translateX>
-        <items>
-            <Button fx:id="btnNew" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.new.text" translateX="-5.0">
-                <graphic>
-                    <ImageView fx:id="imgNew" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="new.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Button fx:id="btnOpen" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.open.text" translateX="-10.0">
-                <graphic>
-                    <ImageView fx:id="imgOpen" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="open.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-                <MenuButton fx:id="btnAdd" graphicTextGap="2.0" layoutX="15.0" layoutY="10.0" maxHeight="64.0" maxWidth="70.0" minHeight="64.0" minWidth="70.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.add.text" translateX="-15.0">
-                <graphic>
-                    <ImageView fx:id="imgAdd" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="add.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-                <items>
-                    <MenuItem fx:id="mnuAddFile" mnemonicParsing="true" text="%main.add.file.text"/>
-                    <MenuItem fx:id="mnuAddDir" mnemonicParsing="true" text="%main.add.dir.text"/>
-                </items>
-            </MenuButton>
-            <MenuButton fx:id="btnExtract" graphicTextGap="2.0" layoutX="10.0" layoutY="10.0" maxHeight="64.0" maxWidth="80.0" minHeight="64.0" minWidth="80.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.extract.text" translateX="-20.0">
-                <graphic>
-                    <ImageView fx:id="imgExtract" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="extract.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-                <items>
-                    <MenuItem fx:id="mnuExtractAll" mnemonicParsing="true" text="%main.extract.all.text"/>
-                    <MenuItem fx:id="mnuExtractSelectedFile" mnemonicParsing="true" text="%main.extract.item.text"/>
-                </items>
-            </MenuButton>
-            <Button fx:id="btnTest" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.test.text" translateX="-25.0">
-                <graphic>
-                    <ImageView fx:id="imgTest" translateX="5" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="test.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <MenuButton fx:id="btnCopy" graphicTextGap="2.0" maxHeight="64.0" maxWidth="72.0" minHeight="64.0" minWidth="72.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.copy.text" translateX="-30.0">
-                <graphic>
-                    <ImageView fx:id="imgCopy" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="copy.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-                <items>
-                    <MenuItem fx:id="mnuCopySelected" mnemonicParsing="true" text="%main.copy.item.text"/>
-                    <MenuItem fx:id="mnuCancelCopy" mnemonicParsing="true" text="%main.copy.cancel.text"/>
-                </items>
-            </MenuButton>
-            <MenuButton fx:id="btnMove" graphicTextGap="2.0" maxHeight="64.0" maxWidth="72.0" minHeight="64.0" minWidth="72.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.move.text" translateX="-35.0">
-                <graphic>
-                    <ImageView fx:id="imgMove" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="move.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-                <items>
-                    <MenuItem fx:id="mnuMoveSelected" mnemonicParsing="true" text="%main.move.item.text"/>
-                    <MenuItem fx:id="mnuCancelMove" mnemonicParsing="true" text="%main.move.cancel.text"/>
-                </items>
-            </MenuButton>
-            <Button fx:id="btnDelete" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.delete.text" translateX="-40.0">
-                <graphic>
-                    <ImageView fx:id="imgDel" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="del.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Button fx:id="btnInfo" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.info.text" translateX="-45.0">
-                <graphic>
-                    <ImageView fx:id="imgInfo" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="info.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Button fx:id="btnUp" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" mnemonicParsing="true" contentDisplay="TOP" text="%main.up.text" visible="false" translateX="-50.0">
-                <graphic>
-                    <ImageView fx:id="imgUp" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="up.png" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-        </items>
-         <padding>
-            <Insets left="10.0" />
-         </padding>
-      </ToolBar>
-      <HBox>
-         <minHeight>416</minHeight>
-         <minWidth>816</minWidth>
+        <padding>
+            <Insets left="10.0"/>
+        </padding>
+        <MenuButton fx:id="btnNew" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0"
+                    minWidth="64.0" contentDisplay="TOP" text="%main.new.text"
+                    translateX="-5.0">
+            <graphic>
+                <ImageView fx:id="imgNew" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="new.png"/>
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="mnuNewArchive" text="%main.new.archive.text"/>
+                <MenuItem fx:id="mnuNewSingleFileCompressor"
+                          text="%main.new.single-file-compressor.text"/>
+            </items>
+        </MenuButton>
+        <Button fx:id="btnOpen" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0"
+                minWidth="64.0" contentDisplay="TOP" text="%main.open.text"
+                translateX="-10.0">
+            <graphic>
+                <ImageView fx:id="imgOpen" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="open.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <MenuButton fx:id="btnAdd" graphicTextGap="2.0" layoutX="15.0" layoutY="10.0" maxHeight="64.0"
+                    maxWidth="70.0" minHeight="64.0" minWidth="70.0" contentDisplay="TOP"
+                    text="%main.add.text" translateX="-15.0">
+            <graphic>
+                <ImageView fx:id="imgAdd" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="add.png"/>
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="mnuAddFile" text="%main.add.file.text"/>
+                <MenuItem fx:id="mnuAddDir" text="%main.add.dir.text"/>
+            </items>
+        </MenuButton>
+        <MenuButton fx:id="btnExtract" graphicTextGap="2.0" layoutX="10.0" layoutY="10.0" maxHeight="64.0"
+                    maxWidth="80.0" minHeight="64.0" minWidth="80.0" contentDisplay="TOP"
+                    text="%main.extract.text" translateX="-20.0">
+            <graphic>
+                <ImageView fx:id="imgExtract" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="extract.png"/>
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="mnuExtractAll" text="%main.extract.all.text"/>
+                <MenuItem fx:id="mnuExtractSelectedFile" text="%main.extract.item.text"/>
+            </items>
+        </MenuButton>
+        <Button fx:id="btnTest" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0"
+                minWidth="64.0" contentDisplay="TOP" text="%main.test.text"
+                translateX="-25.0">
+            <graphic>
+                <ImageView fx:id="imgTest" translateX="5" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="test.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <MenuButton fx:id="btnCopy" graphicTextGap="2.0" maxHeight="64.0" maxWidth="72.0" minHeight="64.0"
+                    minWidth="72.0" contentDisplay="TOP" text="%main.copy.text"
+                    translateX="-30.0">
+            <graphic>
+                <ImageView fx:id="imgCopy" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="copy.png"/>
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="mnuCopySelected" text="%main.copy.item.text"/>
+                <MenuItem fx:id="mnuCancelCopy" text="%main.copy.cancel.text"/>
+            </items>
+        </MenuButton>
+        <MenuButton fx:id="btnMove" graphicTextGap="2.0" maxHeight="64.0" maxWidth="72.0" minHeight="64.0"
+                    minWidth="72.0" contentDisplay="TOP" text="%main.move.text"
+                    translateX="-35.0">
+            <graphic>
+                <ImageView fx:id="imgMove" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="move.png"/>
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="mnuMoveSelected" text="%main.move.item.text"/>
+                <MenuItem fx:id="mnuCancelMove" text="%main.move.cancel.text"/>
+            </items>
+        </MenuButton>
+        <Button fx:id="btnDelete" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0"
+                minWidth="64.0" contentDisplay="TOP" text="%main.delete.text"
+                translateX="-40.0">
+            <graphic>
+                <ImageView fx:id="imgDel" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="del.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnInfo" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0"
+                minWidth="64.0" contentDisplay="TOP" text="%main.info.text"
+                translateX="-45.0">
+            <graphic>
+                <ImageView fx:id="imgInfo" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="info.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnUp" graphicTextGap="2.0" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0"
+                contentDisplay="TOP" text="%main.up.text" visible="false" translateX="-50.0">
+            <graphic>
+                <ImageView fx:id="imgUp" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="up.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+    </ToolBar>
+    <HBox>
+        <minHeight>416</minHeight>
+        <minWidth>816</minWidth>
 
-         <children>
-            <TableView fx:id="fileContentsView">
-                  <minHeight>416</minHeight>
-                  <maxHeight>416</maxHeight>
-                  <minWidth>816</minWidth>
-                  <maxWidth>816</maxWidth>
-                  <placeholder>
-                        <Label text=""/>
-                  </placeholder>
-                  <columns>
-                      <TableColumn fx:id="name" text="%main.file-content-view.name.text">
-                          <minWidth>200</minWidth>
-                      </TableColumn>
-                      <TableColumn fx:id="size" text="%main.file-content-view.size.text">
-                          <text>Size</text>
-                      </TableColumn>
-                      <TableColumn fx:id="packedSize" text="%main.file-content-view.packedSize.text">
-                          <text>Packed Size</text>
-                          <minWidth>100</minWidth>
-                      </TableColumn>
-                      <TableColumn fx:id="modified" text="%main.file-content-view.modified.text">
-                          <text>Modified</text>
-                          <minWidth>150</minWidth>
-                      </TableColumn>
-                      <TableColumn fx:id="created" text="%main.file-content-view.created.text">
-                          <text>Created</text>
-                          <minWidth>150</minWidth>
-                      </TableColumn>
-                      <TableColumn fx:id="hash" text="%main.file-content-view.hash.text">
-                          <text>Hash</text>
-                          <minWidth>160</minWidth>
-                      </TableColumn>
-                      <TableColumn fx:id="comments" text="%main.file-content-view.comments.text">
-                          <text>Comments</text>
-                          <minWidth>150</minWidth>
-                      </TableColumn>
-                  </columns>
-              </TableView>
-         </children>
-      </HBox>
-    </children>
+        <TableView fx:id="fileContentsView">
+            <minHeight>416</minHeight>
+            <maxHeight>416</maxHeight>
+            <minWidth>816</minWidth>
+            <maxWidth>816</maxWidth>
+            <placeholder>
+                <Label/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="name" text="%main.file-content-view.name.text">
+                    <minWidth>200</minWidth>
+                </TableColumn>
+                <TableColumn fx:id="size" text="%main.file-content-view.size.text">
+                    <text>Size</text>
+                </TableColumn>
+                <TableColumn fx:id="packedSize" text="%main.file-content-view.packedSize.text">
+                    <text>Packed Size</text>
+                    <minWidth>100</minWidth>
+                </TableColumn>
+                <TableColumn fx:id="modified" text="%main.file-content-view.modified.text">
+                    <text>Modified</text>
+                    <minWidth>150</minWidth>
+                </TableColumn>
+                <TableColumn fx:id="created" text="%main.file-content-view.created.text">
+                    <text>Created</text>
+                    <minWidth>150</minWidth>
+                </TableColumn>
+                <TableColumn fx:id="hash" text="%main.file-content-view.hash.text">
+                    <text>Hash</text>
+                    <minWidth>160</minWidth>
+                </TableColumn>
+                <TableColumn fx:id="comments" text="%main.file-content-view.comments.text">
+                    <text>Comments</text>
+                    <minWidth>150</minWidth>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </HBox>
 </VBox>
