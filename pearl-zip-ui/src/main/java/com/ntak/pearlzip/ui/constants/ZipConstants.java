@@ -222,6 +222,9 @@ public class ZipConstants {
     public static final String HEADER_CLEAR_CACHE = "header.ntak.pearl-zip.clear-cache";
     public static final String BODY_CLEAR_CACHE = "body.ntak.pearl-zip.clear-cache";
 
+    public static final String TITLE_NO_COMPRESSOR_WRITE_SERVICES = "title.ntak.pearl-zip.no-compressor-write-services";
+    public static final String BODY_NO_COMPRESSOR_WRITE_SERVICES = "body.ntak.pearl-zip.no-compressor-write-services";
+
     public static final String LOG_INVALID_ARCHIVE_SETUP = "logging.ntak.pearl-zip.invalid-archive-setup";
 
     public static final String LOG_ISSUE_SAVE_ARCHIVE = "logging.ntak.pearl-zip.issue-save-archive";

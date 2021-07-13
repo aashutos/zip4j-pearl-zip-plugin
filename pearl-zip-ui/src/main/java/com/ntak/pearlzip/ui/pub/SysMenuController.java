@@ -62,7 +62,20 @@ public class SysMenuController {
 
     public void initData() {
         mnuNew.setOnAction((e)->new BtnNewEventHandler().handle(null));
-        mnuNewSingleFile.setOnAction((e)->new BtnNewSingleFileEventHandler().handle(null));
+
+        if (ZipState.getSupportedCompressorWriteFormats().size() == 0) {
+            mnuNewSingleFile.setDisable(true);
+            // TITLE: Warning: No write service available
+            // BODY: This functionality is disabled as no compressor write service is available.
+            mnuNewSingleFile.setOnAction((e) -> raiseAlert(Alert.AlertType.WARNING,
+                                                           resolveTextKey(TITLE_NO_COMPRESSOR_WRITE_SERVICES),
+                                                           "",
+                                                           resolveTextKey(BODY_NO_COMPRESSOR_WRITE_SERVICES),
+                                                           getActiveStage().orElse(new Stage())));
+        } else {
+            mnuNewSingleFile.setOnAction((e)->new BtnNewSingleFileEventHandler().handle(null));
+        }
+
         mnuOpen.setOnAction((e)-> {
             Stage stage = getActiveStage().orElse(new Stage());
             new BtnOpenEventHandler(stage).handle(null);

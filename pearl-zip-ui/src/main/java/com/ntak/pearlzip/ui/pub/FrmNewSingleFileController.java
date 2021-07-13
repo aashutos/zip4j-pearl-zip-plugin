@@ -4,7 +4,6 @@
 package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
-import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
@@ -76,16 +75,7 @@ public class FrmNewSingleFileController {
         txtSelectFile.setEditable(false);
         btnSelectFile.setVisible(true);
 
-        Set<String> supportedWriteFormats =
-                new HashSet<>(ZipState.getCompressorArchives()
-                                      .stream()
-                                      .filter(f->ZipState.supportedWriteArchives().contains(f))
-                                      .collect(Collectors.toList())
-                );
-
-        for (ArchiveService service : ZipState.getWriteProviders()) {
-            supportedWriteFormats.removeAll(service.getAliasFormats());
-        }
+        Set<String> supportedWriteFormats = ZipState.getSupportedCompressorWriteFormats();
 
         comboArchiveFormat.setItems(FXCollections.observableArrayList(supportedWriteFormats));
         comboArchiveFormat.getSelectionModel().selectFirst();
@@ -209,9 +199,7 @@ public class FrmNewSingleFileController {
                                                                                                      ZipState.getReadArchiveServiceForFile(
                                                                                                              archivePath)
                                                                                                              .get(),
-                                                                                                     ZipState.getWriteArchiveServiceForFile(
-                                                                                                             archivePath)
-                                                                                                             .get());
+                                                                                                     writeService);
                                                      launchMainStage(stage, fxArchiveInfo);
                                                  });
                     } else {
