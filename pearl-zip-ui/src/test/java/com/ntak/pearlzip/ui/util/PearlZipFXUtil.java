@@ -68,6 +68,7 @@ public class PearlZipFXUtil {
         if (init) {
             robot.clickOn("#btnNew", MouseButton.PRIMARY);
             robot.sleep(50, MILLISECONDS);
+            robot.clickOn("#mnuNewArchive", MouseButton.PRIMARY);
         }
 
         final String[] nameSplit = DSV.split(archive.getFileName()

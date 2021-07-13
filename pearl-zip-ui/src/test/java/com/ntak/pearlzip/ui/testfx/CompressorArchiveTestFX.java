@@ -82,7 +82,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -126,7 +126,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -170,7 +170,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -216,7 +216,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -262,7 +262,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -308,7 +308,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -354,7 +354,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(

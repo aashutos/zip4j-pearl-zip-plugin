@@ -49,7 +49,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open zip archive successfully (new window)")
     public void testFX_OpenZipArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.zip")
                                   .toAbsolutePath();
         // Via Sys menu
@@ -70,7 +70,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open jar archive successfully (new window)")
     public void testFX_OpenJarArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.jar")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -91,7 +91,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open 7z archive successfully (new window)")
     public void testFX_Open7zArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.7z")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -112,7 +112,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open cab archive successfully (new window)")
     public void testFX_OpenCabArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.cab")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -133,7 +133,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open iso archive successfully (new window)")
     public void testFX_OpenIsoArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.iso")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -154,7 +154,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open rar archive successfully (new window)")
     public void testFX_OpenRarArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.iso")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -175,7 +175,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open tar archive successfully (new window)")
     public void testFX_OpenTarArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -196,7 +196,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open BZip archive successfully (new window)")
     public void testFX_OpenBzipArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.bz2")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -217,7 +217,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open GZip archive successfully (new window)")
     public void testFX_OpenGzipArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.gz")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -238,7 +238,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open xz archive successfully (new window)")
     public void testFX_OpenXZArchiveNewWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.xz")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -263,7 +263,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open zip archive successfully (current window)")
     public void testFX_OpenZipArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.zip")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -286,7 +286,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open jar archive successfully (current window)")
     public void testFX_OpenJarArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.jar")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -307,7 +307,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open 7z archive successfully (current window)")
     public void testFX_Open7zArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.7z")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -328,7 +328,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open cab archive successfully (current window)")
     public void testFX_OpenCabArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.cab")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -349,7 +349,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open iso archive successfully (current window)")
     public void testFX_OpenIsoArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.iso")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -370,7 +370,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open rar archive successfully (current window)")
     public void testFX_OpenRarArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.iso")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -391,7 +391,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open tar archive successfully (current window)")
     public void testFX_OpenTarArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -412,7 +412,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open BZip archive successfully (current window)")
     public void testFX_OpenBzipArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.bz2")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -433,7 +433,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open GZip archive successfully (current window)")
     public void testFX_OpenGzipArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.gz")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -454,7 +454,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open xz archive successfully (current window)")
     public void testFX_OpenXZArchiveCurrentWindow_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.tar.xz")
                                       .toAbsolutePath();
         // Via Sys menu
@@ -479,7 +479,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
         String[] extensions = {"zip","jar","tar","iso","cab"};
         for (String extension : extensions) {
             // Hard coded movement to open MenuItem
-            clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+            clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
             final Path archivePath = Paths.get("src", "test", "resources", String.format("test.%s", extension))
                                           .toAbsolutePath();
             // Via Sys menu
@@ -505,7 +505,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
         String[] extensions = {"zip","jar","tar","iso","cab","tar.gz"};
         for (String extension : extensions) {
             // Hard coded movement to open MenuItem
-            clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+            clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
             final Path archivePath = Paths.get("src", "test", "resources", String.format("test.%s", extension))
                                           .toAbsolutePath();
             // Via Sys menu
@@ -533,7 +533,7 @@ public class OpenArchiveTestFX extends AbstractPearlZipTestFX {
     @DisplayName("Test: Open file in archive using OS defined software successfully")
     public void testFX_OpenFileInArchiveExternally_Success() {
         // Hard coded movement to open MenuItem
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.zip")
                                       .toAbsolutePath();
         // Via Sys menu
