@@ -162,7 +162,7 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
                               "Temp file was not initialised");
 
         // Open existing archive in current window
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.zip")
                                       .toAbsolutePath();
         // Via Sys menu

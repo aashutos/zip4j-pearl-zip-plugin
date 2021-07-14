@@ -7,8 +7,10 @@ import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
 import com.ntak.pearlzip.ui.util.PearlZipFXUtil;
+import com.ntak.testfx.FormUtil;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableRow;
 import org.junit.jupiter.api.*;
@@ -17,8 +19,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.checkArchiveFileHierarchy;
+import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.simOpenArchive;
+import static com.ntak.testfx.NativeFileChooserUtil.chooseFile;
+import static com.ntak.testfx.TestFXConstants.PLATFORM;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
@@ -33,6 +41,10 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
          *  Test cases:
          *  + Nest tarball into the compressor archive and verify contents is as expected
          *  + Extract archive contents from nested tarball generates expected files/folders
+         *  + Create single file xz compressor archive
+         *  + Create single file GZip compressor archive
+         *  + Create single file BZip compressor archive
+         *  + Create single file BZip compressor archive from main window
          */
 
     @BeforeEach
@@ -82,7 +94,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -126,7 +138,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -170,7 +182,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -216,7 +228,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -262,7 +274,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -276,7 +288,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
                                 "The nested archive has not stored the expected files");
         PearlZipFXUtil.simExtractAll(this, outputDir);
         Map<Integer,Map<String,String[]>> expectations = PearlZipFXUtil.genArchiveContentsExpectationsAuto(outputDir);
-        PearlZipFXUtil.checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
+        checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
         sleep(50, MILLISECONDS);
     }
 
@@ -308,7 +320,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -322,7 +334,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
                                 "The nested archive has not stored the expected files");
         PearlZipFXUtil.simExtractAll(this, outputDir);
         Map<Integer,Map<String,String[]>> expectations = PearlZipFXUtil.genArchiveContentsExpectationsAuto(outputDir);
-        PearlZipFXUtil.checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
+        checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
         sleep(50, MILLISECONDS);
     }
 
@@ -354,7 +366,7 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
         sleep(50, MILLISECONDS);
 
         // Exit tarball instance and save archive into compressor
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 150));
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
         sleep(50, MILLISECONDS);
         DialogPane dialogPane = lookup(".dialog-pane").query();
         Assertions.assertTrue(dialogPane.getContentText().startsWith(
@@ -368,7 +380,151 @@ public class CompressorArchiveTestFX extends AbstractPearlZipTestFX {
                                 "The nested archive has not stored the expected files");
         PearlZipFXUtil.simExtractAll(this, outputDir);
         Map<Integer,Map<String,String[]>> expectations = PearlZipFXUtil.genArchiveContentsExpectationsAuto(outputDir);
-        PearlZipFXUtil.checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
+        checkArchiveFileHierarchy(this, expectations, nestedArchiveName);
         sleep(50, MILLISECONDS);
+    }
+
+    @Test
+    @DisplayName("Test: Create single file xz compressor archive")
+    public void testFX_CreateSingleFileXZCompressorArchive_Success() throws IOException {
+        // New single file compressor archive
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+
+        // Set archive format
+        String format = "xz";
+        ComboBox<String> cmbArchiveFormat = FormUtil.lookupNode(s -> s.isShowing() && s.getTitle().equals("Create new archive..."), "#comboArchiveFormat");
+        FormUtil.selectComboBoxEntry(this, cmbArchiveFormat, format);
+
+        // Create a file to archive...
+        Path path = Paths.get(tempDirRoot.toAbsolutePath().toString(), "arbitrary-file.txt");
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+
+        // Select file to archive
+        clickOn("#btnSelectFile");
+        simOpenArchive(this, path, false, false);
+        clickOn("#btnCreate").sleep(50, MILLISECONDS);
+        chooseFile(PLATFORM, this, path.getParent().toAbsolutePath());
+
+        // Check archive exists
+        Path pathArchive = Paths.get(tempDirRoot.toAbsolutePath().toString(), String.format("arbitrary-file.txt.%s",
+                                                                                            format));
+        // Check file is in archive...
+        checkArchiveFileHierarchy(this,
+                                  Collections.singletonMap(0,Collections.singletonMap("", List.of("arbitrary-file" +
+                                                                                                          ".txt").toArray(new String[0]))),
+                                  pathArchive.toAbsolutePath()
+                                             .toString()
+        );
+
+        Files.deleteIfExists(pathArchive);
+    }
+
+    @Test
+    @DisplayName("Test: Create single file GZip compressor archive")
+    public void testFX_CreateSingleFileGZipCompressorArchive_Success() throws IOException {
+        // New single file compressor archive
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+
+        // Set archive format
+        String format = "gz";
+        ComboBox<String> cmbArchiveFormat = FormUtil.lookupNode(s -> s.isShowing() && s.getTitle().equals("Create new archive..."), "#comboArchiveFormat");
+        FormUtil.selectComboBoxEntry(this, cmbArchiveFormat, format);
+
+        // Create a file to archive...
+        Path path = Paths.get(tempDirRoot.toAbsolutePath().toString(), "arbitrary-file.txt");
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+
+        // Select file to archive
+        clickOn("#btnSelectFile");
+        simOpenArchive(this, path, false, false);
+        clickOn("#btnCreate").sleep(50, MILLISECONDS);
+        chooseFile(PLATFORM, this, path.getParent().toAbsolutePath());
+
+        // Check archive exists
+        Path pathArchive = Paths.get(tempDirRoot.toAbsolutePath().toString(), String.format("arbitrary-file.txt.%s",
+                                                                                            format));
+        // Check file is in archive...
+        checkArchiveFileHierarchy(this,
+                                  Collections.singletonMap(0,Collections.singletonMap("", List.of("arbitrary-file" +
+                                                                                                          ".txt").toArray(new String[0]))),
+                                  pathArchive.toAbsolutePath()
+                                             .toString()
+        );
+
+        Files.deleteIfExists(pathArchive);
+    }
+
+    @Test
+    @DisplayName("Test: Create single file BZip compressor archive")
+    public void testFX_CreateSingleFileBZipCompressorArchive_Success() throws IOException {
+        // New single file compressor archive
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 60));
+
+        // Set archive format
+        String format = "bz2";
+        ComboBox<String> cmbArchiveFormat = FormUtil.lookupNode(s -> s.isShowing() && s.getTitle().equals("Create new archive..."), "#comboArchiveFormat");
+        FormUtil.selectComboBoxEntry(this, cmbArchiveFormat, format);
+
+        // Create a file to archive...
+        Path path = Paths.get(tempDirRoot.toAbsolutePath().toString(), "arbitrary-file.txt");
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+
+        // Select file to archive
+        clickOn("#btnSelectFile");
+        simOpenArchive(this, path, false, false);
+        clickOn("#btnCreate").sleep(50, MILLISECONDS);
+        chooseFile(PLATFORM, this, path.getParent().toAbsolutePath());
+
+        // Check archive exists
+        Path pathArchive = Paths.get(tempDirRoot.toAbsolutePath().toString(), String.format("arbitrary-file.txt.%s",
+                                                                                            format));
+        // Check file is in archive...
+        checkArchiveFileHierarchy(this,
+                                  Collections.singletonMap(0,Collections.singletonMap("", List.of("arbitrary-file" +
+                                                                                                          ".txt").toArray(new String[0]))),
+                                  pathArchive.toAbsolutePath()
+                                             .toString()
+        );
+
+        Files.deleteIfExists(pathArchive);
+    }
+
+    @Test
+    @DisplayName("Test: Create single file BZip compressor archive via main window")
+    public void testFX_CreateSingleFileBZipCompressorArchiveMainWindow_Success() throws IOException {
+        // New single file compressor archive
+        clickOn("#btnNew").clickOn("#mnuNewSingleFileCompressor");
+
+        // Set archive format
+        String format = "bz2";
+        ComboBox<String> cmbArchiveFormat = FormUtil.lookupNode(s -> s.isShowing() && s.getTitle().equals("Create new archive..."), "#comboArchiveFormat");
+        FormUtil.selectComboBoxEntry(this, cmbArchiveFormat, format);
+
+        // Create a file to archive...
+        Path path = Paths.get(tempDirRoot.toAbsolutePath().toString(), "arbitrary-file.txt");
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+
+        // Select file to archive
+        clickOn("#btnSelectFile");
+        simOpenArchive(this, path, false, false);
+        clickOn("#btnCreate").sleep(50, MILLISECONDS);
+        chooseFile(PLATFORM, this, path.getParent().toAbsolutePath());
+
+        // Check archive exists
+        Path pathArchive = Paths.get(tempDirRoot.toAbsolutePath().toString(), String.format("arbitrary-file.txt.%s",
+                                                                                            format));
+        // Check file is in archive...
+        checkArchiveFileHierarchy(this,
+                                  Collections.singletonMap(0,Collections.singletonMap("", List.of("arbitrary-file" +
+                                                                                                          ".txt").toArray(new String[0]))),
+                                  pathArchive.toAbsolutePath()
+                                             .toString()
+        );
+
+        Files.deleteIfExists(pathArchive);
     }
 }

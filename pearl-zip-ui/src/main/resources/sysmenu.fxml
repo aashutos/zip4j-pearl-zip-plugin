@@ -9,22 +9,19 @@
          fx:controller="com.ntak.pearlzip.ui.pub.SysMenuController">
     <useSystemMenuBar>true</useSystemMenuBar>
     <Menu fx:id="mnuFile" text="%sysmenu.file.text">
-        <items>
-            <MenuItem fx:id="mnuNew" text="%sysmenu.file.new.text"/>
-            <SeparatorMenuItem/>
-            <MenuItem fx:id="mnuOpen" text="%sysmenu.open.text"/>
-            <Menu fx:id="mnuOpenRecent" text="%sysmenu.recent.text">
+        <MenuItem fx:id="mnuNew" text="%sysmenu.file.new.text"/>
+        <MenuItem fx:id="mnuNewSingleFile" text="%sysmenu.file.new-single-file.text"/>
+        <SeparatorMenuItem/>
+        <MenuItem fx:id="mnuOpen" text="%sysmenu.open.text"/>
+        <Menu fx:id="mnuOpenRecent" text="%sysmenu.recent.text">
 
-            </Menu>
-            <SeparatorMenuItem/>
-            <MenuItem fx:id="mnuSaveAs" text="%sysmenu.file.save-as.text"/>
-            <SeparatorMenuItem/>
-            <MenuItem fx:id="mnuClose" text="%sysmenu.file.close.text"/>
-        </items>
+        </Menu>
+        <SeparatorMenuItem/>
+        <MenuItem fx:id="mnuSaveAs" text="%sysmenu.file.save-as.text"/>
+        <SeparatorMenuItem/>
+        <MenuItem fx:id="mnuClose" text="%sysmenu.file.close.text"/>
     </Menu>
     <Menu text="%sysmenu.tools.text">
-        <items>
-            <MenuItem fx:id="mnuOptions" text="%sysmenu.tools.options.text"/>
-        </items>
+        <MenuItem fx:id="mnuOptions" text="%sysmenu.tools.options.text"/>
     </Menu>
 </MenuBar>

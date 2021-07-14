@@ -20,8 +20,13 @@ import javafx.stage.Stage;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.LoggingConstants.LOG_BUNDLE;
+import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.BODY_NO_COMPRESSOR_WRITE_SERVICES;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.TITLE_NO_COMPRESSOR_WRITE_SERVICES;
 import static com.ntak.pearlzip.ui.model.ZipState.CONTEXT_MENU_INSTANCES;
 import static com.ntak.pearlzip.ui.model.ZipState.ROW_TRIGGER;
+import static com.ntak.pearlzip.ui.util.JFXUtil.getActiveStage;
+import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
 
 /**
  *  Controller for the Main display dialog.
@@ -47,7 +52,7 @@ public class FrmMainController {
     private TableColumn<FileInfo, FileInfo> comments;
 
     @FXML
-    private Button btnNew;
+    private MenuButton btnNew;
     @FXML
     private Button btnOpen;
     @FXML
@@ -146,7 +151,23 @@ public class FrmMainController {
                 ROW_TRIGGER.set(false);
             });
 
-            btnNew.setOnMouseClicked(new BtnNewEventHandler());
+            MenuItem mnuNewSingleFile =
+                    btnNew.getItems().stream().filter(m -> m.getId().equals("mnuNewSingleFileCompressor")).findFirst().orElse(null);
+            btnNew.getItems().stream().filter(m -> m.getId().equals("mnuNewArchive")).forEach(m -> m.setOnAction((e)->new BtnNewEventHandler().handle(null)));
+            if (ZipState.getSupportedCompressorWriteFormats().size() == 0) {
+                mnuNewSingleFile.setDisable(true);
+                // TITLE: Warning: No write service available
+                // BODY: This functionality is disabled as no compressor write service is available.
+                mnuNewSingleFile.setOnAction((e) -> raiseAlert(Alert.AlertType.WARNING,
+                                                               resolveTextKey(TITLE_NO_COMPRESSOR_WRITE_SERVICES),
+                                                               "",
+                                                               resolveTextKey(BODY_NO_COMPRESSOR_WRITE_SERVICES),
+                                                               getActiveStage().orElse(new Stage())));
+            } else {
+                mnuNewSingleFile.setOnAction((e)->new BtnNewSingleFileEventHandler().handle(null));
+            }
+
+
             btnOpen.setOnMouseClicked(new BtnOpenEventHandler(stage));
 
             btnAdd.getItems().stream().filter(m -> m.getId().equals("mnuAddFile")).forEach(m -> m.setOnAction(new BtnAddFileEventHandler(
@@ -185,7 +206,7 @@ public class FrmMainController {
         }
     }
 
-    public Button getBtnNew() {
+    public MenuButton getBtnNew() {
         return btnNew;
     }
 

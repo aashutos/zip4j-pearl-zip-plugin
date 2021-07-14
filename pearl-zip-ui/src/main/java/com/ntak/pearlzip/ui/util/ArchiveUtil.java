@@ -343,8 +343,7 @@ public class ArchiveUtil {
                                                            fxArchiveInfo.getArchivePath()));
 
             stage.show();
-            stage.setAlwaysOnTop(true);
-            stage.setAlwaysOnTop(false);
+            stage.toFront();
         } catch (Exception e) {
         }
 

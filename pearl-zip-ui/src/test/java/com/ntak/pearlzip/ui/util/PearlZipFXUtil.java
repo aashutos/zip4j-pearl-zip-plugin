@@ -68,6 +68,7 @@ public class PearlZipFXUtil {
         if (init) {
             robot.clickOn("#btnNew", MouseButton.PRIMARY);
             robot.sleep(50, MILLISECONDS);
+            robot.clickOn("#mnuNewArchive", MouseButton.PRIMARY);
         }
 
         final String[] nameSplit = DSV.split(archive.getFileName()
@@ -436,8 +437,6 @@ public class PearlZipFXUtil {
             WORKING_SETTINGS.load(settingsIStream);
         }
 
-        initialiseMenu();
-
         // Load services
         for (ArchiveReadService readService : readServices) {
             ZipState.addArchiveProvider(readService);
@@ -446,6 +445,8 @@ public class PearlZipFXUtil {
         for (ArchiveWriteService writeService : writeServices) {
             ZipState.addArchiveProvider(writeService);
         }
+
+        initialiseMenu();
 
         // Load main form
         FXMLLoader loader = new FXMLLoader();

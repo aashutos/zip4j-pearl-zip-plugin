@@ -5,6 +5,7 @@ package com.ntak.pearlzip.ui.pub;
 
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.ui.event.handler.BtnNewEventHandler;
+import com.ntak.pearlzip.ui.event.handler.BtnNewSingleFileEventHandler;
 import com.ntak.pearlzip.ui.event.handler.BtnOpenEventHandler;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
@@ -47,6 +48,8 @@ public class SysMenuController {
     @FXML
     private MenuItem mnuNew;
     @FXML
+    private MenuItem mnuNewSingleFile;
+    @FXML
     private MenuItem mnuOpen;
     @FXML
     private Menu mnuOpenRecent;
@@ -59,6 +62,20 @@ public class SysMenuController {
 
     public void initData() {
         mnuNew.setOnAction((e)->new BtnNewEventHandler().handle(null));
+
+        if (ZipState.getSupportedCompressorWriteFormats().size() == 0) {
+            mnuNewSingleFile.setDisable(true);
+            // TITLE: Warning: No write service available
+            // BODY: This functionality is disabled as no compressor write service is available.
+            mnuNewSingleFile.setOnAction((e) -> raiseAlert(Alert.AlertType.WARNING,
+                                                           resolveTextKey(TITLE_NO_COMPRESSOR_WRITE_SERVICES),
+                                                           "",
+                                                           resolveTextKey(BODY_NO_COMPRESSOR_WRITE_SERVICES),
+                                                           getActiveStage().orElse(new Stage())));
+        } else {
+            mnuNewSingleFile.setOnAction((e)->new BtnNewSingleFileEventHandler().handle(null));
+        }
+
         mnuOpen.setOnAction((e)-> {
             Stage stage = getActiveStage().orElse(new Stage());
             new BtnOpenEventHandler(stage).handle(null);

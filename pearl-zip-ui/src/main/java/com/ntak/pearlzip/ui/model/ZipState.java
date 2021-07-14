@@ -138,4 +138,18 @@ public class ZipState {
     public static Optional<LicenseInfo> getLicenseDeclaration(String uniqueId) {
         return Optional.ofNullable(LICENSE_DECLARATION_MAP.get(uniqueId));
     }
+
+    public static HashSet<String> getSupportedCompressorWriteFormats() {
+        HashSet<String> supportedWriteFormats = new HashSet<>(getCompressorArchives()
+                              .stream()
+                              .filter(f-> supportedWriteArchives().contains(f))
+                              .collect(Collectors.toList())
+        );
+
+        for (ArchiveService service : getWriteProviders()) {
+            supportedWriteFormats.removeAll(service.getAliasFormats());
+        }
+
+        return supportedWriteFormats;
+    }
 }
