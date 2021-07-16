@@ -26,6 +26,8 @@ public class ZipState {
 
     public static final int WIDTH = Integer.parseInt(System.getProperty(CNS_WINDOW_WIDTH, "816"));
     public static final int HEIGHT = Integer.parseInt(System.getProperty(CNS_WINDOW_HEIGHT, "480"));
+    public static final long LOCK_POLL_TIMEOUT = Integer.parseInt(System.getProperty(CNS_CONCURRENCY_LOCK_POLL_TIMEOUT,
+                                                                               "100"));
     public static final AtomicBoolean ROW_TRIGGER = new AtomicBoolean(false);
     public static final CopyOnWriteArrayList<ContextMenu> CONTEXT_MENU_INSTANCES = new CopyOnWriteArrayList<>();
 
