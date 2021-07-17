@@ -3,6 +3,7 @@
  */
 package com.ntak.pearlzip.ui.event.handler;
 
+import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.ArchiveReadService;
 import com.ntak.pearlzip.archive.pub.ArchiveWriteService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
@@ -37,6 +38,7 @@ import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.model.ZipState.CONTEXT_MENU_INSTANCES;
 import static com.ntak.pearlzip.ui.model.ZipState.ROW_TRIGGER;
+import static com.ntak.pearlzip.ui.util.ArchiveUtil.checkPreOpenDialog;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchMainStage;
 import static com.ntak.pearlzip.ui.util.JFXUtil.isFileInArchiveLevel;
 import static com.ntak.pearlzip.ui.util.JFXUtil.raiseAlert;
@@ -94,30 +96,37 @@ public class FileInfoRowEventHandler implements  EventHandler<MouseEvent> {
                                                          // LOG: An archive which can be extracted...
                                                          LOGGER.debug(resolveTextKey(LOG_ARCHIVE_CAN_EXTRACT));
 
+                                                         // Prepare target temporary location for nested archive
                                                          Files.createDirectories(nestedArchive.getParent());
                                                          Files.deleteIfExists(nestedArchive);
-                                                         ArchiveReadService archiveService =
+
+                                                         // Extract nested archive to the temp location
+                                                         ArchiveReadService parentArchiveReadService =
                                                                  ZipState.getReadArchiveServiceForFile(fxArchiveInfo.getArchivePath())
                                                                          .get();
-                                                         archiveService.extractFile(sessionId, nestedArchive,
+                                                         parentArchiveReadService.extractFile(sessionId, nestedArchive,
                                                                                     fxArchiveInfo.getArchiveInfo(),
                                                                                     clickedRow
                                                          );
 
-                                                         ArchiveWriteService archiveWriteService =
+                                                         // Open nested archive.
+                                                         ArchiveWriteService nestedArchiveWriteService =
                                                                  ZipState.getWriteArchiveServiceForFile(clickedRow.getFileName())
                                                                          .get();
+                                                         ArchiveReadService nestedArchiveReadService =
+                                                                 ZipState.getReadArchiveServiceForFile(nestedArchive.getFileName().toString()).get();
+                                                         ArchiveInfo nestedArchiveInfo =
+                                                                 nestedArchiveReadService.generateArchiveMetaData(nestedArchive.toAbsolutePath().toString());
 
-                                                         FXArchiveInfo archiveInfo;
+                                                         // Check for any pre-open dialogs then launch and process as
+                                                         // necessary
+                                                         checkPreOpenDialog(nestedArchiveReadService, nestedArchiveInfo);
 
-                                                         if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getArchivePath().substring(fxArchiveInfo.getArchivePath().lastIndexOf(".")+1))) {
-                                                             archiveInfo = new FXArchiveInfo(fxArchiveInfo.getArchivePath(),
-                                                                                             nestedArchive.toAbsolutePath().toString(), archiveService,
-                                                                                             archiveWriteService);
-                                                         } else {
-                                                             archiveInfo = new FXArchiveInfo(nestedArchive.toAbsolutePath().toString(), archiveService,
-                                                                                             archiveWriteService);
-                                                         }
+                                                         FXArchiveInfo archiveInfo =
+                                                                 new FXArchiveInfo(fxArchiveInfo.getArchiveInfo(),
+                                                                                   nestedArchiveInfo.getArchivePath(),
+                                                                                   parentArchiveReadService,
+                                                                                   nestedArchiveWriteService, nestedArchiveInfo);
 
                                                          Platform.runLater(()->launchMainStage(archiveInfo));
 

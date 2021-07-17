@@ -77,7 +77,7 @@ public class BtnOpenEventHandler implements EventHandler<MouseEvent> {
         long sessionId = System.currentTimeMillis();
         AtomicBoolean openSuccess = new AtomicBoolean(false);
         executeBackgroundProcess(sessionId, stage,
-                                 () -> openSuccess.set(ArchiveUtil.openFile(rawFile, stage)),
+                                 () -> openSuccess.set(ArchiveUtil.openFile(rawFile)),
                                  (s) -> {
                                              // Default new window
                                              if (openSuccess.get() && response.isPresent() && response.get()

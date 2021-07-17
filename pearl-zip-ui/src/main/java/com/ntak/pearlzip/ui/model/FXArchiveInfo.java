@@ -36,6 +36,7 @@ public class FXArchiveInfo {
     private final FXMigrationInfo migrationInfo = new FXMigrationInfo();
     private FrmMainController controller;
     private final AtomicBoolean closeBypass = new AtomicBoolean(false);
+    private final ArchiveInfo parentArchiveInfo;
     private final ArchiveInfo archiveInfo;
 
     private String prefix = "";
@@ -47,17 +48,24 @@ public class FXArchiveInfo {
 
     public FXArchiveInfo(String parentPath, String archivePath, ArchiveReadService readService,
             ArchiveWriteService writeService) {
-        this(parentPath, archivePath, readService, writeService, readService.generateArchiveMetaData(archivePath));
+        this(Objects.nonNull(parentPath) ?
+                     ZipState.getReadArchiveServiceForFile(parentPath).get().generateArchiveMetaData(parentPath)
+                     : null,
+             archivePath,
+             readService,
+             writeService,
+             readService.generateArchiveMetaData(archivePath));
     }
 
-    public FXArchiveInfo(String parentPath, String archivePath, ArchiveReadService readService,
+    public FXArchiveInfo(ArchiveInfo parentArchiveInfo, String archivePath, ArchiveReadService readService,
             ArchiveWriteService writeService, ArchiveInfo archiveInfo) {
         // LOG: Archive path should be valid
         assert Files.exists(Paths.get(archivePath)) : resolveTextKey(LOG_ARCHIVE_INFO_ASSERT_PATH);
         // LOG: Read service should not be null
         assert Objects.nonNull(readService) : resolveTextKey(LOG_ARCHIVE_INFO_ASSERT_READ_SERVICE);
 
-        this.parentPath = parentPath;
+        this.parentArchiveInfo = parentArchiveInfo;
+        this.parentPath = Objects.nonNull(parentArchiveInfo) ? parentArchiveInfo.getArchivePath() : null;
         this.archivePath = archivePath;
         this.readService = readService;
         this.writeService = writeService;
@@ -128,5 +136,9 @@ public class FXArchiveInfo {
 
     public ArchiveInfo getArchiveInfo() {
         return archiveInfo;
+    }
+
+    public ArchiveInfo getParentArchiveInfo() {
+        return parentArchiveInfo;
     }
 }

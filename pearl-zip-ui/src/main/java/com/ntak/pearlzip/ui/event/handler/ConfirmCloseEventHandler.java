@@ -62,10 +62,7 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                 if (Objects.nonNull(parentPath)) {
                     ArchiveWriteService archiveWriteService =
                             ZipState.getWriteArchiveServiceForFile(parentPath).orElse(null);
-                    if (Objects.nonNull(archiveWriteService)
-                        // NOTE: Temporarily only execute for compressor archives
-                        && ZipState.getCompressorArchives().contains(fxArchiveInfo.getParentPath().substring(fxArchiveInfo.getParentPath().lastIndexOf(".")+1))
-                    ) {
+                    if (Objects.nonNull(archiveWriteService)) {
                         // Nested archive - Ask user to update parent archive
                         // TITLE: Confirmation: Reintegrate archive changes in parent archive
                         // HEADER: Do you wish to reintegrate the nested archive changes into %s
@@ -82,43 +79,36 @@ public class ConfirmCloseEventHandler implements EventHandler<WindowEvent> {
                                                                    ButtonType.YES, ButtonType.NO);
 
                         if (response.get().getButtonData() == ButtonBar.ButtonData.YES) {
-                            // If compressor - create new archive with nested file. replace existing archive.
-                            if (ZipState.getCompressorArchives().contains(fxArchiveInfo.getParentPath().substring(fxArchiveInfo.getParentPath().lastIndexOf(".")+1))) {
-                                long sessionId = System.currentTimeMillis();
-                                Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(), String.format("pz%d", sessionId),
-                                                                   parentPath);
-                                Files.createDirectories(parentTempArchive.getParent());
-                                JFXUtil.executeBackgroundProcess(sessionId, stage,
-                                                                 () -> archiveWriteService.createArchive(sessionId,
-                                                                                                         parentTempArchive.toString(),
-                                                                                                         new FileInfo(0, 0,
-                                                                                                                      Paths.get(archiveFilePath).getFileName().toString(),
-                                                                                                                      0,0,0,null,null,
-                                                                                                                      null,null,null,0,"updated via PearlZip",
-                                                                                                                      false,false,
-                                                                                                                      Collections.singletonMap(KEY_FILE_PATH, fxArchiveInfo.getArchivePath())
-                                                                                                         )),
-                                                                 (s)->{
-                                                                     if (Files.exists(parentTempArchive)) {
-                                                                         try {
-                                                                             Files.move(parentTempArchive, Paths.get(parentPath),
-                                                                                        StandardCopyOption.REPLACE_EXISTING);
-                                                                         } catch(IOException e) {
-                                                                             // LOG: Error integrating changes from %s to %s
-                                                                             LOGGER.error(resolveTextKey(
-                                                                                     LOG_ISSUE_INTEGRATING_CHANGES, parentTempArchive, Paths.get(parentPath)));
-                                                                         }
+                            long sessionId = System.currentTimeMillis();
+                            Path parentTempArchive = Paths.get(LOCAL_TEMP.toString(), String.format("pz%d", sessionId),
+                                                               parentPath);
+                            Files.createDirectories(parentTempArchive.getParent());
+                            JFXUtil.executeBackgroundProcess(sessionId, stage,
+                                                             () -> archiveWriteService.createArchive(sessionId,
+                                                                                                     fxArchiveInfo.getParentArchiveInfo(),
+                                                                                                     new FileInfo(0, 0,
+                                                                                                                  Paths.get(archiveFilePath).getFileName().toString(),
+                                                                                                                  0,0,0,null,null,
+                                                                                                                  null,null,null,0,"updated via PearlZip",
+                                                                                                                  false,false,
+                                                                                                                  Collections.singletonMap(KEY_FILE_PATH, fxArchiveInfo.getArchivePath())
+                                                                                                     )),
+                                                             (s)->{
+                                                                 if (Files.exists(parentTempArchive)) {
+                                                                     try {
+                                                                         Files.move(parentTempArchive, Paths.get(parentPath),
+                                                                                    StandardCopyOption.REPLACE_EXISTING);
+                                                                     } catch(IOException e) {
+                                                                         // LOG: Error integrating changes from %s to %s
+                                                                         LOGGER.error(resolveTextKey(
+                                                                                 LOG_ISSUE_INTEGRATING_CHANGES, parentTempArchive, Paths.get(parentPath)));
                                                                      }
                                                                  }
-                                );
-
-                                return;
-                            }
-                            // TODO: o/w - add file to existing archive? Need to pass nesting information down.
-                            //  Parent ArchiveInfo/ Zip Entry Meta may need to be retrieved for encrypted
-                            //  archives etc.
+                                                             }
+                            );
                         }
                     }
+                    return;
                 }
 
                 // Archive is found in temporary storage and so prompt to save or delete

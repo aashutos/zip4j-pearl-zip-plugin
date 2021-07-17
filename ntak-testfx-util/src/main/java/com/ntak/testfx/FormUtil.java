@@ -24,7 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class FormUtil {
     public static <T,R> Optional<TableRow<T>> selectTableViewEntry(FxRobot robot, TableView<T> table,
             Function<T,R> extractor, R option) {
-        robot.clickOn(String.format("#%s", table.getId()), MouseButton.PRIMARY);
+        robot.clickOn(String.format("#%s", table.getId()), new MouseButton[]{MouseButton.PRIMARY});
         robot.sleep(50, MILLISECONDS);
 
         for (int i = 0; i < table.getItems().size(); i++) {
@@ -34,7 +34,7 @@ public class FormUtil {
             synchronized(row) {
                 row.setId(rowId);
                 System.out.printf("Clicking on: %s%n", rowId);
-                robot.clickOn(row);
+                robot.clickOn(row, new MouseButton[0]);
             }
             System.out.printf("Comparing: %s to %s%n", option, row.getItem());
             if (extractor.apply(row.getItem()).equals(option)) {
@@ -57,13 +57,13 @@ public class FormUtil {
             }
             index++;
         }
-        robot.clickOn(id, MouseButton.PRIMARY);
-        robot.sleep(50, MILLISECONDS);
+        robot.clickOn(id, new MouseButton[]{MouseButton.PRIMARY})
+             .sleep(50, MILLISECONDS);
         for (int i = 0; i < index; i++) {
-            robot.push(KeyCode.DOWN);
-            robot.sleep(50, MILLISECONDS);
+            robot.push(new KeyCode[]{KeyCode.DOWN})
+                 .sleep(50, MILLISECONDS);
         }
-        robot.push(KeyCode.ENTER);
+        robot.push(new KeyCode[]{KeyCode.ENTER});
     }
 
     public static <T extends Node> T lookupNode(Predicate<Stage> stageExtractor, String id) {

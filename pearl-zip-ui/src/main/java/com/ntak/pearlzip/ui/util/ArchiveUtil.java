@@ -227,7 +227,7 @@ public class ArchiveUtil {
                     mnuFilePath.setOnAction((e) -> {
                         final Path path = Paths.get(filePath);
                         if (Files.exists(path)) {
-                            openFile(path.toFile(), stage);
+                            openFile(path.toFile());
                         } else {
                             // TITLE: Warning: File does not exist
                             // HEADER: The selected file does not exist
@@ -266,7 +266,7 @@ public class ArchiveUtil {
         addToRecentFile(archive);
     }
 
-    public static boolean openFile(File file, Stage stage) {
+    public static boolean openFile(File file) {
         try {
             // Initialise Stage
             final ArchiveReadService readService = ZipState.getReadArchiveServiceForFile(file.getName())
@@ -280,32 +280,7 @@ public class ArchiveUtil {
                 throw new Exception(resolveTextKey(LOG_ARCHIVE_TEST_FAILED, file.getAbsolutePath()));
             }
 
-            Optional<Node> optNode;
-            if ((optNode = readService.getOpenArchiveOptionsPane(newFxArchiveInfo.getArchiveInfo())).isPresent()) {
-                Node root = optNode.get();
-
-                CountDownLatch latch = new CountDownLatch(1);
-                Platform.runLater(()->{
-                    Stage preOpenStage = new Stage();
-                    JFXUtil.loadPreOpenDialog(preOpenStage, root);
-                    latch.countDown();
-                });
-                latch.await();
-                Pair<AtomicBoolean,String> result = (Pair<AtomicBoolean, String>) root.getUserData();
-
-                if (Objects.nonNull(result) && Objects.nonNull(result.getKey()) && !result.getKey().get()) {
-                    // LOG: Issue occurred when opening archive %s. Issue reason: %s
-                    // TITLE: Invalid Archive Setup
-                    // HEADER: Archive could not be open
-                    // BODY: There were issues opening the archive. Reason given by plugin for issue: %s. Check logs
-                    // for further details.
-                    LOGGER.error(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
-                                                result.getValue()));
-
-                    throw new IOException(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, newFxArchiveInfo.getArchivePath(),
-                                                         result.getValue()));
-                }
-            }
+            checkPreOpenDialog(readService, newFxArchiveInfo.getArchiveInfo());
 
             Platform.runLater(() -> launchMainStage(newFxArchiveInfo));
             addToRecentFile(file);
@@ -314,6 +289,35 @@ public class ArchiveUtil {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return false;
+        }
+    }
+
+    public static void checkPreOpenDialog(ArchiveReadService readService, ArchiveInfo archiveInfo) throws InterruptedException, IOException {
+        Optional<Node> optNode;
+        if ((optNode = readService.getOpenArchiveOptionsPane(archiveInfo)).isPresent()) {
+            Node root = optNode.get();
+
+            CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(()->{
+                Stage preOpenStage = new Stage();
+                JFXUtil.loadPreOpenDialog(preOpenStage, root);
+                latch.countDown();
+            });
+            latch.await();
+            Pair<AtomicBoolean,String> result = (Pair<AtomicBoolean, String>) root.getUserData();
+
+            if (Objects.nonNull(result) && Objects.nonNull(result.getKey()) && !result.getKey().get()) {
+                // LOG: Issue occurred when opening archive %s. Issue reason: %s
+                // TITLE: Invalid Archive Setup
+                // HEADER: Archive could not be open
+                // BODY: There were issues opening the archive. Reason given by plugin for issue: %s. Check logs
+                // for further details.
+                LOGGER.error(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, archiveInfo.getArchivePath(),
+                                            result.getValue()));
+
+                throw new IOException(resolveTextKey(LOG_INVALID_ARCHIVE_SETUP, archiveInfo.getArchivePath(),
+                                                     result.getValue()));
+            }
         }
     }
 
