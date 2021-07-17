@@ -162,18 +162,19 @@ public class OptionsTestFX extends AbstractPearlZipTestFX {
                               "Temp file was not initialised");
 
         // Open existing archive in current window
-        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 80));
+        clickOn(Point2D.ZERO.add(110, 10))
+                .clickOn(Point2D.ZERO.add(110, 80));
         final Path archivePath = Paths.get("src", "test", "resources", "test.zip")
                                       .toAbsolutePath();
         // Via Sys menu
         simOpenArchive(this, archivePath, false, false);
-        sleep(50, TimeUnit.MILLISECONDS);
+        sleep(500, TimeUnit.MILLISECONDS);
         Assertions.assertTrue(lookupArchiveInfo(archivePath.getFileName().toString()).isPresent(),"Expected archive " +
                 "was not present");
 
         DialogPane dialogPane = lookup(".dialog-pane").query();
         clickOn(dialogPane.lookupButton(ButtonType.NO));
-        sleep(50, MILLISECONDS);
+        sleep(250, MILLISECONDS);
 
         // Navigate to the clear cache option
         this.clickOn(Point2D.ZERO.add(160, 10))

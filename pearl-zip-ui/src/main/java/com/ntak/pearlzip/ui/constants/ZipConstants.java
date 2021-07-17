@@ -13,6 +13,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *  General logging, configuration keys and other shared resources for the JavaFX UI.
@@ -35,6 +37,7 @@ public class ZipConstants {
     public static final String CNS_WINDOW_WIDTH = "configuration.ntak.pearl-zip.window-width";
     public static final String CNS_THREAD_POOL_SIZE = "configuration.ntak.pearl-zip.thread-pool-size";
     public static final String CNS_METRIC_FACTORY = "configuration.ntak.pearl-zip.metric-factory";
+    public static final String CNS_CONCURRENCY_LOCK_POLL_TIMEOUT = "configuration.ntak.pearl-zip.concurrency.lock-poll-timeout";
 
     public static final String LOG_ARCHIVE_CAN_EXTRACT = "logging.ntak.pearl-zip.tar-can-extract";
     public static final String LOG_CLICKED_ROW = "logging.ntak.pearl-zip.clicked-row";
@@ -225,6 +228,9 @@ public class ZipConstants {
     public static final String TITLE_NO_COMPRESSOR_WRITE_SERVICES = "title.ntak.pearl-zip.no-compressor-write-services";
     public static final String BODY_NO_COMPRESSOR_WRITE_SERVICES = "body.ntak.pearl-zip.no-compressor-write-services";
 
+    public static final String TITLE_CLEAR_CACHE_BLOCKED = "title.ntak.pearl-zip.clear-cache-blocked";
+    public static final String BODY_CLEAR_CACHE_BLOCKED = "body.ntak.pearl-zip.clear-cache-blocked";
+
     public static final String LOG_INVALID_ARCHIVE_SETUP = "logging.ntak.pearl-zip.invalid-archive-setup";
 
     public static final String LOG_ISSUE_SAVE_ARCHIVE = "logging.ntak.pearl-zip.issue-save-archive";
@@ -268,4 +274,6 @@ public class ZipConstants {
     public static ErrorAlertConsumer ERROR_ALERT_CONSUMER;
     public static MenuToolkit MENU_TOOLKIT;
     public static Path RUNTIME_MODULE_PATH;
+
+    public static final ReadWriteLock LCK_CLEAR_CACHE = new ReentrantReadWriteLock(true);
 }

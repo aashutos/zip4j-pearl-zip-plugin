@@ -10,10 +10,7 @@ import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.model.ZipState;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -43,7 +40,7 @@ public class FrmMainControllerTest {
     private static TableColumn<FileInfo, FileInfo> hash;
     private static TableColumn<FileInfo, FileInfo> comments;
     
-    private static Button btnNew;
+    private static MenuButton btnNew;
     private static Button btnOpen;
     private static MenuButton btnAdd;
     private static MenuButton btnExtract;
@@ -87,8 +84,8 @@ public class FrmMainControllerTest {
             mockArchiveInfo = Mockito.mock(FXArchiveInfo.class);
 
             // Initialise common stubbing
-            when(mockReadService.supportedReadFormats()).thenReturn(List.of("zip","tar.gz"));
-            when(mockWriteService.supportedWriteFormats()).thenReturn(List.of("zip","tar.gz"));
+            when(mockReadService.supportedReadFormats()).thenReturn(List.of("zip","gz"));
+            when(mockWriteService.supportedWriteFormats()).thenReturn(List.of("zip","gz"));
             when(mockReadService.getCompressorArchives()).thenCallRealMethod();
             when(mockWriteService.getCompressorArchives()).thenCallRealMethod();
             when(mockArchiveInfo.getReadService()).thenReturn(mockReadService);
@@ -103,7 +100,9 @@ public class FrmMainControllerTest {
             hash = new TableColumn<>();
             comments = new TableColumn<>();
 
-            btnNew = new Button();
+            MenuItem mnuNewSingleFileCompressor = new MenuItem();
+            mnuNewSingleFileCompressor.setId("mnuNewSingleFileCompressor");
+            btnNew = new MenuButton(null,null, mnuNewSingleFileCompressor);
             btnOpen = new Button();
             btnAdd = new MenuButton();
             btnExtract = new MenuButton();

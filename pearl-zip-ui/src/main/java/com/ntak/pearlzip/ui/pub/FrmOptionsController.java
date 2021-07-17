@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
@@ -190,109 +191,121 @@ public class FrmOptionsController {
         }
 
         btnClearCache.setOnAction((e) -> {
-            long sessionId = System.currentTimeMillis();
-            // TITLE: Confirmation: Clear Cache
-            // HEADER: Do you wish to clear the PearlZip cache?
-            // BODY: Press 'Yes' to clear the cache otherwise press 'No'.
-            Optional<ButtonType> response = raiseAlert(Alert.AlertType.CONFIRMATION,
-                                                       resolveTextKey(TITLE_CLEAR_CACHE),
-                                                       resolveTextKey(HEADER_CLEAR_CACHE),
-                                                       resolveTextKey(BODY_CLEAR_CACHE),
-                                                       null, stage,
-                                                       ButtonType.YES, ButtonType.NO);
+            Lock writeLock = LCK_CLEAR_CACHE.writeLock();
+            if (!writeLock.tryLock()) {
+                raiseAlert(Alert.AlertType.WARNING, resolveTextKey(TITLE_CLEAR_CACHE_BLOCKED), "",
+                           resolveTextKey(BODY_CLEAR_CACHE_BLOCKED), stage);
+                return;
+            }
 
-            if (response.isPresent() && response.get()
-                                                .getButtonData()
-                                                .equals(ButtonBar.ButtonData.YES)) {
-                executeBackgroundProcess(sessionId, stage, () -> {
-                                             // Clearing up temporary storage location...
-                                             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
-                                                                                                 resolveTextKey(LBL_CLEAR_UP_TEMP_STORAGE),
-                                                                                                 INDETERMINATE_PROGRESS, 1));
-                                             List<String> openFiles =
-                                                     getMainStageInstances().stream()
-                                                                            .map(s -> ((FXArchiveInfo) s.getUserData()).getArchivePath())
-                                                                            .collect(
-                                                                                    Collectors.toList());
-                                             Files.newDirectoryStream(ZipConstants.STORE_TEMP,
-                                                                      (f) -> !openFiles.contains(f.toAbsolutePath().toString()))
-                                                  .forEach(f -> {
-                                                      try {
-                                                          Files.deleteIfExists(f);
-                                                      } catch(IOException ioException) {
-                                                      }
-                                                  });
+            try {
+                btnClearCache.setDisable(true);
+                long sessionId = System.currentTimeMillis();
+                // TITLE: Confirmation: Clear Cache
+                // HEADER: Do you wish to clear the PearlZip cache?
+                // BODY: Press 'Yes' to clear the cache otherwise press 'No'.
+                Optional<ButtonType> response = raiseAlert(Alert.AlertType.CONFIRMATION,
+                                                           resolveTextKey(TITLE_CLEAR_CACHE),
+                                                           resolveTextKey(HEADER_CLEAR_CACHE),
+                                                           resolveTextKey(BODY_CLEAR_CACHE),
+                                                           null, stage,
+                                                           ButtonType.YES, ButtonType.NO);
 
-                                             // Cleaning up OS temporary data..
-                                             // TODO: A more robust solution required with active processes
-                                             long activeMigrationsCount =
-                                                     getMainStageInstances().stream()
-                                                                            .map(s -> ((FXArchiveInfo) s.getUserData()).getMigrationInfo().getType())
-                                                     .filter(t->!t.equals(FXMigrationInfo.MigrationType.NONE))
-                                                     .count();
-                                             if (activeMigrationsCount == 0) {
-                                                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId,
-                                                                                                     PROGRESS,
-                                                                                                     resolveTextKey(
-                                                                                                             LBL_CLEAR_UP_OS_TEMP),
-                                                                                                     INDETERMINATE_PROGRESS,
-                                                                                                     1));
-                                                 LinkedList<Path> tempDirectories = new LinkedList<>();
-                                                 try (DirectoryStream<Path> dirs =
-                                                              Files.newDirectoryStream(ZipConstants.LOCAL_TEMP,
-                                                                          (f) -> f.getFileName()
-                                                                                  .toString()
-                                                                                  .startsWith(TMP_DIR_PREFIX) || f.getFileName().toString().matches(
-                                                                                  REGEX_TIMESTAMP_DIR))) {
-                                                      dirs.forEach(tempDirectories::add);
+                if (response.isPresent() && response.get()
+                                                    .getButtonData()
+                                                    .equals(ButtonBar.ButtonData.YES)) {
+                    executeBackgroundProcess(sessionId, stage, () -> {
+                                                 // Clearing up temporary storage location...
+                                                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
+                                                                                                     resolveTextKey(LBL_CLEAR_UP_TEMP_STORAGE),
+                                                                                                     INDETERMINATE_PROGRESS, 1));
+                                                 List<String> openFiles =
+                                                         getMainStageInstances().stream()
+                                                                                .map(s -> ((FXArchiveInfo) s.getUserData()).getArchivePath())
+                                                                                .collect(
+                                                                                        Collectors.toList());
+                                                 Files.newDirectoryStream(ZipConstants.STORE_TEMP,
+                                                                          (f) -> !openFiles.contains(f.toAbsolutePath().toString()))
+                                                      .forEach(f -> {
+                                                          try {
+                                                              Files.deleteIfExists(f);
+                                                          } catch(IOException ioException) {
+                                                          }
+                                                      });
+
+                                                 // Cleaning up OS temporary data..
+                                                 long activeMigrationsCount =
+                                                         getMainStageInstances().stream()
+                                                                                .map(s -> ((FXArchiveInfo) s.getUserData()).getMigrationInfo().getType())
+                                                         .filter(t->!t.equals(FXMigrationInfo.MigrationType.NONE))
+                                                         .count();
+                                                 if (activeMigrationsCount == 0) {
+                                                     ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId,
+                                                                                                         PROGRESS,
+                                                                                                         resolveTextKey(
+                                                                                                                 LBL_CLEAR_UP_OS_TEMP),
+                                                                                                         INDETERMINATE_PROGRESS,
+                                                                                                         1));
+                                                     LinkedList<Path> tempDirectories = new LinkedList<>();
+                                                     try (DirectoryStream<Path> dirs =
+                                                                  Files.newDirectoryStream(ZipConstants.LOCAL_TEMP,
+                                                                              (f) -> f.getFileName()
+                                                                                      .toString()
+                                                                                      .startsWith(TMP_DIR_PREFIX) || f.getFileName().toString().matches(
+                                                                                      REGEX_TIMESTAMP_DIR))) {
+                                                          dirs.forEach(tempDirectories::add);
+                                                     }
+
+                                                     // LOG: OS Temporary directories to be deleted: %s
+                                                     LOGGER.debug(resolveTextKey(LOG_OS_TEMP_DIRS_TO_DELETE,
+                                                                                 tempDirectories));
+                                                     tempDirectories.stream()
+                                                                    .forEach(d -> {
+                                                                        try {
+                                                                            // Delete all files in directory
+                                                                            Files.walk(d)
+                                                                                 .filter(p -> !Files.isDirectory(p))
+                                                                                 .forEach(p -> {
+                                                                                     try {
+                                                                                         Files.deleteIfExists(p);
+                                                                                     } catch(IOException ioException) {
+                                                                                     }
+                                                                                 });
+                                                                            // Delete nested directories
+                                                                            Files.walk(d)
+                                                                                 .filter(Files::isDirectory)
+                                                                                 .forEach(p -> {
+                                                                                     try {
+                                                                                         Files.deleteIfExists(p);
+                                                                                     } catch(IOException ioException) {
+                                                                                     }
+                                                                                 });
+                                                                            // Delete top-level directory itself
+                                                                            Files.deleteIfExists(d);
+                                                                        } catch(IOException ioException) {
+                                                                        }
+                                                                    });
+                                                 } else {
+                                                     ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId,
+                                                                                                         PROGRESS,
+                                                                                                         resolveTextKey(
+                                                                                                                 LBL_SKIP_OS_TEMP_CLEAN),
+                                                                                                         INDETERMINATE_PROGRESS,
+                                                                                                         1));
                                                  }
 
-                                                 // LOG: OS Temporary directories to be deleted: %s
-                                                 LOGGER.debug(resolveTextKey(LOG_OS_TEMP_DIRS_TO_DELETE,
-                                                                             tempDirectories));
-                                                 tempDirectories.stream()
-                                                                .forEach(d -> {
-                                                                    try {
-                                                                        // Delete all files in directory
-                                                                        Files.walk(d)
-                                                                             .filter(p -> !Files.isDirectory(p))
-                                                                             .forEach(p -> {
-                                                                                 try {
-                                                                                     Files.deleteIfExists(p);
-                                                                                 } catch(IOException ioException) {
-                                                                                 }
-                                                                             });
-                                                                        // Delete nested directories
-                                                                        Files.walk(d)
-                                                                             .filter(Files::isDirectory)
-                                                                             .forEach(p -> {
-                                                                                 try {
-                                                                                     Files.deleteIfExists(p);
-                                                                                 } catch(IOException ioException) {
-                                                                                 }
-                                                                             });
-                                                                        // Delete top-level directory itself
-                                                                        Files.deleteIfExists(d);
-                                                                    } catch(IOException ioException) {
-                                                                    }
-                                                                });
-                                             } else {
-                                                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId,
-                                                                                                     PROGRESS,
-                                                                                                     resolveTextKey(
-                                                                                                             LBL_SKIP_OS_TEMP_CLEAN),
-                                                                                                     INDETERMINATE_PROGRESS,
-                                                                                                     1));
-                                             }
-
-                                             // Clearing up recently open files...
-                                             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
-                                                                                                 resolveTextKey(LBL_CLEAR_UP_RECENTS),
-                                                                                                 INDETERMINATE_PROGRESS, 1));
-                                             Files.deleteIfExists(ZipConstants.RECENT_FILE);
-                                         },
-                                         System.out::println,
-                                         (s) -> {});
+                                                 // Clearing up recently open files...
+                                                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
+                                                                                                     resolveTextKey(LBL_CLEAR_UP_RECENTS),
+                                                                                                     INDETERMINATE_PROGRESS, 1));
+                                                 Files.deleteIfExists(ZipConstants.RECENT_FILE);
+                                             },
+                                             System.out::println,
+                                             (s) -> {});
+                }
+            } finally {
+                LCK_CLEAR_CACHE.writeLock().unlock();
+                btnClearCache.setDisable(false);
             }
         });
 

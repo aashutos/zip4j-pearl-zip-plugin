@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
+import static com.ntak.pearlzip.ui.model.ZipState.LOCK_POLL_TIMEOUT;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.launchProgress;
 import static javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS;
 
@@ -153,11 +155,25 @@ public class JFXUtil {
         CountDownLatch latch = new CountDownLatch(1);
 
         PRIMARY_EXECUTOR_SERVICE.submit(()-> {
+            Lock readLock = LCK_CLEAR_CACHE.readLock();
             try {
                 latch.await();
                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
                                                                     resolveTextKey(LBL_PROGRESS_LOADING),
                                                                     INDETERMINATE_PROGRESS, 1));
+
+                // Multiple permits of read are allowed (as a shared lock), so multiple zip processes can effectively occur in
+                // parallel.
+                // When write is captured by clear cache process. Read lock acquisition will be blocked (tryLock) due to
+                // exclusiveness of write lock.
+
+                while (!readLock.tryLock()) {
+                    try {
+                        Thread.sleep(LOCK_POLL_TIMEOUT);
+                    } catch(Exception exc) {
+                    }
+                }
+
                 process.run();
             } catch (Exception e) {
                 handler.accept(e);
@@ -167,6 +183,10 @@ public class JFXUtil {
                              getStackTraceFromException(e));
             } finally {
                 ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED, 1, 1));
+                try {
+                    readLock.unlock();
+                } catch (Exception e) {
+                }
             }
         });
 
