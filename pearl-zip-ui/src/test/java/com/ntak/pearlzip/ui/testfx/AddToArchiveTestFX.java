@@ -10,8 +10,12 @@ import com.ntak.pearlzip.ui.UITestSuite;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.AbstractPearlZipTestFX;
+import com.ntak.pearlzip.ui.util.PearlZipFXUtil;
 import com.ntak.testfx.FormUtil;
+import javafx.geometry.Point2D;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -32,6 +36,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Tag("fx-test")
 public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
 
+    private static Path tempDirRoot;
     private static Path dir;
 
     /*
@@ -54,6 +59,7 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
     @BeforeEach
     public void setUp() {
         try {
+            tempDirRoot = Files.createTempDirectory("pz");
             dir = UITestFXSuite.genSourceDataSet();
         } catch(IOException e) {
         }
@@ -352,5 +358,57 @@ public class AddToArchiveTestFX extends AbstractPearlZipTestFX {
         Optional<FXArchiveInfo> optArchiveInfo = lookupArchiveInfo(archiveName);
         Assertions.assertTrue(optArchiveInfo.isPresent(), "Archive window not open");
         Assertions.assertTrue(optArchiveInfo.get().getFiles().stream().noneMatch(f->f.getFileName().endsWith(archiveName)), "Archive was added unexpectedly");
+    }
+
+    @Test
+    @DisplayName("Test: Nest zip archive into the parent zip archive and verify contents is as expected")
+    public void testFX_CreateZipArchiveAndUpdateNestedZipArchive_Success() throws IOException {
+        // Create archive
+        String archiveFormat = "zip";
+        final String archiveName = String.format("nest-test.%s", archiveFormat);
+        Path archivePath = Paths.get(tempDirRoot.toAbsolutePath().toString(), archiveName);
+        final String nestedArchiveName = "nested-archive.zip";
+        final Path nestedArchivePath = Paths.get("src", "test", "resources", nestedArchiveName).toAbsolutePath();
+        final Path file = Files.createTempFile("","");
+        Files.deleteIfExists(file);
+        Files.createFile(file);
+        PearlZipFXUtil.simNewArchive(this, archivePath);
+
+        // Add nested archive
+        PearlZipFXUtil.simAddFile(this, nestedArchivePath);
+        sleep(50, MILLISECONDS);
+
+        // Open nested zip archive
+        TableRow row = PearlZipFXUtil.simTraversalArchive(this, archiveName, "#fileContentsView", (r)->{},
+                                                          nestedArchiveName).get();
+        sleep(250, MILLISECONDS);
+        doubleClickOn(row);
+
+        // Verify nested archive is empty
+        FXArchiveInfo archiveInfo = PearlZipFXUtil.lookupArchiveInfo(nestedArchiveName).get();
+        Assertions.assertEquals(1, archiveInfo.getFiles().size(), "The nested archive was not in the expected state");
+
+        // Add file and folder to archive
+        PearlZipFXUtil.simAddFile(this, file);
+        sleep(50, MILLISECONDS);
+
+        // Exit nested archive and save archive into parent archive
+        clickOn(Point2D.ZERO.add(110, 10)).clickOn(Point2D.ZERO.add(110, 160));
+        sleep(50, MILLISECONDS);
+        DialogPane dialogPane = lookup(".dialog-pane").query();
+        Assertions.assertTrue(dialogPane.getContentText().startsWith(
+                "Please specify if you wish to persist the changes of the nested archive"));
+        clickOn(dialogPane.lookupButton(ButtonType.YES));
+        sleep(250, MILLISECONDS);
+
+        // Open nested archive and verify existence of files/folders
+        doubleClickOn(row);
+        Assertions.assertEquals(2, archiveInfo.getFiles().size(),
+                                "The nested archive has not stored the expected files");
+        Assertions.assertTrue(archiveInfo.getFiles().stream().anyMatch(f->f.getLevel() == 0 && f.getFileName().equals(file.getFileName().toString()) && !f.isFolder()), "Expected top-level file was not found");
+        Assertions.assertTrue(archiveInfo.getFiles().stream().anyMatch(f->f.getLevel() == 0 && f.getFileName().equals("1") && !f.isFolder()), "Expected pre-existing top-level file was not found");
+        sleep(50, MILLISECONDS);
+
+        Files.deleteIfExists(file);
     }
 }
