@@ -1,0 +1,19 @@
+#
+# Copyright © 2021 92AK
+#
+
+#####################################################################
+#  LOCAL CONFIGURATION                                              #
+#####################################################################
+BINARY_DIRECTORY=
+
+#####################################################################
+#  GITHUB CONFIGURATION                                             #
+#####################################################################
+GITHUB_API=https://api.github.com
+GITHUB_UPLOAD_API=https://uploads.github.com
+REPO_OWNER=
+REPOSITORY=
+GITHUB_API_TOKEN=
+DRAFT_RELEASE=true
+PREFIX_RELEASE=

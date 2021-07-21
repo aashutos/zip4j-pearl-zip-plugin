@@ -36,6 +36,7 @@ hs_err_pid*
 .idea/encodings.xml
 .idea/qaplug_profiles.xml
 .idea/runConfigurations
+.idea/libraries
 PearlZip.iml
 *.iml
 
@@ -44,5 +45,4 @@ target/
 build/
 
 # Deployment configuration
-/pearl-zip-deploy-common/src/main/resources/settings.properties
-/pearl-zip-assembly-osx/src/main/resources/settings.properties
+/scripts/settings.properties
