@@ -1,0 +1,36 @@
+########################################################################
+#                 ZIP4J PEARL ZIP PLUGIN INSTALLATIONS                 #
+########################################################################
+By Aashutos Kakshepati
+
+INTRODUCTION
+------------
+A free open source plugin, which utilises the Zip4j library (https://github.com/srikanth-lingala/zip4j)
+features to provide standard compression, decompression functionality with also
+more advanced functionality such as encryption. This jar can be plugged into the
+PearlZip provider directory in order to extend functionality.
+
+This plugin has been licensed under the BSD 3-Clause Open source license in line
+with the main project licensing. The code for this project can be found at the
+following address: https://github.com/aashutos/zip4j-pearl-zip-plugin
+
+DEPLOYMENT PACKAGE CONTENTS
+---------------------------
+
+Within the deployment package that has been downloaded. You should find the following:
++ INSTRUCTIONS (This instruction file)
++ BSD-3-CLAUSE-LICENSE (BSD 3-Clause license)
++ ZIP4J-LICENSE (Apache 2.0 license used by the Zip4j library)
++ zip4j-X.X.X.jar (Zip4j library dependency)
++ pearl-zip-archive-zip4j-X.X.X.X.jar (Zip4j Pearl Zip Plugin)
+
+INSTALLATION INSTRUCTIONS
+-------------------------
+1. Ensure PearlZip is closed.
+2. Extract archive to an arbitrary location.
+3. Copy files: pearl-zip-archive-zip4j-X.X.X.X.jar, zip4j-X.X.X.jar
+   To: ~/.pz/providers (Or path specified by configuration key: configuration.ntak.pearl-zip.module-path)
+
+   Where ~ is the home directory. Typically: ~ = /Users/<Username>
+4. Start PearlZip
+5. Navigate to 'Tools > Options > Providers' and confirm that PearlZip has detected the plugin.
