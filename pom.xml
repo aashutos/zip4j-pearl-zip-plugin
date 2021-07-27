@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright © 2021 92AK
-  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--Copyright © 2021 92AK-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,6 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.deploy.skip>true</maven.deploy.skip>
         <deploy.settings.loc>${project.basedir}/scripts/settings.properties</deploy.settings.loc>
+        <pearlzip.zip4j.next.version>${project.version}</pearlzip.zip4j.next.version>
     </properties>
 
     <dependencies>
@@ -123,6 +120,39 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+                <id>increment-version</id>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.google.code.maven-replacer-plugin</groupId>
+                            <artifactId>replacer</artifactId>
+                            <version>1.5.3</version>
+                            <executions>
+                                <execution>
+                                    <id>version-set</id>
+                                    <phase>validate</phase>
+                                    <goals>
+                                        <goal>replace</goal>
+                                    </goals>
+                                    <configuration>
+                                        <includes>
+                                            <include>${project.basedir}/pom.xml</include>
+                                        </includes>
+                                        <replacements>
+                                            <replacement>
+                                                <xpath>/project/version</xpath>
+                                                <token>${project.version}</token>
+                                                <value>${pearlzip.zip4j.next.version}</value>
+                                            </replacement>
+                                        </replacements>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
     </profiles>
 
     <build>
