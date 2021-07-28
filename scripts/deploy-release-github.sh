@@ -75,7 +75,7 @@ ARCHIVE="build/pearl-zip-archive-zip4j-${RELEASE}.zip"
 
 # 2. Sign jar using keystore
 echo "Signing plugin archive..."
-echo $(cat /opt/.store/.pw-signer) | ${JAVA_HOME}/bin/jarsigner -tsa https://freetsa.org/tsr -keystore /opt/.store/.ksjenkins -storepass $(cat /opt/.store/.pw) "build/pearl-zip-archive-zip4j-${RELEASE}.jar" 92ak
+echo $(cat /opt/.store/.pw-signer) | ${JAVA_HOME}/bin/jarsigner -tsa https://freetsa.org/tsr -keystore /opt/.store/.ks-signer -storepass $(cat /opt/.store/.pw) "build/pearl-zip-archive-zip4j-${RELEASE}.jar" 92ak
 
 # Copy license file and deployment instructions
 echo "Preparing deployment archive..."
