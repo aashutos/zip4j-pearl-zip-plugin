@@ -34,3 +34,12 @@ INSTALLATION INSTRUCTIONS
    Where ~ is the home directory. Typically: ~ = /Users/<Username>
 4. Start PearlZip
 5. Navigate to 'Tools > Options > Providers' and confirm that PearlZip has detected the plugin.
+
+Compatibility
+-------------
+
+ -----------------------------------------
+| Zip4j Plugin Version | PearlZip version |
+ ----------------------|------------------
+| 0.0.0.1              | 0.0.0.2          |
+ -----------------------------------------
