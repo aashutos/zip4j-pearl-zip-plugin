@@ -26,6 +26,7 @@ done < $P_SETTINGS
 
 # Get set environment variables
 # ( set -o posix ; set )
+JAVA_HOME=${P_JAVA_HOME:-$JAVA_HOME}
 
 echo 'Configuring release name...'
 P_RELEASE="${P_PREFIX_RELEASE:+$P_PREFIX_RELEASE-}$P_RELEASE"
@@ -64,6 +65,7 @@ else
   echo "Not on master branch. Exiting..."
   exit 2
 fi
+git checkout "releases/${P_RELEASE}"
 
 # Creating packaged archive...
 # 1. Copy unsigned jar from local repo
@@ -75,7 +77,8 @@ ARCHIVE="build/pearl-zip-archive-zip4j-${RELEASE}.zip"
 
 # 2. Sign jar using keystore
 echo "Signing plugin archive..."
-echo $(cat /opt/.store/.pw-signer) | ${JAVA_HOME}/bin/jarsigner -tsa https://freetsa.org/tsr -keystore /opt/.store/.ks-signer -storepass $(cat /opt/.store/.pw-signer) "build/pearl-zip-archive-zip4j-${RELEASE}.jar" 92ak
+echo "JDK location: $JAVA_HOME"
+echo $(cat /opt/.store/.pw-signer) | $JAVA_HOME/bin/jarsigner -tsa https://freetsa.org/tsr -keystore /opt/.store/.ks-signer -storepass $(cat /opt/.store/.pw-signer) "build/pearl-zip-archive-zip4j-${RELEASE}.jar" 92ak
 
 # Copy license file and deployment instructions
 echo "Preparing deployment archive..."
@@ -102,30 +105,34 @@ P_TOKEN_HEADER="Authorization: token ${P_GITHUB_API_TOKEN}"
 echo "Uploading asset ${ARCHIVE} to ${P_REPOSITORY} for tag ${P_RELEASE}... "
 
 # Get ID and remove whitespaces...
-ID=$(curl -X GET -sH "${P_TOKEN_HEADER}" https://api.github.com/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases | grep -A1 "\"html_url\": \".*${P_RELEASE}\"" | grep id | tr ',' ' ' | cut -d: -f2)
+ID=$(curl -X GET -sH "${P_TOKEN_HEADER}" ${P_GITHUB_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases | grep -A1 "\"html_url\": \".*${P_RELEASE}\"" | grep id | tr ',' ' ' | cut -d: -f2)
 ID=${ID//[$'\t\r\n ']}
 
-if [ "$ID" -gt 0 ]
+echo "Existing Asset Id: $ID;"
+if [ ${ID:-0} -gt 0 ]
 then
-  ECHO "Existing release detected..."
-else
-  NEW_RELEASE_JSON=$(curl -X POST -sH "${P_TOKEN_HEADER}" -d "{\"name\":\"PearlZip Zip4j Plugin Release ${P_RELEASE}${P_CODENAME:+" ($P_CODENAME)"}\",\"body\":\"Zip4j PearlZip Plugin Release version ${P_RELEASE} as a zip archive.\",\"tag_name\":\"${P_RELEASE}\",\"draft\":${P_DRAFT_RELEASE}" https://api.github.com/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases)
-  ID=$(echo "${NEW_RELEASE_JSON}" | grep -m 1 '\"id\"' | tr ',' ' ' | cut -d':' -f2 | xargs -I{} echo {})
+  echo "Existing release detected. Deleting..."
+  echo ${P_GITHUB_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)
+  curl -X DELETE -sH "${P_TOKEN_HEADER}" ${P_GITHUB_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)
 fi
 
-echo "Asset Id: $ID"
+echo "Creating new release..."
+NEW_RELEASE_JSON=$(curl -X POST -sH "${P_TOKEN_HEADER}" -d "{\"name\":\"PearlZip Zip4j Plugin Release ${P_RELEASE}${P_CODENAME:+" ($P_CODENAME)"}\",\"body\":\"Zip4j PearlZip Plugin Release version ${P_RELEASE} as a zip archive.\",\"tag_name\":\"${P_RELEASE}\",\"draft\":${P_DRAFT_RELEASE}" ${P_GITHUB_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases)
+ID=$(echo "${NEW_RELEASE_JSON}" | grep -m 1 '\"id\"' | tr ',' ' ' | cut -d':' -f2 | xargs -I{} echo {})
+
+echo "Asset Id: $ID;"
 echo "Creating SHA-512 hash of ${ARCHIVE}..."
 ARCHIVE_HASH=${ARCHIVE}.sha512
 shasum -a 512 "${ARCHIVE}" | cut -d" " -f1 > "${ARCHIVE_HASH}"
 
 echo "Uploading asset ${ARCHIVE}"
+echo "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)/assets?name=$(basename \"${ARCHIVE}\")"
+curl --progress-bar -sH "${P_TOKEN_HEADER}" --data-binary @"${ARCHIVE}" -H "Content-Type: application/octet-stream" "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)/assets?name=$(basename "${ARCHIVE}")"
 sleep 10
-curl --progress-bar -sH "${P_TOKEN_HEADER}" --data-binary @"${ARCHIVE}" -H "Content-Type: application/octet-stream" "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/${ID}/assets?name=$(basename "${ARCHIVE}")"
-sleep 5
 
 echo "Uploading asset ${ARCHIVE_HASH}"
-sleep 10
-curl --progress-bar -sH "${P_TOKEN_HEADER}" --data-binary @"${ARCHIVE_HASH}" -H "Content-Type: application/octet-stream" "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/${ID}/assets?name=$(basename "${ARCHIVE_HASH}")"
+echo "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)/assets?name=$(basename "${ARCHIVE_HASH}")"
+curl --progress-bar -sH "${P_TOKEN_HEADER}" --data-binary @"${ARCHIVE_HASH}" -H "Content-Type: application/octet-stream" "${P_GITHUB_UPLOAD_API}/repos/${P_REPO_OWNER}/${P_REPOSITORY}/releases/$(echo $ID)/assets?name=$(basename "${ARCHIVE_HASH}")"
 
 echo 'resetting to master branch...'
 git checkout master
