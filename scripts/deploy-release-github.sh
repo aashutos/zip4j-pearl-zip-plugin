@@ -59,7 +59,7 @@ then
 
   echo "Creating hotfix branch releases/${P_RELEASE}..."
   git checkout -b "releases/${P_RELEASE}"
-  git push --tags origin "releases/${P_RELEASE}"
+  git push origin "releases/${P_RELEASE}"
 else
   echo "Not on master branch. Exiting..."
   exit 2

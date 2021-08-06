@@ -10,6 +10,11 @@ Compilation build of Zip4j Plugin for PearlZip:<br/>
 ## Installation Instructions
 Consult the INSTRUCTIONS file within the deployment package. Essentially, the jar archives in the zip file provided need to be placed in the module path of PearlZip (i.e. the providers folder configured e.g. ~/.pz/providers).
 
+#### Compatibility
+| Zip4j Plugin Version | PearlZip version |
+|----------------------|------------------|
+| 0.0.0.1              | 0.0.0.2          |
+
 ## License Details
 The software has been licensed as open source software under the BSD 3-clause license in line with the PearlZip repository (as it was under before). Details of the wording can be found in the file: BSD-3-CLAUSE-LICENSE and below.
 
