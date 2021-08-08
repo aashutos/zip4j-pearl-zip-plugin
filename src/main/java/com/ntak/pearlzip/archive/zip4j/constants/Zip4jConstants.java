@@ -66,6 +66,10 @@ public class Zip4jConstants {
     public static final String HEADER_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "header.ntak.pearl-zip.zip4j.issue-extracting-file";
     public static final String BODY_ARCHIVE_Z4J_ISSUE_EXTRACTING_FILE = "body.ntak.pearl-zip.zip4j.issue-extracting-file";
 
+    public static final String TITLE_Z4J_VALIDATION_ISSUE = "title.ntak.pearl-zip.zip4j.validation-issue";
+    public static final String BODY_Z4J_VALIDATION_ISSUE = "body.ntak.pearl-zip.zip4j.validation-issue";
+    public static final String LOG_Z4J_PW_LENGTH = "logging.ntak.pearl-zip.zip4j.pw-length";
+
     public static final String LOG_ARCHIVE_Z4J_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.deleting-file";
     public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
 
