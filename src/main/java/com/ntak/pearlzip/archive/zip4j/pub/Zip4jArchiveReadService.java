@@ -114,7 +114,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             // Handle directory creation
             HashSet<FileInfo> setFiles =
-                    new HashSet<>(files.stream().filter(f -> !f.isFolder()).collect(Collectors.toList()));
+                    new HashSet<>(files.stream().filter(f -> !f.isFolder() && files.stream().noneMatch(g -> g.getFileName().contains(f.getFileName()) && g.getLevel() > f.getLevel())).collect(Collectors.toList()));
             for (FileInfo file : files) {
                 final int level = file.getLevel();
                 Path parent = Paths.get(file.getFileName());
@@ -123,6 +123,29 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
                     final FileInfo fileInfo = new FileInfo(setFiles.size(),
                                                            level - j,
                                                            parent.toString(),
+                                                           -1,
+                                                           0,
+                                                           0,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           null,
+                                                           0,
+                                                           null,
+                                                           true,
+                                                           false,
+                                                           Collections.singletonMap(
+                                                                   ConfigurationConstants.KEY_ICON_REF,
+                                                                   System.getProperty(
+                                                                           CNS_NTAK_PEARL_ZIP_ICON_FOLDER, "")));
+                    setFiles.add(fileInfo);
+                }
+
+                if (file.isFolder()) {
+                    final FileInfo fileInfo = new FileInfo(setFiles.size(),
+                                                           level,
+                                                           file.getFileName(),
                                                            -1,
                                                            0,
                                                            0,
