@@ -142,7 +142,7 @@ public class FrmZip4jNewOptionsController {
         ArchiveConstants.NEW_ARCHIVE_VALIDATORS.add((a)->{
             try {
                 if (Objects.nonNull(a)) {
-                    if (a.<char[]>getProperty(KEY_ENCRYPTION_PW)
+                    if (a.<Boolean>getProperty(KEY_ENCRYPTION_ENABLE).orElse(Boolean.FALSE).equals(Boolean.TRUE) && a.<char[]>getProperty(KEY_ENCRYPTION_PW)
                          .orElse(new char[0])
                          .length == 0) {
                         throw new IllegalStateException(resolveTextKey(LOG_Z4J_PW_LENGTH));
