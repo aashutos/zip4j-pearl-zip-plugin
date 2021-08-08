@@ -134,7 +134,15 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
 
             // Add files...
             addFilesInPlace(sessionId, archive, archiveInfo,
-                            Arrays.stream(files).filter(f->!f.isFolder()).collect(Collectors.toList()));
+                            Arrays.stream(files).filter(f-> {
+                                try {
+                                    // All files and empty folders
+                                    return !f.isFolder() || Files.list(Paths.get(f.getAdditionalInfoMap()
+                                                                                     .getOrDefault(KEY_FILE_PATH,"").toString())).count() == 0;
+                                } catch(IOException e) {
+                                    return false;
+                                }
+                            }).collect(Collectors.toList()));
 
             return true;
         } catch(ZipException e) {
@@ -191,6 +199,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
     @Override
     public boolean deleteFile(long sessionId, ArchiveInfo archiveInfo, FileInfo file) {
         try {
+            Zip4jFileHeaderTransform transform = new Zip4jFileHeaderTransform();
             ZipFile archive = new ZipFile(archiveInfo.getArchivePath(),
                                           archiveInfo.<char[]>getProperty(KEY_ENCRYPTION_PW).orElse(null));
 
@@ -204,8 +213,9 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                 Collections.sort(fileHeaders,
                                  (a,b) -> (b.getFileName().length() - b.getFileName().replaceAll("/", "").length()) - (a.getFileName().length() - a.getFileName().replaceAll("/", "").length()));
                 for (FileHeader h : fileHeaders) {
-                    if (h != null && h.getFileName()
-                                      .startsWith(file.getFileName())) {
+                    FileInfo hFile = transform.transform(h).orElse(null);
+                    if (Objects.nonNull(hFile) && hFile.getFileName()
+                                      .startsWith(file.getFileName()) && hFile.getLevel() > file.getLevel()) {
                         try {
                             archive.removeFile(h.getFileName());
                         } catch(ZipException e) {

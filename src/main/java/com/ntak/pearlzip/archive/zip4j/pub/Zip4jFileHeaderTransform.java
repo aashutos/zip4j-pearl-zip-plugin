@@ -51,6 +51,11 @@ public class Zip4jFileHeaderTransform implements TransformEntry<FileHeader> {
             rawSize = header.getUncompressedSize();
         }
 
+        // Removal of postfix slash
+        if (fileName.endsWith("/") && isFolder) {
+            fileName = fileName.substring(0,fileName.length()-1);
+        }
+
         FileInfo fileInfo = new FileInfo(index.getAndIncrement(), level, fileName, hash, packedSize, rawSize, lastModifiedTime,
                                          lastModifiedTime, lastModifiedTime, "", "", attributes,
                                          comment, isFolder, isEncrypted, Collections.emptyMap());
