@@ -60,11 +60,15 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             List<FileHeader> headers = archive.getFileHeaders();
 
             // Encryption checks...
-            if (headers.stream().filter(f->f.isEncrypted() && f.getEncryptionMethod().equals(EncryptionMethod.AES)).count() > 0) {
+            if (headers.stream()
+                       .anyMatch(f -> f.isEncrypted() && f.getEncryptionMethod()
+                                                          .equals(EncryptionMethod.AES))) {
                 archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
                 archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, EncryptionMethod.AES);
                 archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, AesKeyStrength.KEY_STRENGTH_256);
-            } else if (headers.stream().filter(f->f.isEncrypted() && f.getEncryptionMethod().equals(EncryptionMethod.ZIP_STANDARD_VARIANT_STRONG)).count() > 0) {
+            } else if (headers.stream()
+                              .anyMatch(f -> f.isEncrypted() && f.getEncryptionMethod()
+                                                                 .equals(EncryptionMethod.ZIP_STANDARD_VARIANT_STRONG))) {
                 archiveInfo.addProperty(KEY_ENCRYPTION_ENABLE, true);
                 archiveInfo.addProperty(KEY_ENCRYPTION_METHOD, EncryptionMethod.ZIP_STANDARD_VARIANT_STRONG);
             }
@@ -114,7 +118,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             // Handle directory creation
             HashSet<FileInfo> setFiles =
-                    new HashSet<>(files.stream().filter(f -> !f.isFolder() && files.stream().noneMatch(g -> g.getFileName().contains(f.getFileName()) && g.getLevel() > f.getLevel())).collect(Collectors.toList()));
+                    new HashSet<>(files.stream().filter(f -> !f.isFolder() || (f.isFolder() && files.stream().noneMatch(g -> g.getFileName().contains(f.getFileName()) && g.getLevel() > f.getLevel()))).collect(Collectors.toList()));
             for (FileInfo file : files) {
                 final int level = file.getLevel();
                 Path parent = Paths.get(file.getFileName());
@@ -245,7 +249,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
     @Override
     public Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) {
-        AnchorPane root = null;
+        AnchorPane root;
         try {
             if (archiveInfo.<Boolean>getProperty(KEY_ENCRYPTION_ENABLE)
                            .orElse(false)) {
