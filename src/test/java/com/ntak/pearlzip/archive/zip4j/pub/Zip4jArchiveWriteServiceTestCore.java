@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public abstract class Zip4jArchiveWriteServiceTestCore {
 
     private static Zip4jArchiveWriteService service;
+    private static Zip4jArchiveReadService readService;
     private static Path tempDirectory;
     private static Path file;
     private static FileInfo fileInfo;
@@ -72,6 +74,7 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
     @BeforeEach
     public void setUp() {
         service = new Zip4jArchiveWriteService();
+        readService = new Zip4jArchiveReadService();
     }
 
     /*
@@ -151,5 +154,45 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
             fail(String.format("Issue reading archive. Exception %s; Message: %s", e.getClass().getCanonicalName(),
                                e.getMessage()));
         }
+    }
+
+    @Test
+    @DisplayName("Test: Remove Last file in directory from Zip Archive will not remove directory")
+    public void testRemove_LastFileWithinDirectory_Success() throws IOException {
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+        archiveInfo.setArchiveFormat("zip");
+
+        // Create directory with one file
+        Path file = Paths.get(tempDirectory.toAbsolutePath().toString(), "dir","file");
+        Files.createDirectories(file.getParent());
+        Files.createFile(file);
+
+        FileInfo fileInfo = new FileInfo(0, 1, "dir/file", 0L, 0L, 0L,
+                                     LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                     "", "", 0, "", false, true, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                          file.toAbsolutePath().toString())
+        );
+
+        final Path archive = Paths.get(tempDirectory.toAbsolutePath()
+                                                    .toString(), "tempArchive.zip");
+        archiveInfo.setArchivePath(archive.toString());
+
+        // Create archive with directory and single file within
+        service.createArchive(System.currentTimeMillis(), archiveInfo, fileInfo);
+        Assertions.assertEquals(2,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "Initial file counts were not as expected");
+
+        // Delete file
+        service.deleteFile(System.currentTimeMillis(), archiveInfo, fileInfo);
+        Assertions.assertEquals(1,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count after delete was not as expected");
+        Assertions.assertEquals("dir",
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).get(0).getFileName(),
+                                "Expected folder was not present");
+
+
+        Assertions.assertTrue(Files.exists(archive), "Archive was not created");
     }
 }
