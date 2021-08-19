@@ -138,7 +138,11 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                                 try {
                                     // All files and empty folders
                                     return !f.isFolder() || Files.list(Paths.get(f.getAdditionalInfoMap()
-                                                                                     .getOrDefault(KEY_FILE_PATH,"").toString())).count() == 0;
+                                                                                  .getOrDefault(KEY_FILE_PATH,"").toString()))
+                                                                                  .filter(p->!Objects.equals(
+                                                                                             p.toAbsolutePath(),
+                                                                                             Paths.get(archiveInfo.getArchivePath()))
+                                                                                  ).count() == 0;
                                 } catch(IOException e) {
                                     return false;
                                 }
@@ -225,6 +229,31 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                 archive.removeFile(String.format(PATTERN_FOLDER, file.getFileName()));
             } else {
                 archive.removeFile(file.getFileName());
+
+                // Keep immediate parent if last file is deleted...
+                Path parent = Paths.get(file.getFileName()).getParent();
+                if (Objects.nonNull(parent)) {
+                    try {
+                        // Create temp directory structure to persist...
+                        Path tempDirectory = Files.createTempDirectory("pz");
+                        Path actualFile = Paths.get(tempDirectory.toAbsolutePath()
+                                                             .toString(), parent.toString());
+                        Files.createDirectories(actualFile);
+
+                        // Set up attributes with current archive settings
+                        Map<String,Object> attributes = new HashMap<>(file.getAdditionalInfoMap());
+                        attributes.put(KEY_FILE_PATH, actualFile.toAbsolutePath().toString());
+
+                        // Add file as necessary...
+                        FileInfo fileInfo = new FileInfo(archive.getFileHeaders().size(), file.getLevel(),
+                                                         parent.toString(), 0, 0, 0, LocalDateTime.now(),
+                                                         LocalDateTime.now(), LocalDateTime.now(), "", "", 0, "",
+                                                         true, file.isEncrypted(), attributes);
+                        addFilesInPlace(sessionId, archive, archiveInfo, Arrays.asList(fileInfo));
+                    } catch (IOException e) {
+                        return false;
+                    }
+                }
             }
 
             return true;
