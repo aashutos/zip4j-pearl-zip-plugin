@@ -25,7 +25,11 @@ Within the deployment package that has been downloaded. You should find the foll
 + pearl-zip-archive-zip4j-X.X.X.X.jar (Zip4j Pearl Zip Plugin)
 
 INSTALLATION INSTRUCTIONS
--------------------------
+--------------------------
+Click on INSTALL-ZIP4J-PLUGIN.app to install into the default plugin location for PearlZip.
+
+MANUAL INSTALLATION INSTRUCTIONS
+---------------------------------
 1. Ensure PearlZip is closed.
 2. Extract archive to an arbitrary location.
 3. Copy files: pearl-zip-archive-zip4j-X.X.X.X.jar, zip4j-X.X.X.jar
