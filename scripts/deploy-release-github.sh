@@ -86,6 +86,7 @@ echo "Preparing static resources..."
 cp BSD-3-CLAUSE-LICENSE build/BSD-3-CLAUSE-LICENSE
 cp scripts/ZIP4J-LICENSE build/ZIP4J-LICENSE
 cp scripts/INSTRUCTIONS build/INSTRUCTIONS
+cp -r scripts/INSTALL-ZIP4J-PLUGIN.app build/INSTALL-ZIP4J-PLUGIN.app
 
 # Copy Dependencies
 echo "Preparing dependencies..."
