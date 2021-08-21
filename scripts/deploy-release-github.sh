@@ -93,7 +93,7 @@ mvn dependency:build-classpath -Dmdep.outputFile=build/deps.lst -f pom.xml
 cp $(cat build/deps.lst | tr : '\n' | grep zip4j) build/
 cd build
 echo "Creating zip archive..."
-zip pearl-zip-archive-zip4j-${RELEASE}.zip *.jar BSD-3-CLAUSE-LICENSE ZIP4J-LICENSE INSTRUCTIONS INSTALL-ZIP4J-PLUGIN.app/
+zip -r pearl-zip-archive-zip4j-${RELEASE}.zip *.jar BSD-3-CLAUSE-LICENSE ZIP4J-LICENSE INSTRUCTIONS INSTALL-ZIP4J-PLUGIN.app/
 cd ..
 
 ######### Upload to GitHub ##########
