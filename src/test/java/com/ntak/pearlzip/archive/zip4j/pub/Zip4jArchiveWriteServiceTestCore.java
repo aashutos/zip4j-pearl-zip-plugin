@@ -54,8 +54,19 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
         Files.createFile(secondFile);
     }
 
-    @AfterAll
-    public static void teardownLast() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException {
+        service = new Zip4jArchiveWriteService();
+        readService = new Zip4jArchiveReadService();
+        Files.createDirectories(tempDirectory);
+        Files.deleteIfExists(file);
+        Files.createFile(file);
+        Files.deleteIfExists(secondFile);
+        Files.createFile(secondFile);
+    }
+
+    @AfterEach
+    public void tearDown() throws IOException {
         Files.walk(tempDirectory).filter((f)->!Files.isDirectory(f)).forEach(f-> {
             try {
                 Files.deleteIfExists(f);
@@ -69,12 +80,6 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
             }
         });
         Files.deleteIfExists(tempDirectory);
-    }
-
-    @BeforeEach
-    public void setUp() {
-        service = new Zip4jArchiveWriteService();
-        readService = new Zip4jArchiveReadService();
     }
 
     /*
@@ -194,5 +199,144 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
 
 
         Assertions.assertTrue(Files.exists(archive), "Archive was not created");
+    }
+
+    @Test
+    @DisplayName("Test: Add nested empty directory to archive")
+    public void testAdd_NestedEmptyDirectory_Success() throws IOException {
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+        archiveInfo.setArchiveFormat("zip");
+
+        // Create directory with one file
+        Path file = Paths.get(tempDirectory.toAbsolutePath().toString(),"empty");
+        Files.createDirectories(file);
+
+        // Create archive
+        final Path archive = Paths.get(tempDirectory.toAbsolutePath()
+                                                    .toString(), "tempArchive.zip");
+        archiveInfo.setArchivePath(archive.toString());
+        service.createArchive(System.currentTimeMillis(), archiveInfo);
+
+        // Add first directory...
+        FileInfo fileInfo = new FileInfo(0, 0, "empty", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", true, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              file.toAbsolutePath().toString())
+        );
+        service.addFile(System.currentTimeMillis(), archiveInfo, fileInfo);
+        Assertions.assertEquals(1,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count was not as expected");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty")),
+                "File empty was not found");
+
+        fileInfo = new FileInfo(1, 1, "empty/empty", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", true, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              file.toAbsolutePath().toString())
+        );
+        service.addFile(System.currentTimeMillis(), archiveInfo, fileInfo);
+        Assertions.assertEquals(2,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count was not as expected");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty")),
+                "File empty was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty/empty")),
+                "File empty/empty was not found");
+
+        fileInfo = new FileInfo(2, 2, "empty/empty/empty", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", true, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              file.toAbsolutePath().toString())
+        );
+        service.addFile(System.currentTimeMillis(), archiveInfo, fileInfo);
+        Assertions.assertEquals(3,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count was not as expected");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty")),
+                "File empty was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty/empty")),
+                "File empty/empty was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("empty/empty/empty")),
+                "File empty/empty/empty was not found");
+
+        Assertions.assertTrue(Files.exists(archive), "Archive was not created");
+    }
+
+    @Test
+    @DisplayName("Test: Delete folder or file which is a prefix of another file/folder on the same level. Should not " +
+            "delete other file")
+    public void testDelete_FolderOrFileSameLevelSharedPrefix_Success() throws IOException {
+        ArchiveInfo archiveInfo = new ArchiveInfo();
+        archiveInfo.setArchiveFormat("zip");
+
+        // Create directory with one file
+        Path folder = Paths.get(tempDirectory.toAbsolutePath().toString(),"zip");
+        Files.createDirectories(folder);
+
+        Path anotherFolder = Paths.get(tempDirectory.toAbsolutePath().toString(),"zipster");
+        Files.createDirectories(anotherFolder);
+
+        Path file = Paths.get(tempDirectory.toAbsolutePath().toString(),"zippy-file");
+        Files.createFile(file);
+
+        // Create archive
+        final Path archive = Paths.get(tempDirectory.toAbsolutePath()
+                                                    .toString(), "tempArchive.zip");
+        archiveInfo.setArchivePath(archive.toString());
+        service.createArchive(System.currentTimeMillis(), archiveInfo);
+
+        // Add files and folders
+        FileInfo fiFolder = new FileInfo(0, 0, "zip", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", true, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              folder.toAbsolutePath().toString())
+        );
+        FileInfo fiAnotherFolder = new FileInfo(1, 0, "zipster", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", true, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              anotherFolder.toAbsolutePath().toString())
+        );
+        FileInfo fiFile = new FileInfo(2, 0, "zippy-file", 0L, 0L, 0L,
+                                         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
+                                         "", "", 0, "", false, false, Collections.singletonMap(KEY_FILE_PATH,
+                                                                                              file.toAbsolutePath().toString())
+        );
+
+        service.addFile(System.currentTimeMillis(), archiveInfo, fiFolder, fiAnotherFolder, fiFile);
+        Assertions.assertEquals(3,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count was not as expected");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zip")),
+                "File zip was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zipster")),
+                "File zipster was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zippy-file")),
+                "File zippy-file was not found");
+
+        // Delete folder zip
+        service.deleteFile(System.currentTimeMillis(), archiveInfo, fiFolder);
+
+        Assertions.assertEquals(2,
+                                readService.listFiles(System.currentTimeMillis(), archiveInfo).size(),
+                                "File count was not as expected");
+        Assertions.assertFalse(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zip")),
+                "File zip was found unexpectedly");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zipster")),
+                "File zipster was not found");
+        Assertions.assertTrue(
+                readService.listFiles(System.currentTimeMillis(), archiveInfo).stream().map(FileInfo::getFileName).anyMatch(f->f.equals("zippy-file")),
+                "File zippy-file was not found");
     }
 }
