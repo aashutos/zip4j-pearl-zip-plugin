@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
  *   @author Aashutos Kakshepati
  */
 @RunWith(JUnitPlatform.class)
-@SelectPackages("com.ntak.pearlzip")
+@SelectPackages("com.ntak.pearlzip.archive.zip4j")
 @SuiteDisplayName("PearlZip Zip4j archive module tests")
 public class Zip4jArchiveServiceTestSuite {
 }
