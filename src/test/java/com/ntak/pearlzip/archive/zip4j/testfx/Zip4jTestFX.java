@@ -12,7 +12,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +33,7 @@ import static com.ntak.pearlzip.ui.constants.ResourceConstants.DSV;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.SETTINGS_FILE;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.STORE_TEMP;
 import static com.ntak.pearlzip.ui.util.PearlZipFXUtil.*;
+import static com.ntak.testfx.FormUtil.resetComboBox;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Zip4jTestFX extends AbstractZip4jTestFX {
@@ -276,17 +276,8 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
             ComboBox comboDefaultCompressionMethod =
                     this.lookup("#comboDefaultCompressionMethod").queryAs(ComboBox.class);
 
-            clickOn(comboDefaultCompressionLevel);
-            for (int i = 0; i < comboDefaultCompressionLevel.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
-
-            clickOn(comboDefaultCompressionMethod);
-            for (int i = 0; i < comboDefaultCompressionMethod.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
+            resetComboBox(this, comboDefaultCompressionLevel);
+            resetComboBox(this, comboDefaultCompressionMethod);
 
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionMethod, "STORE");
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionLevel, 4);
@@ -339,17 +330,8 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
             ComboBox comboDefaultCompressionMethod =
                     this.lookup("#comboDefaultCompressionMethod").queryAs(ComboBox.class);
 
-            clickOn(comboDefaultCompressionLevel);
-            for (int i = 0; i < comboDefaultCompressionLevel.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
-
-            clickOn(comboDefaultCompressionMethod);
-            for (int i = 0; i < comboDefaultCompressionMethod.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
+            resetComboBox(this, comboDefaultCompressionLevel);
+            resetComboBox(this, comboDefaultCompressionMethod);
 
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionMethod, "STORE");
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionLevel, 4);
@@ -400,17 +382,8 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
             ComboBox comboDefaultCompressionMethod =
                     this.lookup("#comboDefaultCompressionMethod").queryAs(ComboBox.class);
 
-            clickOn(comboDefaultCompressionLevel);
-            for (int i = 0; i < comboDefaultCompressionLevel.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
-
-            clickOn(comboDefaultCompressionMethod);
-            for (int i = 0; i < comboDefaultCompressionMethod.getItems().size(); i++) {
-                push(KeyCode.UP).sleep(250, MILLISECONDS);
-            }
-            push(KeyCode.ENTER);
+            resetComboBox(this, comboDefaultCompressionLevel);
+            resetComboBox(this, comboDefaultCompressionMethod);
 
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionMethod, "STORE");
             FormUtil.selectComboBoxEntry(this, comboDefaultCompressionLevel, 4);
