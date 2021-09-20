@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Copyright © 2021 92AK-->
+<!--
+  ~ Copyright © 2021 92AK
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -16,7 +18,7 @@
         <junit.version>5.5.2</junit.version>
         <junit-platform-runner.version>1.5.2</junit-platform-runner.version>
         <mockito-core.version>3.9.0</mockito-core.version>
-        <pearl-zip.version>0.0.0.2</pearl-zip.version>
+        <pearl-zip.version>0.0.0.3</pearl-zip.version>
         <zip4j.version>2.8.0</zip4j.version>
         <javafx.version>15.0.1</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -218,9 +220,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>15</source>
-                    <target>15</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -231,7 +232,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M5</version>
                     <configuration>
-                        <argLine>--enable-preview</argLine>
                         <includes>
                             <include>**/*TestSuite.class</include>
                         </includes>
