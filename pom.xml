@@ -20,7 +20,7 @@
         <mockito-core.version>3.9.0</mockito-core.version>
         <pearl-zip.version>0.0.0.3</pearl-zip.version>
         <zip4j.version>2.8.0</zip4j.version>
-        <javafx.version>15.0.1</javafx.version>
+        <javafx.version>17.0.1</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.deploy.skip>true</maven.deploy.skip>
         <deploy.settings.loc>${project.basedir}/scripts/settings.properties</deploy.settings.loc>

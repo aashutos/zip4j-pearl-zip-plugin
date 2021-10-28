@@ -8,7 +8,7 @@
   ~ Copyright © 2021 92AK
   -->
 
-<AnchorPane fx:id="paneZip4jOptions" prefHeight="315.0" prefWidth="428.0" xmlns="http://javafx.com/javafx/15.0.1"
+<AnchorPane fx:id="paneZip4jOptions" prefHeight="315.0" prefWidth="428.0" xmlns="http://javafx.com/javafx/17.0.1"
             xmlns:fx="http://javafx.com/fxml/1">
    <Label fx:id="lblDescription" alignment="TOP_LEFT" layoutX="7.0" layoutY="6.0" prefHeight="64.0" prefWidth="413.0"
           text="%zip4j.options.description.text" wrapText="true"/>

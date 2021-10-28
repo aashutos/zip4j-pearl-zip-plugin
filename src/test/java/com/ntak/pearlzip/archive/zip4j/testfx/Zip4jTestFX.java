@@ -12,6 +12,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.ntak.pearlzip.archive.zip4j.util.Zip4jTestUtil.simNewEncryptedArchive;
 import static com.ntak.pearlzip.archive.zip4j.util.Zip4jTestUtil.simOpenEncryptedArchive;
@@ -267,8 +269,12 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
                 .clickOn(Point2D.ZERO.add(160, 30));
 
             // Navigate to Zip4J Options tab
-            clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
-                                   .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.new-options"));
+            this.clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
+                                   .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.options"))
+                .clickOn(MouseButton.PRIMARY);
+            this.push(new KeyCode[]{KeyCode.UP})
+                .sleep(50L, TimeUnit.MILLISECONDS);
+            this.clickOn("#comboDefaultCompressionLevel");
 
             // Make changes
             ComboBox comboDefaultCompressionLevel =
@@ -321,8 +327,12 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
                 .clickOn(Point2D.ZERO.add(160, 30));
 
             // Navigate to Zip4J Options tab
-            clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
-                                   .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.new-options"));
+            this.clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
+                                        .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.options"))
+                .clickOn(MouseButton.PRIMARY);
+            this.push(new KeyCode[]{KeyCode.UP})
+                .sleep(50L, TimeUnit.MILLISECONDS);
+            this.clickOn("#comboDefaultCompressionLevel");
 
             // Make changes
             ComboBox comboDefaultCompressionLevel =
@@ -373,8 +383,12 @@ public class Zip4jTestFX extends AbstractZip4jTestFX {
                 .clickOn(Point2D.ZERO.add(160, 30));
 
             // Navigate to Zip4J Options tab
-            clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
-                                   .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.new-options"));
+            this.clickOn((t) -> Optional.ofNullable(t.getId()).orElse("")
+                                        .equals("com.ntak.pearlzip.archive.zip4j.pub.Zip4jArchiveWriteService.options"))
+                .clickOn(MouseButton.PRIMARY);
+            this.push(new KeyCode[]{KeyCode.UP})
+                .sleep(50L, TimeUnit.MILLISECONDS);
+            this.clickOn("#comboDefaultCompressionLevel");
 
             // Make changes
             ComboBox comboDefaultCompressionLevel =
