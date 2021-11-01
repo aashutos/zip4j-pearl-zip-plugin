@@ -23,15 +23,16 @@ Within the deployment package that has been downloaded. You should find the foll
 + ZIP4J-LICENSE (Apache 2.0 license used by the Zip4j library)
 + zip4j-X.X.X.jar (Zip4j library dependency)
 + pearl-zip-archive-zip4j-X.X.X.X.jar (Zip4j Pearl Zip Plugin)
++ MF file
 
 INSTALLATION INSTRUCTIONS
 --------------------------
-Click on INSTALL-ZIP4J-PLUGIN.app to install into the default plugin location for PearlZip.
+The PZAX package can be installed into PearlZip directly by double-clicking from Finder or by dragging into the Plugin Loader in the PearlZip Options dialog.
 
 MANUAL INSTALLATION INSTRUCTIONS
 ---------------------------------
 1. Ensure PearlZip is closed.
-2. Extract archive to an arbitrary location.
+2. Extract pzax archive (as a zip file) to an arbitrary location.
 3. Copy files: pearl-zip-archive-zip4j-X.X.X.X.jar, zip4j-X.X.X.jar
    To: ~/.pz/providers (Or path specified by configuration key: configuration.ntak.pearl-zip.module-path)
 
@@ -46,4 +47,6 @@ Compatibility
 | Zip4j Plugin Version | PearlZip version |
  ----------------------|------------------
 | 0.0.0.1              | 0.0.0.2          |
+ -----------------------------------------
+| 0.0.0.2              | 0.0.0.3          |
  -----------------------------------------
