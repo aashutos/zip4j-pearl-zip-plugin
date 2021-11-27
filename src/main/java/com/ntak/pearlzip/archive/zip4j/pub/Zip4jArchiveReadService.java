@@ -271,6 +271,24 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
     }
 
     @Override
+    public Optional<FXForm> getFXFormByIdentifier(String name, Object... parameters) {
+        switch(name) {
+            case OPEN_ARCHIVE_OPTIONS: {
+                if (parameters.length > 0 && parameters[0] instanceof ArchiveInfo info) {
+                    Optional<Node> optNode = getOpenArchiveOptionsPane(info);
+                    if (optNode.isPresent()) {
+                        FXForm openForm = new FXForm(name, optNode.get(), Collections.emptyMap());
+                        return Optional.of(openForm);
+                    }
+                }
+                break;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     public List<String> supportedReadFormats() {
         return List.of("zip");
     }
