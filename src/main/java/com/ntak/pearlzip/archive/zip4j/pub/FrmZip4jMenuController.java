@@ -60,7 +60,6 @@ public class FrmZip4jMenuController {
                             // Prompt encryption of selected archive
                             Optional<ArchiveService.FXForm> encryptionPrompt =
                                     writeService.getFXFormByIdentifier(ENCRYPT_ARCHIVE_PROMPT, fxArchiveInfo);
-                            AtomicReference<Stage> refStgEnc = new AtomicReference<>();
                             JFXUtil.runLater(() -> {
                                     Stage stgEncPrompt = new Stage();
                                     Node root = encryptionPrompt.get()
@@ -68,7 +67,6 @@ public class FrmZip4jMenuController {
                                     Scene scene = new Scene((Parent) root);
                                     stgEncPrompt.setScene(scene);
                                     stgEncPrompt.setTitle(encryptionPrompt.get().getName());
-                                    refStgEnc.set(stgEncPrompt);
                                     stgEncPrompt.setAlwaysOnTop(true);
                                     stgEncPrompt.showAndWait();
                             });
@@ -77,7 +75,6 @@ public class FrmZip4jMenuController {
                         // TITLE: Incompatible archive for encryption
                         // BODY: Current archive (%s) is not an archive that the Zip4J plugin can encrypt. This could
                         //       be because:\n• It is not a zip archive\n• It is a temporary archive
-                        long sessionId = System.currentTimeMillis();
                         LOGGER.warn(resolveTextKey(LOG_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT,e.getClass().getCanonicalName()));
                         JFXUtil.raiseAlert(Alert.AlertType.INFORMATION,
                                            resolveTextKey(TITLE_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT),
