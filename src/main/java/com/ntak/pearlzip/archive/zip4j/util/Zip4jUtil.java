@@ -39,4 +39,12 @@ public class Zip4jUtil {
                                              .orElse(CompressionLevel.ULTRA)
         );
     }
+
+    public static AesKeyStrength getKeyStrength(String encryptionStrength) {
+        return switch (encryptionStrength) {
+            case "128-bit" -> AesKeyStrength.KEY_STRENGTH_128;
+            case "192-bit" -> AesKeyStrength.KEY_STRENGTH_192;
+            default -> KEY_STRENGTH_256;
+        };
+    }
 }

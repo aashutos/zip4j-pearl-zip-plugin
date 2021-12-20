@@ -6,7 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 
 import com.ntak.pearlzip.archive.constants.ArchiveConstants;
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
-import com.ntak.pearlzip.archive.pub.ErrorMessage;
+import com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -20,14 +20,9 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
 import java.util.Objects;
 
 import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
-import static com.ntak.pearlzip.archive.pub.ArchiveService.DEFAULT_BUS;
-import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
 
 public class FrmZip4jNewOptionsController {
-
-    private static final String[] ENCRYPTION_ALGORITHM = {"AES"};
-    private static final String[] ENCRYPTION_STRENGTH = {"128-bit","256-bit"};
 
     @FXML
     private AnchorPane paneZip4jOptions;
@@ -113,11 +108,7 @@ public class FrmZip4jNewOptionsController {
         comboEncryptionStrength.setOnAction((e)->{
             if (!comboEncryptionStrength.isDisabled() && paneZip4jOptions.getUserData() instanceof ArchiveInfo archiveInfo) {
                 String encryptionStrength = comboEncryptionStrength.getValue();
-                AesKeyStrength keyStrength = switch (encryptionStrength) {
-                    case "128-bit" -> AesKeyStrength.KEY_STRENGTH_128;
-                    case "192-bit" -> AesKeyStrength.KEY_STRENGTH_192;
-                    default -> AesKeyStrength.KEY_STRENGTH_256;
-                };
+                AesKeyStrength keyStrength = Zip4jUtil.getKeyStrength(encryptionStrength);
                 archiveInfo.addProperty(KEY_ENCRYPTION_STRENGTH, keyStrength);
             }
             if (comboEncryptionStrength.isDisabled() && paneZip4jOptions.getUserData() instanceof ArchiveInfo archiveInfo) {
@@ -136,29 +127,11 @@ public class FrmZip4jNewOptionsController {
 
         comboCompressionMethod.getSelectionModel().select(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_COMPRESSION_METHOD, "DEFLATE"));
         comboCompressionLevel.getSelectionModel().select(Integer.valueOf(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_COMPRESSION_LEVEL,"9")));
-        comboEncryptionAlgorithm.getSelectionModel().select(ENCRYPTION_ALGORITHM.length-1);
-        comboEncryptionStrength.getSelectionModel().select(ENCRYPTION_STRENGTH.length-1);
+        comboEncryptionAlgorithm.getSelectionModel().select(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_ENCRYPTION_METHOD, "AES"));
+        comboEncryptionStrength.getSelectionModel().select(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_ENCRYPTION_STRENGTH, "256-bit"));
 
-        ArchiveConstants.NEW_ARCHIVE_VALIDATORS.add((a)->{
-            try {
-                if (Objects.nonNull(a)) {
-                    if (a.<Boolean>getProperty(KEY_ENCRYPTION_ENABLE).orElse(Boolean.FALSE).equals(Boolean.TRUE) && a.<char[]>getProperty(KEY_ENCRYPTION_PW)
-                         .orElse(new char[0])
-                         .length == 0) {
-                        throw new IllegalStateException(resolveTextKey(LOG_Z4J_PW_LENGTH));
-                    }
-
-                    return true;
-                }
-            } catch (IllegalStateException e) {
-                DEFAULT_BUS.post(new ErrorMessage(System.currentTimeMillis(),
-                                                  resolveTextKey(TITLE_Z4J_VALIDATION_ISSUE),
-                                                  null,
-                                                  resolveTextKey(BODY_Z4J_VALIDATION_ISSUE, e.getMessage()),
-                                                  e,
-                                                  a));
-            }
-            return false;
-        });
+        if (!ArchiveConstants.NEW_ARCHIVE_VALIDATORS.contains(ZIP_4J_VALIDATOR)) {
+            ArchiveConstants.NEW_ARCHIVE_VALIDATORS.add(ZIP_4J_VALIDATOR);
+        }
     }
 }

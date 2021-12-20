@@ -6,6 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil;
+import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
@@ -364,6 +366,28 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                 FXForm fxForm = new FXForm(customMenus.getId(), customMenus, Collections.emptyMap());
 
                 return Optional.of(fxForm);
+            }
+
+            case ENCRYPT_ARCHIVE_PROMPT: {
+                AnchorPane root;
+                try {
+                    if (parameters.length > 0 && parameters[0] instanceof FXArchiveInfo archiveInfo) {
+                        FrmZip4jEncryptController controller = new FrmZip4jEncryptController(archiveInfo);
+
+                        FXMLLoader loader = new FXMLLoader();
+                        loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                                         .getResource("frmZip4jPassword.fxml"));
+                        loader.setResources(RES_BUNDLE);
+                        loader.setController(controller);
+                        root = loader.load();
+
+                        FXForm fxForm = new FXForm(resolveTextKey(TITLE_ENCRYPT_PROMPT), root, new ConcurrentHashMap<>());
+                        return Optional.of(fxForm);
+                    }
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+                return Optional.empty();
             }
         }
 

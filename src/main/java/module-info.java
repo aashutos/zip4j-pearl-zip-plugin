@@ -12,6 +12,7 @@ module pearl.zip.archive.zip4j {
     exports com.ntak.pearlzip.archive.zip4j.pub;
 
     requires com.ntak.pearlzip.archive;
+    requires com.ntak.pearlzip.ui;
 
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
