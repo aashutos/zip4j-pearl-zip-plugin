@@ -6,8 +6,11 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.pub.*;
 import com.ntak.pearlzip.archive.util.LoggingUtil;
 import com.ntak.pearlzip.archive.zip4j.util.Zip4jUtil;
+import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Pair;
 import net.lingala.zip4j.ZipFile;
@@ -24,10 +27,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.PROGRESS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
 import static net.lingala.zip4j.model.enums.CompressionMethod.DEFLATE;
@@ -179,6 +184,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
             String fileName = file.getFileName();
             ZipParameters fileParam = new ZipParameters();
             Zip4jUtil.initializeZipParameters(fileParam, archiveInfo);
+            fileParam.setFileComment(file.getComments());
 
             if (file.isFolder()) {
                 fileParam.setFileNameInZip(String.format(PATTERN_FOLDER, fileName));
@@ -331,7 +337,83 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
     }
 
     @Override
+    public Optional<FXForm> getFXFormByIdentifier(String name, Object... parameters) {
+        switch(name) {
+            case CREATE_OPTIONS: {
+                Optional<Pair<String, Node>> optDetails = getCreateArchiveOptionsPane();
+                if (optDetails.isPresent()) {
+                    Pair<String, Node> pair = optDetails.get();
+                    FXForm fxForm = new FXForm(pair.getKey(), pair.getValue(), Collections.emptyMap());
+                    return Optional.of(fxForm);
+                }
+
+                break;
+            }
+
+            case OPTIONS: {
+                Optional<Pair<String, Node>> optDetails = getOptionsPane();
+                if (optDetails.isPresent()) {
+                    Pair<String, Node> pair = optDetails.get();
+                    FXForm fxForm = new FXForm(pair.getKey(), pair.getValue(), Collections.emptyMap());
+                    return Optional.of(fxForm);
+                }
+
+                break;
+            }
+
+            case CUSTOM_MENUS: {
+                MenuBar customMenus = getCustomMenu();
+                FXForm fxForm = new FXForm(customMenus.getId(), customMenus, Collections.emptyMap());
+
+                return Optional.of(fxForm);
+            }
+
+            case ENCRYPT_ARCHIVE_PROMPT: {
+                AnchorPane root;
+                try {
+                    if (parameters.length > 0 && parameters[0] instanceof FXArchiveInfo archiveInfo) {
+                        FrmZip4jEncryptController controller = new FrmZip4jEncryptController(archiveInfo);
+
+                        FXMLLoader loader = new FXMLLoader();
+                        loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                                         .getResource("frmZip4jPassword.fxml"));
+                        loader.setResources(RES_BUNDLE);
+                        loader.setController(controller);
+                        root = loader.load();
+
+                        FXForm fxForm = new FXForm(resolveTextKey(TITLE_ENCRYPT_PROMPT), root, new ConcurrentHashMap<>());
+                        return Optional.of(fxForm);
+                    }
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     public List<String> supportedWriteFormats() {
         return List.of("zip");
+    }
+
+    private MenuBar getCustomMenu() {
+        MenuBar menuBar = new MenuBar();
+        Menu zip4jMenu;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Zip4jArchiveWriteService.class.getClassLoader()
+                                                             .getResource("FrmZip4jMenu.fxml"));
+            loader.setResources(RES_BUNDLE);
+            loader.setController(new FrmZip4jMenuController());
+            zip4jMenu = loader.load();
+            menuBar.getMenus().add(zip4jMenu);
+        } catch (Exception e) {
+
+        }
+
+        return menuBar;
     }
 }

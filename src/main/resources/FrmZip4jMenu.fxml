@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+
+<!--
+  ~ Copyright © 2021 92AK
+  -->
+
+<Menu fx:id="mnuZip4j" mnemonicParsing="false" text="Zip4j" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <MenuItem fx:id="mnuSplitArchive" mnemonicParsing="false" text="%zip4j.menu-item.split-archive.text" />
+    <MenuItem fx:id="mnuEncrypt" mnemonicParsing="false" text="%zip4j.menu-item.encrypt-archive.text" />
+</Menu>

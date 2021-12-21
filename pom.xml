@@ -14,7 +14,7 @@
     <url>https://pearlzip.92ak.co.uk</url>
 
     <properties>
-        <log4j.version>2.14.0</log4j.version>
+        <log4j.version>2.17.0</log4j.version>
         <junit.version>5.5.2</junit.version>
         <junit-platform-runner.version>1.5.2</junit-platform-runner.version>
         <mockito-core.version>3.9.0</mockito-core.version>
@@ -39,6 +39,12 @@
             <groupId>com.ntak</groupId>
             <artifactId>pearl-zip-archive</artifactId>
             <version>${pearl-zip.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ntak</groupId>
+            <artifactId>pearl-zip-ui</artifactId>
+            <version>${pearl-zip.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
@@ -97,12 +103,6 @@
             <artifactId>pearl-zip-ui</artifactId>
             <type>test-jar</type>
             <version>${pearl-zip-ui.test.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ntak</groupId>
-            <artifactId>pearl-zip-ui</artifactId>
-            <version>${pearl-zip.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
