@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ import static com.ntak.pearlzip.archive.pub.ArchiveService.DEFAULT_BUS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.*;
+import static com.ntak.pearlzip.ui.util.JFXUtil.executeBackgroundProcess;
 
 public class FrmZip4jEncryptController {
     private static final Logger LOGGER = LoggerContext.getContext()
@@ -130,27 +132,45 @@ public class FrmZip4jEncryptController {
                                  .collect(Collectors.partitioningBy(Files::isDirectory));
                     AtomicReference<IOException> capturedException = new AtomicReference<>();
 
+                    Stage stage = (Stage)btnContinue.getScene().getWindow();
                     long dirSessionId = System.currentTimeMillis();
+                    final CountDownLatch addDirLatch = new CountDownLatch(mapContents.get(true).size());
                     mapContents.get(true)
-                               .forEach((d) -> {
-                                   try {
-                                       addDirectory(dirSessionId, fxArchiveInfo, d.toFile());
-                                   } catch(IOException ex) {
-                                       capturedException.set(ex);
-                                   }
-                               });
+                               .forEach((d) -> executeBackgroundProcess(dirSessionId,
+                                                                    stage,
+                                                                    ()-> {
+                                                                    try {
+                                                                        addDirectory(dirSessionId,
+                                                                                     fxArchiveInfo,
+                                                                                     d.toFile());
+                                                                    } catch(IOException ex) {
+                                                                        capturedException.set(ex);
+                                                                    } finally {
+                                                                        addDirLatch.countDown();
+                                                                    }
+                                                                },
+                                                                    (s)->{}));
+                    addDirLatch.await();
+                    final CountDownLatch addFileLatch = new CountDownLatch(mapContents.get(false).size());
 
                     long fileSessionId = System.currentTimeMillis();
                     mapContents.get(false)
-                               .forEach((f) -> {
-                                   try {
-                                       addFile(fileSessionId, fxArchiveInfo, f.toFile(),
-                                               f.getFileName()
-                                                .toString());
-                                   } catch(IOException ex) {
-                                       capturedException.set(ex);
-                                   }
-                               });
+                               .forEach((f)->executeBackgroundProcess(dirSessionId,
+                                                                 stage,
+                                                                 ()-> {
+                                       try {
+                                           addFile(fileSessionId, fxArchiveInfo, f.toFile(),
+                                                   f.getFileName()
+                                                    .toString());
+                                       } catch(IOException ex) {
+                                           capturedException.set(ex);
+                                       } finally {
+                                           addFileLatch.countDown();
+                                       }
+                                   },
+                                   (s)->{})
+                               );
+                    addFileLatch.await();
 
                     // Rethrow IOException
                     if (Objects.nonNull(capturedException.get())) {
@@ -166,6 +186,8 @@ public class FrmZip4jEncryptController {
                         optStage.ifPresent(s -> s.fireEvent(new WindowEvent(s, WindowEvent.WINDOW_CLOSE_REQUEST)));
                         launchMainStage(fxArchiveInfo);
                     });
+
+                    // Wait till archive successfully opened...
                     while (JFXUtil.getMainStageInstances().size() == 0) {
                         Thread.sleep(100L);
                     }

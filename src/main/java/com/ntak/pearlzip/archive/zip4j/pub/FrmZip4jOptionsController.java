@@ -6,6 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import java.util.Objects;
@@ -25,6 +26,11 @@ public class FrmZip4jOptionsController {
     private ComboBox<EncryptionMethod> comboDefaultEncryptionMethod;
     @FXML
     private ComboBox<String> comboDefaultEncryptionStrength;
+
+    @FXML
+    private TextField textDefaultSplitArchiveSize;
+
+    private static final String DEFAULT_SPLIT_ARCHIVE_SIZE_STRING = String.valueOf(DEFAULT_SPLIT_ARCHIVE_SIZE);
 
     @FXML
     public void initialize() {
@@ -71,5 +77,25 @@ public class FrmZip4jOptionsController {
         });
         comboDefaultEncryptionStrength.setOnAction((e) -> WORKING_SETTINGS.setProperty(CNS_DEFAULT_ENCRYPTION_STRENGTH,
                                                                                        comboDefaultEncryptionStrength.getValue()));
+
+        try {
+            Long.parseLong(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE, DEFAULT_SPLIT_ARCHIVE_SIZE_STRING));
+            textDefaultSplitArchiveSize.setText(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE, DEFAULT_SPLIT_ARCHIVE_SIZE_STRING));
+        } catch (Exception e) {
+            textDefaultSplitArchiveSize.setText(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE, DEFAULT_SPLIT_ARCHIVE_SIZE_STRING));
+        }
+
+        textDefaultSplitArchiveSize.setOnKeyReleased((e) -> {
+            try {
+                long value = Long.parseLong(textDefaultSplitArchiveSize.getText());
+                if (value >= MIN_SPLIT_ARCHIVE_SIZE) {
+                    WORKING_SETTINGS.setProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE,
+                                                 textDefaultSplitArchiveSize.getText());
+                }
+            } catch (Exception exc) {
+                WORKING_SETTINGS.setProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE, CURRENT_SETTINGS.getProperty(CNS_DEFAULT_SPLIT_ARCHIVE_SIZE,
+                                                                                                          DEFAULT_SPLIT_ARCHIVE_SIZE_STRING));
+            }
+        });
     }
 }
