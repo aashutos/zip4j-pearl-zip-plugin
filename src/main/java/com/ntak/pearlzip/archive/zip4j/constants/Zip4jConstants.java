@@ -87,6 +87,10 @@ public class Zip4jConstants {
     public static final String TITLE_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT = "title.ntak.pearl-zip.zip4j.incompatible-encrypt";
     public static final String BODY_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT = "body.ntak.pearl-zip.zip4j.incompatible-encrypt";
 
+    public static final String LOG_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "logging.ntak.pearl-zip.zip4j.incompatible-split";
+    public static final String TITLE_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "title.ntak.pearl-zip.zip4j.incompatible-split";
+    public static final String BODY_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "body.ntak.pearl-zip.zip4j.incompatible-split";
+
     public static final String LOG_ARCHIVE_Z4J_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.deleting-file";
     public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
 

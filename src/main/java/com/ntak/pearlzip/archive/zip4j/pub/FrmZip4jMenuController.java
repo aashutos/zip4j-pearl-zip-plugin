@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -39,7 +38,6 @@ import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
 import static com.ntak.pearlzip.ui.constants.ZipConstants.TITLE_TARGET_ARCHIVE_LOCATION;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.extractToDirectory;
-import static com.ntak.pearlzip.ui.util.ArchiveUtil.handleDirectory;
 
 public class FrmZip4jMenuController {
     private static final Logger LOGGER = LoggerContext.getContext()
@@ -101,10 +99,10 @@ public class FrmZip4jMenuController {
                             dirChooser.setTitle(resolveTextKey(TITLE_TARGET_ARCHIVE_LOCATION));
                             File dir = dirChooser.showDialog(new Stage());
                             final String newArchivePath = Paths.get(dir.getAbsolutePath(),
-                                                                  Paths.get(oneFileArchiveInfo.getArchivePath())
-                                                                       .getFileName()
-                                                                       .toString())
-                                                             .toString();
+                                                                    Paths.get(oneFileArchiveInfo.getArchivePath())
+                                                                         .getFileName()
+                                                                         .toString())
+                                                               .toString();
                             archiveInfo.setArchivePath(newArchivePath);
 
                             // Extract archive
@@ -112,41 +110,64 @@ public class FrmZip4jMenuController {
                             Path tempDir = Paths.get(ZipConstants.LOCAL_TEMP.toAbsolutePath()
                                                                             .toString(),
                                                      String.format("pz%d", backupSessionId),
-                                                     Paths.get(archivePath).getFileName().toString());
+                                                     Paths.get(archivePath)
+                                                          .getFileName()
+                                                          .toString());
                             Files.createDirectories(tempDir);
                             CountDownLatch latch = new CountDownLatch(1);
                             final Stage stage = (Stage) fxArchiveInfo.getController()
-                                                                      .get()
-                                                                      .getFileContentsView()
-                                                                      .getScene()
-                                                                      .getWindow();
+                                                                     .get()
+                                                                     .getFileContentsView()
+                                                                     .getScene()
+                                                                     .getWindow();
                             JFXUtil.executeBackgroundProcess(backupSessionId,
                                                              stage,
-                                                             ()-> {try {extractToDirectory(backupSessionId,
-                                                                                           fxArchiveInfo,
-                                                                                 tempDir.toFile());
-                                                                   } finally {
-                                                                        latch.countDown();
-                                                                   }
+                                                             () -> {
+                                                                 try {
+                                                                     extractToDirectory(backupSessionId,
+                                                                                        fxArchiveInfo,
+                                                                                        tempDir.toFile());
+                                                                 } finally {
+                                                                     latch.countDown();
+                                                                 }
                                                              },
-                                                             (s)->{});
+                                                             (s) -> {});
                             latch.await();
 
-                            List<FileInfo> paths = handleDirectory("", tempDir.getParent().getParent(), tempDir.getParent(), 0, 0);
-
                             // Create FileInfo for extracted files...
-                            FileInfo[] files = new FileInfo[]{new FileInfo(0, 0, tempDir.getFileName().toString(), 0, 0, 0
-                                    , LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), null, null, 0, ""
-                                    , true, false, Collections.singletonMap(KEY_FILE_PATH, tempDir.toAbsolutePath().toString()))};
+                            FileInfo[] files = new FileInfo[]{new FileInfo(0,
+                                                                           0,
+                                                                           tempDir.getFileName()
+                                                                                  .toString(),
+                                                                           0,
+                                                                           0,
+                                                                           0
+                                    ,
+                                                                           LocalDateTime.now(),
+                                                                           LocalDateTime.now(),
+                                                                           LocalDateTime.now(),
+                                                                           null,
+                                                                           null,
+                                                                           0,
+                                                                           ""
+                                    ,
+                                                                           true,
+                                                                           false,
+                                                                           Collections.singletonMap(KEY_FILE_PATH,
+                                                                                                    tempDir.toAbsolutePath()
+                                                                                                           .toString()))
+                            };
 
                             // Create Split archive
                             long splitSessionId = System.currentTimeMillis();
                             JFXUtil.executeBackgroundProcess(splitSessionId,
                                                              stage,
-                                                             ()->writeService.createArchive(splitSessionId, archiveInfo, files),
-                                                             (s)->{}
+                                                             () -> writeService.createArchive(splitSessionId,
+                                                                                              archiveInfo,
+                                                                                              files),
+                                                             (s) -> {}
                             );
-                        } catch (Exception exc) {
+                        } catch(Exception exc) {
                             // LOG: Archive %s could not be split. Exception message: %s.
                             // TITLE: ERROR: Issue splitting archive
                             // HEADER: Archive %s could not be split
@@ -162,7 +183,21 @@ public class FrmZip4jMenuController {
                                                exc,
                                                null);
                         }
-                    }
+                    } else {
+                            // LOG: Archive %s cannot be split
+                            // TITLE: Incompatible archive for split process
+                            // BODY: Current archive (%s) is not an archive that the Zip4J plugin can split. This could
+                            //       be because:\n• It is not a zip archive\n• It is an encrypted archive
+                            LOGGER.warn(resolveTextKey(LOG_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT,
+                                                       archivePath));
+                            JFXUtil.raiseAlert(Alert.AlertType.INFORMATION,
+                                               resolveTextKey(TITLE_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT),
+                                               null,
+                                               resolveTextKey(BODY_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT,
+                                                              archivePath),
+                                               null,
+                                               null);
+                        }
                 }
             }
         });
@@ -199,13 +234,14 @@ public class FrmZip4jMenuController {
                         // LOG: Archive %s cannot be encrypted
                         // TITLE: Incompatible archive for encryption
                         // BODY: Current archive (%s) is not an archive that the Zip4J plugin can encrypt. This could
-                        //       be because:\n• It is not a zip archive\n• It is a temporary archive
-                        LOGGER.warn(resolveTextKey(LOG_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT,e.getClass().getCanonicalName()));
+                        //       be because:\n• It is not a zip archive\n• It is a temporary archive\n• Archive is
+                        //       already encrypted
+                        LOGGER.warn(resolveTextKey(LOG_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT, archivePath));
                         JFXUtil.raiseAlert(Alert.AlertType.INFORMATION,
                                            resolveTextKey(TITLE_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT),
                                            null,
                                            resolveTextKey(BODY_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT,
-                                                                         e.getClass().getCanonicalName()),
+                                                          archivePath),
                                            null,
                                            null);
                     }
