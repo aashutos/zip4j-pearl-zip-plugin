@@ -53,34 +53,35 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
 
             boolean isSplitArchiveRequest =
                     archiveInfo.<Boolean>getProperty(KEY_SPLIT_ARCHIVE_ENABLE).orElse(false);
-            long splitSize = archiveInfo.<Long>getProperty(KEY_SPLIT_ARCHIVE_SIZE).orElse(MIN_SPLIT_ARCHIVE_SIZE);
+            long splitSize = archiveInfo.<Long>getProperty(KEY_SPLIT_ARCHIVE_SIZE).orElse(DEFAULT_SPLIT_ARCHIVE_SIZE);
 
             Zip4jUtil.initializeZipParameters(parameters, archiveInfo);
             ZipFile archive = new ZipFile(archiveInfo.getArchivePath(),
                                           archiveInfo.<char[]>getProperty(KEY_ENCRYPTION_PW).orElse(null));
 
             // Split archive only works with a non-empty archive.
-            // TODO: Functionality to create a split archive and also to open and modify it via the use of the merge
-            //  archive functionality (temporarily interim).
-            //  As soon as ZipFile is interrogated the ZipModel is retrieved to get information about whether it is
-            //  encrypted a split archive or a valid file etc. which will help with providing details about the archive
             if (isSplitArchiveRequest) {
-                final Path tempFile = Files.createTempFile(".tmp", "");
+                final Path tempDir = Files.createTempDirectory("pz");
+                final Path tempFile = Paths.get(tempDir.toAbsolutePath().toString(), ".pz-archive");
+                Files.createFile(tempFile);
+
                 LocalDateTime creationTime = LocalDateTime.now();
                 if (files.length == 0) {
                     FileInfo fileInfo = new FileInfo(0,0,".pz-archive",0L,0L,0L,
                                                      creationTime, creationTime, creationTime,
                                                      null, null, 0,
-                                                     "", false, parameters.isEncryptFiles(),
+                                                     "Created by PearlZip", false, parameters.isEncryptFiles(),
                                                      Collections.singletonMap(KEY_FILE_PATH,
                                                                               tempFile.toAbsolutePath().toString()));
                     files = new FileInfo[]{fileInfo};
                 }
-                archive.createSplitZipFile(Arrays.stream(files)
-                                                 .map(f -> (String)f.getAdditionalInfoMap().get(KEY_FILE_PATH))
-                                                 .filter(Objects::nonNull)
-                                                 .map(File::new)
-                                                 .collect(Collectors.toList()),
+                archive.createSplitZipFileFromFolder(Arrays.stream(files)
+                                                           .filter(FileInfo::isFolder)
+                                                           .map(f -> (String)f.getAdditionalInfoMap().get(KEY_FILE_PATH))
+                                                           .filter(Objects::nonNull)
+                                                           .map(File::new)
+                                                           .findFirst()
+                                                           .get(),
                                            parameters,
                                            isSplitArchiveRequest,
                                            splitSize);

@@ -21,6 +21,7 @@ public class Zip4jConstants {
     public static final String CNS_DEFAULT_COMPRESSION_METHOD = "configuration.zip4j.default-compression-method";
     public static final String CNS_DEFAULT_ENCRYPTION_METHOD = "configuration.zip4j.default-encryption-method";
     public static final String CNS_DEFAULT_ENCRYPTION_STRENGTH = "configuration.zip4j.default-encryption-strength";
+    public static final String CNS_DEFAULT_SPLIT_ARCHIVE_SIZE = "configuration.zip4j.default-split-archive-size";
 
     /////////////////////////////
     ///// ArchiveInfo Keys //////
@@ -42,7 +43,8 @@ public class Zip4jConstants {
     /////////////////////////////
 
     public static final ResourceBundle RES_BUNDLE = ResourceBundle.getBundle("zip4j_plugin");
-    public static final long MIN_SPLIT_ARCHIVE_SIZE = 65536;
+    public static final long MIN_SPLIT_ARCHIVE_SIZE = 65536; // 64 KB minimum archive size
+    public static final long DEFAULT_SPLIT_ARCHIVE_SIZE = 52428800; // 50 MB archive size
     public static final String PATTERN_FOLDER = "%s/";
     public static final Pattern SSV = Pattern.compile(Pattern.quote("/"));
 
@@ -85,6 +87,10 @@ public class Zip4jConstants {
     public static final String TITLE_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT = "title.ntak.pearl-zip.zip4j.incompatible-encrypt";
     public static final String BODY_ARCHIVE_Z4J_INCOMPATIBLE_ENCRYPT = "body.ntak.pearl-zip.zip4j.incompatible-encrypt";
 
+    public static final String LOG_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "logging.ntak.pearl-zip.zip4j.incompatible-split";
+    public static final String TITLE_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "title.ntak.pearl-zip.zip4j.incompatible-split";
+    public static final String BODY_ARCHIVE_Z4J_INCOMPATIBLE_SPLIT = "body.ntak.pearl-zip.zip4j.incompatible-split";
+
     public static final String LOG_ARCHIVE_Z4J_DELETING_FILE = "logging.ntak.pearl-zip.zip4j.deleting-file";
     public static final String LOG_ARCHIVE_Z4J_ADDING_FILE = "logging.ntak.pearl-zip.zip4j.adding-file";
 
@@ -95,6 +101,11 @@ public class Zip4jConstants {
 
     public static final String BODY_ENCRYPT_PROMPT = "zip4j.encrypt.encrypt-prompt.text";
     public static final String TITLE_ENCRYPT_PROMPT = "zip4j.encrypt.encrypt-prompt.title";
+
+    public static final String LOG_ARCHIVE_Z4J_SPLIT_ARCHIVE_FAILED = "logging.ntak.pearl-zip.zip4j.split-archive-failed";
+    public static final String TITLE_ARCHIVE_Z4J_SPLIT_ARCHIVE_FAILED = "title.ntak.pearl-zip.zip4j.split-archive-failed";
+    public static final String HEADER_ARCHIVE_Z4J_SPLIT_ARCHIVE_FAILED = "header.ntak.pearl-zip.zip4j.split-archive-failed";
+    public static final String BODY_ARCHIVE_Z4J_SPLIT_ARCHIVE_FAILED = "body.ntak.pearl-zip.zip4j.split-archive-failed";
 
     public static final Integer[] COMPRESSION_LEVEL = {1,2,3,4,5,6,7,8,9};
     public static final String[] COMPRESSION_METHOD = {"STORE", "DEFLATE"};
