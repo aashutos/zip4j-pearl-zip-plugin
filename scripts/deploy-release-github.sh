@@ -12,6 +12,7 @@
 P_RELEASE=$1
 RELEASE=$1
 P_SETTINGS=${2:-./scripts/settings.properties}
+PZ_RELEASE=$3
 
 echo "Settings file: $P_SETTINGS"
 while read line; do
@@ -28,9 +29,11 @@ done < $P_SETTINGS
 # ( set -o posix ; set )
 JAVA_HOME=${P_JAVA_HOME:-$JAVA_HOME}
 
-echo 'Configuring release name...'
+echo 'Configuring release names...'
 P_RELEASE="${P_PREFIX_RELEASE:+$P_PREFIX_RELEASE-}$P_RELEASE"
+PZ_RELEASE="${P_PZ_PREFIX_RELEASE:+$P_PZ_PREFIX_RELEASE-}$PZ_RELEASE"
 echo "Release name has been set to: ${P_RELEASE}"
+echo "Release name (PearlZip) has been set to: ${PZ_RELEASE}"
 
 # Dependencies check on environment
 if [ "$(which 7z | echo $?)" -ne 0 ]
@@ -69,7 +72,7 @@ git checkout "releases/${P_RELEASE}"
 
 ######### Creating packaged archive... ##########
 ARCHIVE="build/pearl-zip-archive-zip4j-${RELEASE}.pzax"
-. ./scripts/create-deploy-package.sh ${RELEASE} ${JAVA_HOME}
+. ./scripts/create-deploy-package.sh ${RELEASE} ${PZ_RELEASE} ${JAVA_HOME} ${P_SETTINGS}
 
 ######### Upload to GitHub ##########
 
