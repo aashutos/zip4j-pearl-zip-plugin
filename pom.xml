@@ -168,6 +168,7 @@
                             <arguments>
                                 <argument>${project.version}</argument>
                                 <argument>${deploy.settings.loc}</argument>
+                                <argument>${pearl-zip.version}</argument>
                             </arguments>
                             <environmentVariables>
                                 <JAVA_HOME>${jdk.location}</JAVA_HOME>
