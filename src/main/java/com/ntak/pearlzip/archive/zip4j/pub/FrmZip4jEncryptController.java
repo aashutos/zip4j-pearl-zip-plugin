@@ -130,49 +130,56 @@ public class FrmZip4jEncryptController {
                     Map<Boolean,List<Path>> mapContents =
                             Files.list(tempDir)
                                  .collect(Collectors.partitioningBy(Files::isDirectory));
-                    AtomicReference<IOException> capturedException = new AtomicReference<>();
+                    AtomicReference<Exception> capturedException = new AtomicReference<>();
 
                     Stage stage = (Stage)btnContinue.getScene().getWindow();
-                    long dirSessionId = System.currentTimeMillis();
-                    final CountDownLatch addDirLatch = new CountDownLatch(mapContents.get(true).size());
-                    mapContents.get(true)
-                               .forEach((d) -> executeBackgroundProcess(dirSessionId,
-                                                                    stage,
-                                                                    ()-> {
-                                                                    try {
-                                                                        addDirectory(dirSessionId,
-                                                                                     fxArchiveInfo,
-                                                                                     d.toFile());
-                                                                    } catch(IOException ex) {
-                                                                        capturedException.set(ex);
-                                                                    } finally {
-                                                                        addDirLatch.countDown();
-                                                                    }
-                                                                },
-                                                                    (s)->{}));
-                    addDirLatch.await();
-                    final CountDownLatch addFileLatch = new CountDownLatch(mapContents.get(false).size());
 
-                    long fileSessionId = System.currentTimeMillis();
-                    mapContents.get(false)
-                               .forEach((f)->executeBackgroundProcess(dirSessionId,
-                                                                 stage,
-                                                                 ()-> {
-                                       try {
-                                           addFile(fileSessionId, fxArchiveInfo, f.toFile(),
-                                                   f.getFileName()
-                                                    .toString());
-                                       } catch(IOException ex) {
-                                           capturedException.set(ex);
-                                       } finally {
-                                           addFileLatch.countDown();
-                                       }
-                                   },
-                                   (s)->{})
-                               );
-                    addFileLatch.await();
+                    for (Path d : mapContents.get(true)) {
+                        long dirSessionId = System.currentTimeMillis();
+                        final CountDownLatch addDirLatch = new CountDownLatch(1);
 
-                    // Rethrow IOException
+                        executeBackgroundProcess(dirSessionId,
+                                                 stage,
+                                                 ()-> {
+                                                     try {
+                                                         addDirectory(dirSessionId,
+                                                                      fxArchiveInfo,
+                                                                      d.toFile());
+                                                     } catch(Exception ex) {
+                                                         capturedException.set(ex);
+                                                     } finally {
+                                                         addDirLatch.countDown();
+                                                     }
+                                                 },
+                                                 (s)->{}
+                                             );
+                        addDirLatch.await();
+                    }
+
+                    for (Path f : mapContents.get(false)) {
+                        long fileSessionId = System.currentTimeMillis();
+                        final CountDownLatch addFileLatch = new CountDownLatch(1);
+                        executeBackgroundProcess(fileSessionId,
+                                                 stage,
+                                                 () -> {
+                                                     try {
+                                                         addFile(fileSessionId,
+                                                                 fxArchiveInfo,
+                                                                 f.toFile(),
+                                                                 f.getFileName()
+                                                                  .toString());
+                                                     } catch(Exception ex) {
+                                                         capturedException.set(ex);
+                                                     } finally {
+                                                         addFileLatch.countDown();
+                                                     }
+                                                 },
+                                                 (s) -> {}
+                        );
+                        addFileLatch.await();
+                    }
+
+                    // Rethrow Exception
                     if (Objects.nonNull(capturedException.get())) {
                         throw capturedException.get();
                     }
@@ -210,6 +217,7 @@ public class FrmZip4jEncryptController {
                     ArchiveUtil.restoreBackupArchive(backupArchive, Paths.get(fxArchiveInfo.getArchivePath()));
                 } catch (Exception exc) {
                     // Ignore interrupted exception
+                    ArchiveUtil.restoreBackupArchive(backupArchive, Paths.get(fxArchiveInfo.getArchivePath()));
                 }finally {
                     if (Objects.nonNull(backupArchive)) {
                         try {

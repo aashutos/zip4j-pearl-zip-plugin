@@ -6,6 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.FileInfo;
+import com.ntak.pearlzip.ui.constants.ZipConstants;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
     @BeforeAll
     public static void setUpOnce() throws IOException {
         tempDirectory = Files.createTempDirectory("pz-text");
+        ZipConstants.POST_PZAX_COMPLETION_CALLBACK = ()->{};
         file = Paths.get(tempDirectory.toAbsolutePath().toString(), "tempFile.txt");
         fileInfo = new FileInfo(0, 0, "tempFile.txt", 0L, 0L, 0L,
                                 LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),
