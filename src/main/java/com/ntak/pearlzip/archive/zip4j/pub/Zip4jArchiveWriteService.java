@@ -97,7 +97,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                 // Adding subsequent archive files, if any...
                 addFile(sessionId, archiveInfo, files);
             }
-        } catch(IOException e) {
+        } catch(Exception e) {
             // LOG: Issue creating zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
             // TITLE: Issue creating archive
             // HEADER: The archive %s could not be created
@@ -155,7 +155,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
                             }).collect(Collectors.toList()));
 
             return true;
-        } catch(ZipException e) {
+        } catch(Exception e) {
             // LOG: Issue adding to zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
             // TITLE: Issue adding to archive
             // HEADER: An entry could not be added to archive %s
@@ -239,7 +239,11 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
 
                 // Keep immediate parent if last file is deleted...
                 Path parent = Paths.get(file.getFileName()).getParent();
-                if (Objects.nonNull(parent)) {
+
+                if (Objects.nonNull(parent) && archive.getFileHeaders()
+                                                      .stream()
+                                                      .noneMatch(f -> f.getFileName()
+                                                                       .startsWith(parent.toString()))) {
                     try {
                         // Create temp directory structure to persist...
                         Path tempDirectory = Files.createTempDirectory("pz");

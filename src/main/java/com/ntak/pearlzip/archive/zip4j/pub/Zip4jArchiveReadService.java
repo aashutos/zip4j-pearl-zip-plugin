@@ -81,7 +81,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             }
 
             archiveInfo.setCompressionLevel(Integer.parseInt(CURRENT_SETTINGS.getProperty(CNS_DEFAULT_COMPRESSION_LEVEL, "9")));
-        } catch (ZipException e) {
+        } catch (Exception e) {
             // LOG: Issue generating metadata for archive %s
             LOGGER.error(resolveTextKey(LOG_ARCHIVE_Z4J_ISSUE_GENERATING_METADATA, archivePath));
             archiveInfo = ArchiveService.generateDefaultArchiveInfo(archivePath);
@@ -171,7 +171,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             }
 
             return new ArrayList<>(setFiles);
-        } catch (ZipException e) {
+        } catch (Exception e) {
             // LOG: Issue listing entries from zip archive.\nException thrown: %s\nException message: %s\nStack
             // trace:\n%s
             // TITLE: Issue listing entries from archive
@@ -217,7 +217,7 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
                 archive.extractFile(header, parent.toString(), Paths.get(fileInfo.getFileName()).getFileName().toString());
                 return monitor.getResult().equals(ProgressMonitor.Result.SUCCESS);
             }
-        } catch(ZipException e) {
+        } catch(Exception e) {
             // LOG: Issue extracting from zip archive.\nException thrown: %s\nException message: %s\nStack trace:\n%s
             // TITLE: Issue extracting archive
             // HEADER: The archive %s could not be extracted
