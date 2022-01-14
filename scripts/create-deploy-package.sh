@@ -32,7 +32,7 @@ echo "Generating changelog..."
 # Retrieve Change Log for release
 echo "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20PearlZip%20%23Bug%20%23Feature%20%23Task%20Fix%20versions:%20${PZ_RELEASE}%20tag:%20zip4j"
 curl -X GET "${P_YOUTRACK_HOST}/api/issues?fields=summary&query=project:%20PearlZip%20%23Bug%20%23Feature%20%23Task%20Fix%20versions:%20${PZ_RELEASE}%20tag:%20zip4j" -H 'Accept: application/json' -H "Authorization: Bearer ${P_YOUTRACK_AUTH}" -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' | tr , "\n" | grep summary | cut -d'"' -f4 | sort | xargs -I{} echo "+ {}" > build/CHANGELOG
-printf "Zip4J for PearlZip Plugin Version $VERSION Change Log\nCopyright © $(date +%Y) 92AK\n====================================\n\nThe following features are in scope for this release of Zip4J Plugin for PearlZip:\n\n$(cat build/CHANGELOG)" > build/CHANGELOG
+printf "Zip4J for PearlZip Plugin Version $RELEASE Change Log\nCopyright © $(date +%Y) 92AK\n====================================\n\nThe following features are in scope for this release of Zip4J Plugin for PearlZip:\n\n$(cat build/CHANGELOG)" > build/CHANGELOG
 
 # Copy license file and deployment instructions
 echo "Preparing deployment archive..."
