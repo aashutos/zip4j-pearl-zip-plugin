@@ -25,7 +25,6 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <deploy.settings.loc>${project.basedir}/scripts/settings.properties</deploy.settings.loc>
         <pearlzip.zip4j.next.version>${project.version}</pearlzip.zip4j.next.version>
-        <pearl-zip-ui.test.version>0.0.0.3</pearl-zip-ui.test.version>
         <testfx.version>4.0.16-alpha</testfx.version>
         <openjfx-monocle.version>jdk-12.0.1+2</openjfx-monocle.version>
         <eventbus.version>3.2.0</eventbus.version>
@@ -95,14 +94,14 @@
         <dependency>
             <groupId>com.ntak</groupId>
             <artifactId>ntak-testfx-util</artifactId>
-            <version>${pearl-zip-ui.test.version}</version>
+            <version>${pearl-zip.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.ntak</groupId>
             <artifactId>pearl-zip-ui</artifactId>
             <type>test-jar</type>
-            <version>${pearl-zip-ui.test.version}</version>
+            <version>${pearl-zip.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
