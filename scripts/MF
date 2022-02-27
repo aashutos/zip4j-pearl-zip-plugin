@@ -1,4 +1,7 @@
+name:zip4j
+min-version:::PZ_VERSION::
+max-version:::PZ_VERSION::
 license:ZIP4J-LICENSE
 license:BSD-3-CLAUSE-LICENSE
 lib-file:N/A:zip4j-2.8.0.jar
-lib-file:sha256:pearl-zip-archive-zip4j-0.0.0.2.jar
+lib-file:sha256:pearl-zip-archive-zip4j-::VERSION::.jar

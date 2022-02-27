@@ -11,8 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.UnzipParameters;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionMethod;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTINGS;
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.CNS_NTAK_PEARL_ZIP_ICON_FOLDER;
-import static com.ntak.pearlzip.archive.constants.LoggingConstants.COMPLETED;
+import static com.ntak.pearlzip.archive.constants.LoggingConstants.*;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.getStackTraceFromException;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
@@ -214,7 +214,14 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             if (Objects.nonNull(header)) {
                 ProgressMonitor monitor = archive.getProgressMonitor();
-                archive.extractFile(header, parent.toString(), Paths.get(fileInfo.getFileName()).getFileName().toString());
+                DEFAULT_BUS.post(new ProgressMessage(sessionId, PROGRESS,
+                                                     resolveTextKey(LBL_PROGRESS_EXTRACT_ENTRY,
+                                                                    fileInfo.getFileName()),
+                                                     -1,
+                                                     1)
+                );
+                archive.extractFile(header, parent.toString(),
+                                    Paths.get(fileInfo.getFileName()).getFileName().toString(), new UnzipParameters());
                 return monitor.getResult().equals(ProgressMonitor.Result.SUCCESS);
             }
         } catch(Exception e) {
