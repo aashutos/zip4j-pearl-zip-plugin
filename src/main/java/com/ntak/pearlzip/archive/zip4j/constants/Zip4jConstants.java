@@ -6,6 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.constants;
 
 import com.ntak.pearlzip.archive.zip4j.pub.Zip4jPasswordValidator;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -42,7 +43,7 @@ public class Zip4jConstants {
     ///// Fixed values //////////
     /////////////////////////////
 
-    public static final ResourceBundle RES_BUNDLE = ResourceBundle.getBundle("zip4j_plugin");
+    public static final ResourceBundle RES_BUNDLE = ResourceBundle.getBundle("zip4j_plugin", Locale.getDefault());
     public static final long MIN_SPLIT_ARCHIVE_SIZE = 65536; // 64 KB minimum archive size
     public static final long DEFAULT_SPLIT_ARCHIVE_SIZE = 52428800; // 50 MB archive size
     public static final String PATTERN_FOLDER = "%s/";
