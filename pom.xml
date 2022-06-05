@@ -18,7 +18,7 @@
         <junit.version>5.5.2</junit.version>
         <junit-platform-runner.version>1.5.2</junit-platform-runner.version>
         <mockito-core.version>3.9.0</mockito-core.version>
-        <pearl-zip.version>0.0.4.0</pearl-zip.version>
+        <pearl-zip.version>0.0.4.1</pearl-zip.version>
         <zip4j.version>2.10.0</zip4j.version>
         <javafx.version>17.0.1</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

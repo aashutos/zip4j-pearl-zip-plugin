@@ -7,7 +7,6 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
-import com.ntak.pearlzip.ui.constants.ResourceConstants;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.JFXUtil;
@@ -57,17 +56,10 @@ public class FrmZip4jMenuController {
                 3. Prompt for folder location to create archive
                 4. Create split archive
              */
-            if (Objects.nonNull(ResourceConstants.WINDOW_MENU) && ResourceConstants.WINDOW_MENU.getItems().size() > 0) {
-                Optional<MenuItem> optMenuItem =
-                        ResourceConstants.WINDOW_MENU.getItems()
-                                                     .stream()
-                                                     .filter(f -> f.getText()
-                                                                   .contains(ZipConstants.WINDOW_FOCUS_SYMBOL))
-                                                     .findFirst();
+            if (JFXUtil.getWindowsFromMenu().size() > 0) {
+                Optional<String> optMenuItem = JFXUtil.getActiveWindowFromMenu();
                 if (optMenuItem.isPresent()) {
-                    String archivePath = optMenuItem.get()
-                                                    .getText()
-                                                    .replace(ZipConstants.WINDOW_FOCUS_SYMBOL, "");
+                    String archivePath = optMenuItem.get();
                     Zip4jArchiveWriteService writeService = new Zip4jArchiveWriteService();
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
@@ -203,11 +195,11 @@ public class FrmZip4jMenuController {
         });
 
         mnuEncrypt.setOnAction((e) -> {
-            if (Objects.nonNull(ResourceConstants.WINDOW_MENU) && ResourceConstants.WINDOW_MENU.getItems().size() > 0) {
-                Optional<MenuItem> optMenuItem =
-                        ResourceConstants.WINDOW_MENU.getItems().stream().filter(f->f.getText().contains(ZipConstants.WINDOW_FOCUS_SYMBOL)).findFirst();
+            if (JFXUtil.getWindowsFromMenu().size() > 0) {
+                Optional<String> optMenuItem =
+                        JFXUtil.getActiveWindowFromMenu();
                 if (optMenuItem.isPresent()) {
-                    String archivePath = optMenuItem.get().getText().replace(ZipConstants.WINDOW_FOCUS_SYMBOL, "");
+                    String archivePath = optMenuItem.get();
                     Zip4jArchiveWriteService writeService = new Zip4jArchiveWriteService();
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
