@@ -179,6 +179,43 @@
             </build>
         </profile>
         <profile>
+            <id>build-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/create-deploy-package.sh</executable>
+                            <arguments>
+                                <argument>${project.version}</argument>
+                                <argument>${pearl-zip.version}</argument>
+                                <argument>${jdk.location}</argument>
+                                <argument>${deploy.settings.loc}</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <environmentVariables>
+                                <JAVA_HOME>${jdk.location}</JAVA_HOME>
+                            </environmentVariables>
+                            <async>false</async>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
                 <id>increment-version</id>
                 <build>
                     <plugins>
