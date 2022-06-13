@@ -35,7 +35,7 @@ import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTI
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.TITLE_TARGET_ARCHIVE_LOCATION;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.extractToDirectory;
 
 public class FrmZip4jMenuController {
@@ -49,6 +49,10 @@ public class FrmZip4jMenuController {
 
     @FXML
     public void initialize() {
+        final Path LOCAL_TEMP = ZipConstants.GLOBAL_INTERNAL_CACHE
+                                            .<Path>getAdditionalConfig(CK_LOCAL_TEMP)
+                                            .get();
+
         mnuSplitArchive.setOnAction((e) -> {
             /*
                 1. Check if is a zip archive (and unencrypted?)
@@ -64,8 +68,8 @@ public class FrmZip4jMenuController {
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
                     FXArchiveInfo fxArchiveInfo;
-                    if (archivePath.endsWith("zip") && !archivePath.startsWith(ZipConstants.LOCAL_TEMP.toString())
-                            && !archivePath.startsWith(ZipConstants.STORE_TEMP.toString())
+                    if (archivePath.endsWith("zip") && !archivePath.startsWith(LOCAL_TEMP.toString())
+                            && !archivePath.startsWith(ZipConstants.GLOBAL_INTERNAL_CACHE.<Path>getAdditionalConfig(CK_STORE_TEMP).get().toString())
                             && (fxArchiveInfo = optFXArchiveInfo.orElse(null)) != null && !fxArchiveInfo.getArchiveInfo()
                                                                                                         .<Boolean>getProperty(
                                                                                                                 KEY_ENCRYPTION_ENABLE)
@@ -99,7 +103,7 @@ public class FrmZip4jMenuController {
 
                             // Extract archive
                             long backupSessionId = System.currentTimeMillis();
-                            Path tempDir = Paths.get(ZipConstants.LOCAL_TEMP.toAbsolutePath()
+                            Path tempDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
                                                                             .toString(),
                                                      String.format("pz%d", backupSessionId),
                                                      Paths.get(archivePath)
@@ -204,8 +208,8 @@ public class FrmZip4jMenuController {
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
                     FXArchiveInfo fxArchiveInfo;
-                    if (archivePath.endsWith("zip") && !archivePath.startsWith(ZipConstants.LOCAL_TEMP.toString())
-                            && !archivePath.startsWith(ZipConstants.STORE_TEMP.toString())
+                    if (archivePath.endsWith("zip") && !archivePath.startsWith(LOCAL_TEMP.toString())
+                            && !archivePath.startsWith(ZipConstants.GLOBAL_INTERNAL_CACHE.<Path>getAdditionalConfig(CK_STORE_TEMP).get().toString())
                             && (fxArchiveInfo = optFXArchiveInfo.orElse(null)) != null && !fxArchiveInfo.getArchiveInfo()
                                                                                                         .<Boolean>getProperty(KEY_ENCRYPTION_ENABLE)
                                                                                                         .orElse(false)) {

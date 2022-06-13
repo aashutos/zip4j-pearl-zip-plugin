@@ -40,6 +40,7 @@ import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTI
 import static com.ntak.pearlzip.archive.pub.ArchiveService.DEFAULT_BUS;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.CK_LOCAL_TEMP;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.*;
 import static com.ntak.pearlzip.ui.util.JFXUtil.executeBackgroundProcess;
 
@@ -72,6 +73,9 @@ public class FrmZip4jEncryptController {
 
     @FXML
     public void initialize() {
+        final Path LOCAL_TEMP = ZipConstants.GLOBAL_INTERNAL_CACHE
+                                      .<Path>getAdditionalConfig(CK_LOCAL_TEMP)
+                                      .get();
         // BODY: The archive %s can be encrypted by Zip4J. \nPlease enter a password below to encrypt the archive with:
         lblPasswordDescription.setText(resolveTextKey(BODY_ENCRYPT_PROMPT, fxArchiveInfo.getArchivePath()));
 
@@ -89,7 +93,7 @@ public class FrmZip4jEncryptController {
                 try {
                     // Extract archive
                     long sessionId = System.currentTimeMillis();
-                    Path tempDir = Paths.get(ZipConstants.LOCAL_TEMP.toAbsolutePath()
+                    Path tempDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
                                                                     .toString(),
                                              String.format("pz%d", sessionId));
                     Files.createDirectories(tempDir);
@@ -97,7 +101,7 @@ public class FrmZip4jEncryptController {
 
                     // Backup (Move) unencrypted archive
                     sessionId = System.currentTimeMillis();
-                    Path backupDir = Paths.get(ZipConstants.LOCAL_TEMP.toAbsolutePath()
+                    Path backupDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
                                                                       .toString(),
                                                String.format("pz%d", sessionId));
                     Files.createDirectories(backupDir);
