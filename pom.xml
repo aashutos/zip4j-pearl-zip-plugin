@@ -259,6 +259,10 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <compilerArgs>
+                        <compilerArg>--add-exports</compilerArg>
+                        <compilerArg>com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.constants.internal=pearl.zip.archive.zip4j</compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
@@ -272,6 +276,7 @@
                         <includes>
                             <include>**/*TestSuite.class</include>
                         </includes>
+                        <argLine>--add-opens com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.constants.internal=pearl.zip.archive.zip4j</argLine>
                     </configuration>
                 </plugin>
             </plugins>
