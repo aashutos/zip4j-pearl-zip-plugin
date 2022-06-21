@@ -6,7 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.FileInfo;
-import com.ntak.pearlzip.ui.constants.ZipConstants;
+import com.ntak.pearlzip.ui.constants.internal.InternalContextCache;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.CK_POST_PZAX_COMPLETION_CALLBACK;
 import static net.lingala.zip4j.model.enums.AesKeyStrength.KEY_STRENGTH_256;
 import static net.lingala.zip4j.model.enums.EncryptionMethod.AES;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,7 +47,7 @@ public abstract class Zip4jArchiveReadServiceTestCore {
     @BeforeAll
     public static void setUpOnce() throws IOException {
         tempDirectory = Files.createTempDirectory("pz-text");
-        ZipConstants.POST_PZAX_COMPLETION_CALLBACK = ()->{};
+        InternalContextCache.INTERNAL_CONFIGURATION_CACHE.setAdditionalConfig(CK_POST_PZAX_COMPLETION_CALLBACK, (Runnable)()->{});
     }
 
     @AfterAll

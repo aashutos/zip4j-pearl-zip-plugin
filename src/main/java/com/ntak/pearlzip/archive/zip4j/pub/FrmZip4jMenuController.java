@@ -7,7 +7,6 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.ArchiveService;
 import com.ntak.pearlzip.archive.pub.FileInfo;
-import com.ntak.pearlzip.ui.constants.ResourceConstants;
 import com.ntak.pearlzip.ui.constants.ZipConstants;
 import com.ntak.pearlzip.ui.model.FXArchiveInfo;
 import com.ntak.pearlzip.ui.util.JFXUtil;
@@ -36,7 +35,7 @@ import static com.ntak.pearlzip.archive.constants.ArchiveConstants.CURRENT_SETTI
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.util.LoggingUtil.resolveTextKey;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
-import static com.ntak.pearlzip.ui.constants.ZipConstants.TITLE_TARGET_ARCHIVE_LOCATION;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.*;
 import static com.ntak.pearlzip.ui.util.ArchiveUtil.extractToDirectory;
 
 public class FrmZip4jMenuController {
@@ -50,6 +49,10 @@ public class FrmZip4jMenuController {
 
     @FXML
     public void initialize() {
+        final Path LOCAL_TEMP = ZipConstants.GLOBAL_INTERNAL_CACHE
+                                            .<Path>getAdditionalConfig(CK_LOCAL_TEMP)
+                                            .get();
+
         mnuSplitArchive.setOnAction((e) -> {
             /*
                 1. Check if is a zip archive (and unencrypted?)
@@ -57,23 +60,16 @@ public class FrmZip4jMenuController {
                 3. Prompt for folder location to create archive
                 4. Create split archive
              */
-            if (Objects.nonNull(ResourceConstants.WINDOW_MENU) && ResourceConstants.WINDOW_MENU.getItems().size() > 0) {
-                Optional<MenuItem> optMenuItem =
-                        ResourceConstants.WINDOW_MENU.getItems()
-                                                     .stream()
-                                                     .filter(f -> f.getText()
-                                                                   .contains(ZipConstants.WINDOW_FOCUS_SYMBOL))
-                                                     .findFirst();
+            if (JFXUtil.getWindowsFromMenu().size() > 0) {
+                Optional<String> optMenuItem = JFXUtil.getActiveWindowFromMenu();
                 if (optMenuItem.isPresent()) {
-                    String archivePath = optMenuItem.get()
-                                                    .getText()
-                                                    .replace(ZipConstants.WINDOW_FOCUS_SYMBOL, "");
+                    String archivePath = optMenuItem.get();
                     Zip4jArchiveWriteService writeService = new Zip4jArchiveWriteService();
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
                     FXArchiveInfo fxArchiveInfo;
-                    if (archivePath.endsWith("zip") && !archivePath.startsWith(ZipConstants.LOCAL_TEMP.toString())
-                            && !archivePath.startsWith(ZipConstants.STORE_TEMP.toString())
+                    if (archivePath.endsWith("zip") && !archivePath.startsWith(LOCAL_TEMP.toString())
+                            && !archivePath.startsWith(ZipConstants.GLOBAL_INTERNAL_CACHE.<Path>getAdditionalConfig(CK_STORE_TEMP).get().toString())
                             && (fxArchiveInfo = optFXArchiveInfo.orElse(null)) != null && !fxArchiveInfo.getArchiveInfo()
                                                                                                         .<Boolean>getProperty(
                                                                                                                 KEY_ENCRYPTION_ENABLE)
@@ -107,7 +103,7 @@ public class FrmZip4jMenuController {
 
                             // Extract archive
                             long backupSessionId = System.currentTimeMillis();
-                            Path tempDir = Paths.get(ZipConstants.LOCAL_TEMP.toAbsolutePath()
+                            Path tempDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
                                                                             .toString(),
                                                      String.format("pz%d", backupSessionId),
                                                      Paths.get(archivePath)
@@ -203,17 +199,17 @@ public class FrmZip4jMenuController {
         });
 
         mnuEncrypt.setOnAction((e) -> {
-            if (Objects.nonNull(ResourceConstants.WINDOW_MENU) && ResourceConstants.WINDOW_MENU.getItems().size() > 0) {
-                Optional<MenuItem> optMenuItem =
-                        ResourceConstants.WINDOW_MENU.getItems().stream().filter(f->f.getText().contains(ZipConstants.WINDOW_FOCUS_SYMBOL)).findFirst();
+            if (JFXUtil.getWindowsFromMenu().size() > 0) {
+                Optional<String> optMenuItem =
+                        JFXUtil.getActiveWindowFromMenu();
                 if (optMenuItem.isPresent()) {
-                    String archivePath = optMenuItem.get().getText().replace(ZipConstants.WINDOW_FOCUS_SYMBOL, "");
+                    String archivePath = optMenuItem.get();
                     Zip4jArchiveWriteService writeService = new Zip4jArchiveWriteService();
                     Optional<FXArchiveInfo> optFXArchiveInfo = JFXUtil.lookupArchiveInfo(archivePath);
 
                     FXArchiveInfo fxArchiveInfo;
-                    if (archivePath.endsWith("zip") && !archivePath.startsWith(ZipConstants.LOCAL_TEMP.toString())
-                            && !archivePath.startsWith(ZipConstants.STORE_TEMP.toString())
+                    if (archivePath.endsWith("zip") && !archivePath.startsWith(LOCAL_TEMP.toString())
+                            && !archivePath.startsWith(ZipConstants.GLOBAL_INTERNAL_CACHE.<Path>getAdditionalConfig(CK_STORE_TEMP).get().toString())
                             && (fxArchiveInfo = optFXArchiveInfo.orElse(null)) != null && !fxArchiveInfo.getArchiveInfo()
                                                                                                         .<Boolean>getProperty(KEY_ENCRYPTION_ENABLE)
                                                                                                         .orElse(false)) {

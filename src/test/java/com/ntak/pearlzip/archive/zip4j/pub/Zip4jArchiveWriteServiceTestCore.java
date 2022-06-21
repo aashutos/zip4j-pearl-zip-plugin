@@ -6,7 +6,7 @@ package com.ntak.pearlzip.archive.zip4j.pub;
 
 import com.ntak.pearlzip.archive.pub.ArchiveInfo;
 import com.ntak.pearlzip.archive.pub.FileInfo;
-import com.ntak.pearlzip.ui.constants.ZipConstants;
+import com.ntak.pearlzip.ui.constants.internal.InternalContextCache;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -15,11 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static com.ntak.pearlzip.archive.constants.ConfigurationConstants.KEY_FILE_PATH;
 import static com.ntak.pearlzip.archive.zip4j.constants.Zip4jConstants.*;
+import static com.ntak.pearlzip.ui.constants.ZipConstants.CK_POST_PZAX_COMPLETION_CALLBACK;
 import static net.lingala.zip4j.model.enums.AesKeyStrength.KEY_STRENGTH_256;
 import static net.lingala.zip4j.model.enums.EncryptionMethod.AES;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -37,7 +37,7 @@ public abstract class Zip4jArchiveWriteServiceTestCore {
     @BeforeAll
     public static void setUpOnce() throws IOException {
         tempDirectory = Files.createTempDirectory("pz-text");
-        ZipConstants.POST_PZAX_COMPLETION_CALLBACK = ()->{};
+        InternalContextCache.INTERNAL_CONFIGURATION_CACHE.setAdditionalConfig(CK_POST_PZAX_COMPLETION_CALLBACK, (Runnable)()->{});
         file = Paths.get(tempDirectory.toAbsolutePath().toString(), "tempFile.txt");
         fileInfo = new FileInfo(0, 0, "tempFile.txt", 0L, 0L, 0L,
                                 LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(),

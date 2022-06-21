@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ntak</groupId>
-    <version>0.0.4.1</version>
+    <version>0.0.5.0</version>
     <artifactId>pearl-zip-archive-zip4j</artifactId>
     <packaging>jar</packaging>
 
@@ -18,7 +18,7 @@
         <junit.version>5.5.2</junit.version>
         <junit-platform-runner.version>1.5.2</junit-platform-runner.version>
         <mockito-core.version>3.9.0</mockito-core.version>
-        <pearl-zip.version>0.0.4.0</pearl-zip.version>
+        <pearl-zip.version>0.0.5.0</pearl-zip.version>
         <zip4j.version>2.10.0</zip4j.version>
         <javafx.version>17.0.1</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -179,6 +179,43 @@
             </build>
         </profile>
         <profile>
+            <id>build-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/create-deploy-package.sh</executable>
+                            <arguments>
+                                <argument>${project.version}</argument>
+                                <argument>${pearl-zip.version}</argument>
+                                <argument>${jdk.location}</argument>
+                                <argument>${deploy.settings.loc}</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <environmentVariables>
+                                <JAVA_HOME>${jdk.location}</JAVA_HOME>
+                            </environmentVariables>
+                            <async>false</async>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
                 <id>increment-version</id>
                 <build>
                     <plugins>
@@ -222,6 +259,10 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <compilerArgs>
+                        <compilerArg>--add-exports</compilerArg>
+                        <compilerArg>com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.constants.internal=pearl.zip.archive.zip4j</compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
@@ -235,6 +276,7 @@
                         <includes>
                             <include>**/*TestSuite.class</include>
                         </includes>
+                        <argLine>--add-opens com.ntak.pearlzip.ui/com.ntak.pearlzip.ui.constants.internal=pearl.zip.archive.zip4j</argLine>
                     </configuration>
                 </plugin>
             </plugins>
