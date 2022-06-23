@@ -94,75 +94,77 @@ public class FrmZip4jMenuController {
                             DirectoryChooser dirChooser = new DirectoryChooser();
                             dirChooser.setTitle(resolveTextKey(TITLE_TARGET_ARCHIVE_LOCATION));
                             File dir = dirChooser.showDialog(new Stage());
-                            final String newArchivePath = Paths.get(dir.getAbsolutePath(),
-                                                                    Paths.get(oneFileArchiveInfo.getArchivePath())
-                                                                         .getFileName()
-                                                                         .toString())
-                                                               .toString();
-                            archiveInfo.setArchivePath(newArchivePath);
+                            if (Objects.nonNull(dir)) {
+                                final String newArchivePath = Paths.get(dir.getAbsolutePath(),
+                                                                        Paths.get(oneFileArchiveInfo.getArchivePath())
+                                                                             .getFileName()
+                                                                             .toString())
+                                                                   .toString();
+                                archiveInfo.setArchivePath(newArchivePath);
 
-                            // Extract archive
-                            long backupSessionId = System.currentTimeMillis();
-                            Path tempDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
-                                                                            .toString(),
-                                                     String.format("pz%d", backupSessionId),
-                                                     Paths.get(archivePath)
-                                                          .getFileName()
-                                                          .toString());
-                            Files.createDirectories(tempDir);
-                            CountDownLatch latch = new CountDownLatch(1);
-                            final Stage stage = (Stage) fxArchiveInfo.getController()
-                                                                     .get()
-                                                                     .getFileContentsView()
-                                                                     .getScene()
-                                                                     .getWindow();
-                            JFXUtil.executeBackgroundProcess(backupSessionId,
-                                                             stage,
-                                                             () -> {
-                                                                 try {
-                                                                     extractToDirectory(backupSessionId,
-                                                                                        fxArchiveInfo,
-                                                                                        tempDir.toFile());
-                                                                 } finally {
-                                                                     latch.countDown();
-                                                                 }
-                                                             },
-                                                             (s) -> {});
-                            latch.await();
+                                // Extract archive
+                                long backupSessionId = System.currentTimeMillis();
+                                Path tempDir = Paths.get(LOCAL_TEMP.toAbsolutePath()
+                                                                   .toString(),
+                                                         String.format("pz%d", backupSessionId),
+                                                         Paths.get(archivePath)
+                                                              .getFileName()
+                                                              .toString());
+                                Files.createDirectories(tempDir);
+                                CountDownLatch latch = new CountDownLatch(1);
+                                final Stage stage = (Stage) fxArchiveInfo.getController()
+                                                                         .get()
+                                                                         .getFileContentsView()
+                                                                         .getScene()
+                                                                         .getWindow();
+                                JFXUtil.executeBackgroundProcess(backupSessionId,
+                                                                 stage,
+                                                                 () -> {
+                                                                     try {
+                                                                         extractToDirectory(backupSessionId,
+                                                                                            fxArchiveInfo,
+                                                                                            tempDir.toFile());
+                                                                     } finally {
+                                                                         latch.countDown();
+                                                                     }
+                                                                 },
+                                                                 (s) -> {});
+                                latch.await();
 
-                            // Create FileInfo for extracted files...
-                            FileInfo[] files = new FileInfo[]{new FileInfo(0,
-                                                                           0,
-                                                                           tempDir.getFileName()
-                                                                                  .toString(),
-                                                                           0,
-                                                                           0,
-                                                                           0
-                                    ,
-                                                                           LocalDateTime.now(),
-                                                                           LocalDateTime.now(),
-                                                                           LocalDateTime.now(),
-                                                                           null,
-                                                                           null,
-                                                                           0,
-                                                                           ""
-                                    ,
-                                                                           true,
-                                                                           false,
-                                                                           Collections.singletonMap(KEY_FILE_PATH,
-                                                                                                    tempDir.toAbsolutePath()
-                                                                                                           .toString()))
-                            };
+                                // Create FileInfo for extracted files...
+                                FileInfo[] files = new FileInfo[]{new FileInfo(0,
+                                                                               0,
+                                                                               tempDir.getFileName()
+                                                                                      .toString(),
+                                                                               0,
+                                                                               0,
+                                                                               0
+                                        ,
+                                                                               LocalDateTime.now(),
+                                                                               LocalDateTime.now(),
+                                                                               LocalDateTime.now(),
+                                                                               null,
+                                                                               null,
+                                                                               0,
+                                                                               ""
+                                        ,
+                                                                               true,
+                                                                               false,
+                                                                               Collections.singletonMap(KEY_FILE_PATH,
+                                                                                                        tempDir.toAbsolutePath()
+                                                                                                               .toString()))
+                                };
 
-                            // Create Split archive
-                            long splitSessionId = System.currentTimeMillis();
-                            JFXUtil.executeBackgroundProcess(splitSessionId,
-                                                             stage,
-                                                             () -> writeService.createArchive(splitSessionId,
-                                                                                              archiveInfo,
-                                                                                              files),
-                                                             (s) -> {}
-                            );
+                                // Create Split archive
+                                long splitSessionId = System.currentTimeMillis();
+                                JFXUtil.executeBackgroundProcess(splitSessionId,
+                                                                 stage,
+                                                                 () -> writeService.createArchive(splitSessionId,
+                                                                                                  archiveInfo,
+                                                                                                  files),
+                                                                 (s) -> {}
+                                );
+                            }
                         } catch(Exception exc) {
                             // LOG: Archive %s could not be split. Exception message: %s.
                             // TITLE: ERROR: Issue splitting archive
