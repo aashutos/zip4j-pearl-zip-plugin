@@ -4,10 +4,13 @@
 
 package com.ntak.pearlzip.archive.zip4j.constants;
 
+import com.ntak.pearlzip.archive.pub.ArchiveServiceProfile;
+import com.ntak.pearlzip.archive.pub.profile.component.GeneralComponent;
+import com.ntak.pearlzip.archive.pub.profile.component.ReadServiceComponent;
+import com.ntak.pearlzip.archive.pub.profile.component.WriteServiceComponent;
 import com.ntak.pearlzip.archive.zip4j.pub.Zip4jPasswordValidator;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -113,6 +116,13 @@ public class Zip4jConstants {
     public static final String[] ENCRYPTION_ALGORITHM = {"AES"};
     public static final String[] ENCRYPTION_STRENGTH = {"128-bit","256-bit"};
 
+    public static final ArchiveServiceProfile PROFILE = new ArchiveServiceProfile("pearl-zip-archive-zip4j");
+
+    static {
+        PROFILE.addComponent(new GeneralComponent(Collections.emptySet(), Collections.emptySet(), RES_BUNDLE));
+        PROFILE.addComponent(new WriteServiceComponent(Set.of("zip"), Collections.emptyMap()));
+        PROFILE.addComponent(new ReadServiceComponent(Set.of("zip"), Collections.emptyMap()));
+    }
 
     public static final Zip4jPasswordValidator ZIP_4J_VALIDATOR = new Zip4jPasswordValidator();
 }

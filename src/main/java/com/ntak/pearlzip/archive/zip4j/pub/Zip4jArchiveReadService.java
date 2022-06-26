@@ -118,7 +118,11 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
 
             // Handle directory creation
             HashSet<FileInfo> setFiles =
-                    new HashSet<>(files.stream().filter(f -> !f.isFolder() || (f.isFolder() && files.stream().noneMatch(g -> g.getFileName().contains(f.getFileName()) && g.getLevel() > f.getLevel()))).collect(Collectors.toList()));
+                    files.stream()
+                         .filter(f -> !f.isFolder() || (f.isFolder() && files.stream()
+                                                                             .noneMatch(g -> g.getFileName()
+                                                                                              .contains(f.getFileName()) && g.getLevel() > f.getLevel())))
+                         .collect(Collectors.toCollection(HashSet::new));
             for (FileInfo file : files) {
                 final int level = file.getLevel();
                 Path parent = Paths.get(file.getFileName());
@@ -252,10 +256,9 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
             ArchiveService.DEFAULT_BUS.post(new ProgressMessage(sessionId, COMPLETED, COMPLETED, 1, 1));
         }
 
-}
+    }
 
-    @Override
-    public Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) {
+    private Optional<Node> getOpenArchiveOptionsPane(ArchiveInfo archiveInfo) {
         AnchorPane root;
         try {
             if (archiveInfo.<Boolean>getProperty(KEY_ENCRYPTION_ENABLE)
@@ -278,6 +281,11 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
     }
 
     @Override
+    public ArchiveServiceProfile getArchiveServiceProfile() {
+        return PROFILE;
+    }
+
+    @Override
     public Optional<FXForm> getFXFormByIdentifier(String name, Object... parameters) {
         switch(name) {
             case OPEN_ARCHIVE_OPTIONS: {
@@ -293,10 +301,5 @@ public class Zip4jArchiveReadService implements ArchiveReadService  {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public List<String> supportedReadFormats() {
-        return List.of("zip");
     }
 }
