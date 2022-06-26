@@ -303,12 +303,11 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
     }
 
     @Override
-    public Optional<ResourceBundle> getResourceBundle() {
-        return Optional.of(RES_BUNDLE);
+    public ArchiveServiceProfile getArchiveServiceProfile() {
+        return PROFILE;
     }
 
-    @Override
-    public Optional<Pair<String,Node>> getCreateArchiveOptionsPane() {
+    private Optional<Pair<String,Node>> getCreateArchiveOptionsPane() {
         AnchorPane root;
         final String title_zip4j_options = "Zip4j Options";
         try {
@@ -324,8 +323,7 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
         return Optional.of(new Pair(title_zip4j_options, root));
     }
 
-    @Override
-    public Optional<Pair<String, Node>> getOptionsPane() {
+    private Optional<Pair<String, Node>> getOptionsPane() {
         AnchorPane root;
         final String title_zip4j_options = "Zip4j Options";
         try {
@@ -397,11 +395,6 @@ public class Zip4jArchiveWriteService implements ArchiveWriteService {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public List<String> supportedWriteFormats() {
-        return List.of("zip");
     }
 
     private MenuBar getCustomMenu() {
